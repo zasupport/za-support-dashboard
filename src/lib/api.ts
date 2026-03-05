@@ -130,6 +130,16 @@ export async function fetchSnapshot(snapshotId: string) {
   } catch { return null; }
 }
 
+export async function fetchClientISPMap(): Promise<{ client_id: string; first_name: string; last_name: string; isp: string | null }[]> {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/clients/isp-map`, {
+      headers: headers(), signal: withTimeout(TIMEOUT_MS), next: { revalidate: 300 },
+    });
+    if (!res.ok) return [];
+    return res.json();
+  } catch { return []; }
+}
+
 export async function fetchOpenWorkshopJobs() {
   try {
     const params = new URLSearchParams({ per_page: '100' });

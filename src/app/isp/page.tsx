@@ -1,44 +1,148 @@
-import { fetchISPStatus } from '@/lib/api';
+import Link from 'next/link';
+import { fetchISPStatus, fetchClientISPMap } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { AutoRefresh } from '@/components/auto-refresh';
+import { Wifi, WifiOff, AlertTriangle } from 'lucide-react';
+
+function statusVariant(status: string): 'default' | 'destructive' | 'secondary' {
+  if (status === 'operational') return 'default';
+  if (status === 'outage') return 'destructive';
+  return 'secondary';
+}
+
+function statusIcon(status: string) {
+  if (status === 'operational') return <Wifi size={13} className="text-green-400" />;
+  if (status === 'outage') return <WifiOff size={13} className="text-red-400" />;
+  return <AlertTriangle size={13} className="text-yellow-400" />;
+}
 
 export default async function ISPPage() {
-  const ispList = await fetchISPStatus();
-  const list = Array.isArray(ispList) ? ispList : [];
+  const [ispList, clientISPs] = await Promise.all([
+    fetchISPStatus(),
+    fetchClientISPMap(),
+  ]);
+
+  const list: any[] = Array.isArray(ispList) ? ispList : [];
+
+  // Build ISP name → [client] lookup (case-insensitive partial match)
+  const impactMap: Record<string, { client_id: string; name: string }[]> = {};
+  for (const isp of list) {
+    const ispName: string = (isp.isp_name || isp.name || '').toLowerCase();
+    impactMap[ispName] = clientISPs
+      .filter(c => {
+        const clientISP = (c.isp || '').toLowerCase();
+        return clientISP && (clientISP.includes(ispName) || ispName.includes(clientISP));
+      })
+      .map(c => ({ client_id: c.client_id, name: `${c.first_name} ${c.last_name}` }));
+  }
 
   const operational = list.filter((i: any) => i.status === 'operational').length;
-  const issues = list.filter((i: any) => i.status !== 'operational').length;
+  const degraded    = list.filter((i: any) => i.status === 'degraded').length;
+  const outage      = list.filter((i: any) => i.status === 'outage').length;
+
+  // Clients on ISPs with issues
+  const affectedClients = new Set<string>();
+  for (const isp of list) {
+    if (isp.status !== 'operational') {
+      const key = (isp.isp_name || isp.name || '').toLowerCase();
+      (impactMap[key] || []).forEach(c => affectedClients.add(c.name));
+    }
+  }
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-white mb-6">ISP Status</h1>
-      <div className="flex gap-6 mb-6">
-        <span className="text-sm text-green-400">{operational} operational</span>
-        <span className="text-sm text-red-400">{issues} with issues</span>
+    <div className="space-y-6">
+      <AutoRefresh intervalMs={60000} />
+
+      <div>
+        <h1 className="text-2xl font-bold text-white">ISP Status</h1>
+        <p className="text-slate-400 text-sm mt-0.5">
+          {list.length} SA ISPs monitored ·
+          <span className="text-green-400"> {operational} operational</span>
+          {degraded > 0 && <span className="text-yellow-400"> · {degraded} degraded</span>}
+          {outage > 0 && <span className="text-red-400"> · {outage} outage</span>}
+        </p>
       </div>
+
+      {/* Affected clients banner */}
+      {affectedClients.size > 0 && (
+        <div className="rounded-md border border-red-500/40 bg-red-500/10 px-4 py-3 text-red-300 text-sm">
+          <span className="font-semibold">Client impact detected — </span>
+          {[...affectedClients].join(', ')} may be experiencing connectivity issues.
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {list.map((isp: any, i: number) => (
-          <Card key={i} className="bg-slate-800 border-slate-700">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm text-white">{isp.isp_name || isp.name}</CardTitle>
-                <Badge variant={isp.status === 'operational' ? 'default' : 'destructive'}>
-                  {isp.status || 'unknown'}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-slate-400">
-                Last checked: {isp.last_checked ? new Date(isp.last_checked).toLocaleString('en-ZA') : '—'}
-              </p>
-              {isp.latency_ms && (
-                <p className="text-xs text-slate-400">Latency: {isp.latency_ms}ms</p>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+        {list.map((isp: any, i: number) => {
+          const ispKey = (isp.isp_name || isp.name || '').toLowerCase();
+          const affected = impactMap[ispKey] || [];
+          const hasIssue = isp.status !== 'operational';
+
+          return (
+            <Card
+              key={i}
+              className={`bg-slate-800 border-slate-700 ${hasIssue ? 'border-red-500/40' : ''}`}
+            >
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {statusIcon(isp.status)}
+                    <CardTitle className="text-sm text-white">{isp.isp_name || isp.name}</CardTitle>
+                  </div>
+                  <Badge variant={statusVariant(isp.status)}>
+                    {isp.status || 'unknown'}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div className="flex gap-4 text-xs text-slate-400">
+                  {isp.latency_ms != null && (
+                    <span>Latency: <span className={isp.latency_ms > 200 ? 'text-yellow-400' : 'text-slate-300'}>{isp.latency_ms}ms</span></span>
+                  )}
+                  {isp.packet_loss != null && (
+                    <span>Loss: <span className={isp.packet_loss > 5 ? 'text-red-400' : 'text-slate-300'}>{isp.packet_loss}%</span></span>
+                  )}
+                </div>
+                <p className="text-xs text-slate-500">
+                  Checked: {isp.last_checked ? new Date(isp.last_checked).toLocaleString('en-ZA') : '—'}
+                </p>
+
+                {/* Client impact */}
+                {affected.length > 0 && (
+                  <div className={`mt-2 pt-2 border-t ${hasIssue ? 'border-red-500/30' : 'border-slate-700/40'}`}>
+                    <p className={`text-xs font-medium mb-1 ${hasIssue ? 'text-red-300' : 'text-slate-400'}`}>
+                      {hasIssue ? 'Affected clients' : 'Clients on this ISP'}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {affected.map(c => (
+                        <Link
+                          key={c.client_id}
+                          href={`/clients/${c.client_id}`}
+                          className={`text-xs px-2 py-0.5 rounded border transition-colors ${
+                            hasIssue
+                              ? 'bg-red-500/10 text-red-300 border-red-500/30 hover:bg-red-500/20'
+                              : 'bg-slate-700/60 text-slate-300 border-slate-600 hover:text-white'
+                          }`}
+                        >
+                          {c.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Outage details */}
+                {hasIssue && isp.outage_since && (
+                  <p className="text-xs text-red-400">
+                    Since: {new Date(isp.outage_since).toLocaleString('en-ZA')}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
         {list.length === 0 && (
-          <p className="text-slate-400 text-sm col-span-3">No ISP data available</p>
+          <p className="text-slate-400 text-sm col-span-3">No ISP data available.</p>
         )}
       </div>
     </div>
