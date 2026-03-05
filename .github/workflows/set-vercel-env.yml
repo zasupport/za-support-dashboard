@@ -1,0 +1,52 @@
+name: Set Vercel Env Vars
+
+on:
+  workflow_dispatch:
+
+jobs:
+  set-env:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set ZA_API_URL on Vercel project
+        run: |
+          curl -s -X POST "https://api.vercel.com/v10/projects/${{ secrets.VERCEL_PROJECT_ID }}/env" \
+            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "key": "ZA_API_URL",
+              "value": "https://api.zasupport.com",
+              "type": "plain",
+              "target": ["production", "preview", "development"]
+            }' | python3 -c "import sys,json; d=json.load(sys.stdin); print('ZA_API_URL:', d.get('key','error'), d.get('error','ok'))"
+
+      - name: Set ZA_API_TOKEN on Vercel project
+        run: |
+          curl -s -X POST "https://api.vercel.com/v10/projects/${{ secrets.VERCEL_PROJECT_ID }}/env" \
+            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"key\": \"ZA_API_TOKEN\",
+              \"value\": \"${{ secrets.ZA_API_TOKEN }}\",
+              \"type\": \"secret\",
+              \"target\": [\"production\", \"preview\", \"development\"]
+            }" | python3 -c "import sys,json; d=json.load(sys.stdin); print('ZA_API_TOKEN:', d.get('key','error'), d.get('error','ok'))"
+
+      - name: Set DASHBOARD_PASSWORD on Vercel project
+        run: |
+          curl -s -X POST "https://api.vercel.com/v10/projects/${{ secrets.VERCEL_PROJECT_ID }}/env" \
+            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"key\": \"DASHBOARD_PASSWORD\",
+              \"value\": \"${{ secrets.DASHBOARD_PASSWORD }}\",
+              \"type\": \"secret\",
+              \"target\": [\"production\", \"preview\", \"development\"]
+            }" | python3 -c "import sys,json; d=json.load(sys.stdin); print('DASHBOARD_PASSWORD:', d.get('key','error'), d.get('error','ok'))"
+
+      - name: Trigger production redeploy
+        run: |
+          # Get latest deployment ID and redeploy it
+          DEPLOY_ID=$(curl -s "https://api.vercel.com/v6/deployments?projectId=${{ secrets.VERCEL_PROJECT_ID }}&limit=1&target=production" \
+            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" | \
+            python3 -c "import sys,json; d=json.load(sys.stdin); print(d['deployments'][0]['uid'])" 2>/dev/null)
+          echo "Latest deploy: $DEPLOY_ID"
