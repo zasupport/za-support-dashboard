@@ -6,47 +6,37 @@ on:
 jobs:
   set-env:
     runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
     steps:
-      - name: Set ZA_API_URL on Vercel project
-        run: |
-          curl -s -X POST "https://api.vercel.com/v10/projects/${{ secrets.VERCEL_PROJECT_ID }}/env" \
-            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "key": "ZA_API_URL",
-              "value": "https://api.zasupport.com",
-              "type": "plain",
-              "target": ["production", "preview", "development"]
-            }' | python3 -c "import sys,json; d=json.load(sys.stdin); print('ZA_API_URL:', d.get('key','error'), d.get('error','ok'))"
+      - uses: actions/checkout@v4
 
-      - name: Set ZA_API_TOKEN on Vercel project
-        run: |
-          curl -s -X POST "https://api.vercel.com/v10/projects/${{ secrets.VERCEL_PROJECT_ID }}/env" \
-            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"key\": \"ZA_API_TOKEN\",
-              \"value\": \"${{ secrets.ZA_API_TOKEN }}\",
-              \"type\": \"secret\",
-              \"target\": [\"production\", \"preview\", \"development\"]
-            }" | python3 -c "import sys,json; d=json.load(sys.stdin); print('ZA_API_TOKEN:', d.get('key','error'), d.get('error','ok'))"
+      - name: Install Vercel CLI
+        run: npm install -g vercel
 
-      - name: Set DASHBOARD_PASSWORD on Vercel project
+      - name: Set env vars via Vercel CLI
         run: |
-          curl -s -X POST "https://api.vercel.com/v10/projects/${{ secrets.VERCEL_PROJECT_ID }}/env" \
-            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"key\": \"DASHBOARD_PASSWORD\",
-              \"value\": \"${{ secrets.DASHBOARD_PASSWORD }}\",
-              \"type\": \"secret\",
-              \"target\": [\"production\", \"preview\", \"development\"]
-            }" | python3 -c "import sys,json; d=json.load(sys.stdin); print('DASHBOARD_PASSWORD:', d.get('key','error'), d.get('error','ok'))"
+          # Remove existing env vars (ignore errors if they don't exist)
+          echo "Removing existing env vars..."
+          vercel env rm ZA_API_URL production --yes --token=$VERCEL_TOKEN 2>/dev/null || true
+          vercel env rm ZA_API_TOKEN production --yes --token=$VERCEL_TOKEN 2>/dev/null || true
+          vercel env rm DASHBOARD_PASSWORD production --yes --token=$VERCEL_TOKEN 2>/dev/null || true
 
-      - name: Trigger production redeploy
+          # Add new env vars
+          echo "Setting ZA_API_URL..."
+          echo "https://api.zasupport.com" | vercel env add ZA_API_URL production --token=$VERCEL_TOKEN
+
+          echo "Setting ZA_API_TOKEN..."
+          echo "${{ secrets.ZA_API_TOKEN }}" | vercel env add ZA_API_TOKEN production --token=$VERCEL_TOKEN
+
+          echo "Setting DASHBOARD_PASSWORD..."
+          echo "${{ secrets.DASHBOARD_PASSWORD }}" | vercel env add DASHBOARD_PASSWORD production --token=$VERCEL_TOKEN
+
+          echo "All env vars set."
+
+      - name: Trigger fresh production deploy
         run: |
-          # Get latest deployment ID and redeploy it
-          DEPLOY_ID=$(curl -s "https://api.vercel.com/v6/deployments?projectId=${{ secrets.VERCEL_PROJECT_ID }}&limit=1&target=production" \
-            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" | \
-            python3 -c "import sys,json; d=json.load(sys.stdin); print(d['deployments'][0]['uid'])" 2>/dev/null)
-          echo "Latest deploy: $DEPLOY_ID"
+          vercel deploy --prod --token=$VERCEL_TOKEN --yes
+          echo "Deploy triggered."
