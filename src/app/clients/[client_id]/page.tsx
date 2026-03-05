@@ -32,6 +32,7 @@ export default async function ClientDetailPage({ params }: { params: { client_id
       <div className="flex items-start justify-between">
         <div>
           <Link href="/clients" className="text-slate-400 text-xs hover:text-white mb-1 block">← All Clients</Link>
+          <Link href={`/clients/${client.client_id}/brief`} className="text-teal-400 text-xs hover:text-teal-300 mb-1 block">Site Visit Brief →</Link>
           <h1 className="text-2xl font-bold text-white">{client.first_name} {client.last_name}</h1>
           <p className="text-slate-400 text-sm font-mono mt-0.5">{client.client_id}</p>
         </div>
