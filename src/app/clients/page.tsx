@@ -1,10 +1,21 @@
+import Link from 'next/link';
 import { ClientsClient } from './client';
 
 export default function ClientsPage() {
   return (
     <div>
-      <h1 className="text-2xl font-bold text-white mb-2">Clients</h1>
-      <p className="text-slate-400 text-sm mb-6">Client registry · intake records · POPIA consent · onboarding status</p>
+      <div className="flex items-start justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-white mb-1">Clients</h1>
+          <p className="text-slate-400 text-sm">Client registry · intake records · POPIA consent · onboarding status</p>
+        </div>
+        <Link
+          href="/clients/new"
+          className="flex items-center gap-1.5 text-sm px-4 py-2 rounded-md bg-teal-700 hover:bg-teal-600 text-white font-medium transition-colors"
+        >
+          + New Client
+        </Link>
+      </div>
       <ClientsClient />
     </div>
   );

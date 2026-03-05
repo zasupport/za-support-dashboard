@@ -15,6 +15,7 @@ export function WorkshopNewJob({ clients }: { clients: Client[] }) {
     priority: 'normal',
     description: '',
     serial: '',
+    scheduled_date: '',
   });
 
   function set(key: string, val: string) {
@@ -30,17 +31,18 @@ export function WorkshopNewJob({ clients }: { clients: Client[] }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          client_id:   form.client_id,
-          title:       form.title,
-          priority:    form.priority,
-          description: form.description || undefined,
-          serial:      form.serial || undefined,
-          line_items:  [],
+          client_id:      form.client_id,
+          title:          form.title,
+          priority:       form.priority,
+          description:    form.description || undefined,
+          serial:         form.serial || undefined,
+          scheduled_date: form.scheduled_date || undefined,
+          line_items:     [],
         }),
       });
       if (res.ok) {
         setOpen(false);
-        setForm({ client_id: '', title: '', priority: 'normal', description: '', serial: '' });
+        setForm({ client_id: '', title: '', priority: 'normal', description: '', serial: '', scheduled_date: '' });
         router.refresh();
       }
     } finally {
@@ -121,6 +123,16 @@ export function WorkshopNewJob({ clients }: { clients: Client[] }) {
                 onChange={e => set('serial', e.target.value)}
                 placeholder="C02ABC123DEF"
                 className="w-full bg-slate-700 text-slate-100 text-sm rounded px-2.5 py-1.5 border border-slate-600 focus:outline-none focus:border-teal-400 placeholder-slate-500 font-mono"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs text-slate-400 block mb-1">Scheduled visit date</label>
+              <input
+                type="date"
+                value={form.scheduled_date}
+                onChange={e => set('scheduled_date', e.target.value)}
+                className="w-full bg-slate-700 text-slate-100 text-sm rounded px-2.5 py-1.5 border border-slate-600 focus:outline-none focus:border-teal-400"
               />
             </div>
 

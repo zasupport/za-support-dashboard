@@ -68,7 +68,7 @@ export default async function JobDetailPage({ params }: { params: { job_ref: str
       </div>
 
       {/* Actions */}
-      <JobActions jobRef={job.job_ref} currentStatus={job.status} />
+      <JobActions jobRef={job.job_ref} currentStatus={job.status} scheduledDate={job.scheduled_date} />
 
       {/* Job details */}
       <Card className="bg-slate-800 border-slate-700">
