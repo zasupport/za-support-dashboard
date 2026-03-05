@@ -6,7 +6,7 @@ import { Nav } from '@/components/nav';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'ZA Support — CyberPulse Dashboard',
+  title: 'ZA Support — Health Check AI Dashboard',
   description: 'ZA Support Health Check AI Dashboard',
 };
 

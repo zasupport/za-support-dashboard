@@ -23,7 +23,7 @@ export function Nav() {
     <aside className="w-56 min-h-screen bg-slate-900 text-slate-100 flex flex-col">
       <div className="px-6 py-5 border-b border-slate-700">
         <span className="font-bold text-white tracking-wide text-sm">ZA Support</span>
-        <p className="text-slate-400 text-xs mt-0.5">CyberPulse Dashboard</p>
+        <p className="text-slate-400 text-xs mt-0.5">Health Check AI</p>
       </div>
       <nav className="flex-1 px-3 py-4 space-y-1">
         {links.map(({ href, label, icon: Icon }) => (
