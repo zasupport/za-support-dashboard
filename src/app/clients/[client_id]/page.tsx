@@ -1,14 +1,8 @@
 import { fetchClient, fetchClientTasks, fetchClientCheckins } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { TaskChecklist } from './TaskChecklist';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-
-const taskStatusColour: Record<string, string> = {
-  pending:     'bg-slate-600/40 text-slate-400',
-  in_progress: 'bg-yellow-500/20 text-yellow-300',
-  completed:   'bg-green-500/20 text-green-300',
-  skipped:     'bg-slate-500/20 text-slate-500 line-through',
-};
 
 function Row({ label, value }: { label: string; value?: string | boolean | null }) {
   if (!value && value !== false) return null;
@@ -30,9 +24,7 @@ export default async function ClientDetailPage({ params }: { params: { client_id
 
   if (!client) notFound();
 
-  const isUrgent   = client.urgency_level?.toLowerCase().startsWith('urgent');
-  const completedN = (tasks as any[]).filter(t => t.status === 'completed').length;
-  const totalN     = (tasks as any[]).length;
+  const isUrgent = client.urgency_level?.toLowerCase().startsWith('urgent');
 
   return (
     <div className="space-y-6">
@@ -121,44 +113,8 @@ export default async function ClientDetailPage({ params }: { params: { client_id
         </Card>
       )}
 
-      {/* Onboarding tasks */}
-      <Card className="bg-slate-800 border-slate-700">
-        <CardHeader>
-          <CardTitle className="text-white text-sm flex items-center justify-between">
-            Onboarding Checklist
-            <span className="text-slate-400 font-normal text-xs">{completedN}/{totalN} done</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {/* Progress bar */}
-          <div className="w-full bg-slate-700 rounded-full h-1.5 mb-4">
-            <div
-              className="bg-green-500 h-1.5 rounded-full transition-all"
-              style={{ width: totalN ? `${(completedN / totalN) * 100}%` : '0%' }}
-            />
-          </div>
-          <div className="space-y-2">
-            {(tasks as any[]).map((task: any) => (
-              <div key={task.id} className="flex items-start gap-3 py-2 border-b border-slate-700/40 last:border-0">
-                <span className={`text-xs px-2 py-0.5 rounded font-medium shrink-0 mt-0.5 ${taskStatusColour[task.status] ?? taskStatusColour.pending}`}>
-                  {task.status}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <p className={`text-xs ${task.status === 'completed' ? 'text-slate-500 line-through' : 'text-slate-200'}`}>
-                    {task.task}
-                  </p>
-                  {task.notes && <p className="text-slate-500 text-xs mt-0.5 italic">{task.notes}</p>}
-                </div>
-                {task.completed_at && (
-                  <span className="text-slate-600 text-xs shrink-0">
-                    {new Date(task.completed_at).toLocaleDateString('en-ZA')}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Onboarding tasks — interactive checklist */}
+      <TaskChecklist initialTasks={tasks as any[]} clientId={client.client_id} />
 
       {/* Pre-visit check-ins */}
       {(checkins as any[]).length > 0 && (
