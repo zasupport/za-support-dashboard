@@ -25,24 +25,27 @@ git push origin main
 echo "  ✓ Pushed to main"
 
 # Vercel deploy
-if command -v vercel &>/dev/null; then
-    echo "  Deploying to Vercel..."
-    vercel --prod --yes
+command -v vercel &>/dev/null || npm install -g vercel
+
+if [[ -n "${VERCEL_TOKEN:-}" ]]; then
+    echo "  Deploying to Vercel (token auth)..."
+    vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+    vercel build --prod --token="$VERCEL_TOKEN"
+    vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
     echo "  ✓ Deployed to Vercel"
 else
     echo ""
-    echo "  ── Manual Vercel Deploy ──────────────────────────────────────────"
-    echo "  Vercel CLI not found. To deploy manually:"
+    echo "  ── One-Time Vercel Setup (do this once) ─────────────────────────"
+    echo "  1. Get token:  https://vercel.com/account/tokens  → Create Token"
+    echo "  2. Link repo:  VERCEL_TOKEN=<token> vercel link --yes"
+    echo "  3. Get IDs:    cat .vercel/project.json"
+    echo "  4. Add to GitHub Secrets (zasupport/za-support-dashboard):"
+    echo "       VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID"
+    echo "       ZA_API_URL, ZA_API_TOKEN, DASHBOARD_PASSWORD"
+    echo "  5. After that: every git push auto-deploys via GitHub Actions"
     echo ""
-    echo "  1. Install CLI:  npm install -g vercel"
-    echo "  2. Login:        vercel login"
-    echo "  3. Deploy:       vercel --prod"
-    echo ""
-    echo "  OR import via dashboard:"
-    echo "  → https://vercel.com/new"
-    echo "  → Import: zasupport/za-support-dashboard"
-    echo "  → Add env vars: ZA_API_URL, ZA_API_TOKEN, DASHBOARD_PASSWORD"
-    echo "  ──────────────────────────────────────────────────────────────────"
+    echo "  Or deploy now: VERCEL_TOKEN=<your-token> bash deploy.sh"
+    echo "  ────────────────────────────────────────────────────────────────"
 fi
 
 echo ""
