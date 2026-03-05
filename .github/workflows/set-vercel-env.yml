@@ -18,25 +18,15 @@ jobs:
 
       - name: Set env vars via Vercel CLI
         run: |
-          # Remove existing env vars (ignore errors if they don't exist)
-          echo "Removing existing env vars..."
           vercel env rm ZA_API_URL production --yes --token=$VERCEL_TOKEN 2>/dev/null || true
           vercel env rm ZA_API_TOKEN production --yes --token=$VERCEL_TOKEN 2>/dev/null || true
           vercel env rm DASHBOARD_PASSWORD production --yes --token=$VERCEL_TOKEN 2>/dev/null || true
 
-          # Add new env vars
-          echo "Setting ZA_API_URL..."
           echo "https://api.zasupport.com" | vercel env add ZA_API_URL production --token=$VERCEL_TOKEN
-
-          echo "Setting ZA_API_TOKEN..."
           echo "${{ secrets.ZA_API_TOKEN }}" | vercel env add ZA_API_TOKEN production --token=$VERCEL_TOKEN
+          echo "zasupport2026" | vercel env add DASHBOARD_PASSWORD production --token=$VERCEL_TOKEN
 
-          echo "Setting DASHBOARD_PASSWORD..."
-          echo "${{ secrets.DASHBOARD_PASSWORD }}" | vercel env add DASHBOARD_PASSWORD production --token=$VERCEL_TOKEN
-
-          echo "All env vars set."
+          echo "Done."
 
       - name: Trigger fresh production deploy
-        run: |
-          vercel deploy --prod --token=$VERCEL_TOKEN --yes
-          echo "Deploy triggered."
+        run: vercel deploy --prod --token=$VERCEL_TOKEN --yes
