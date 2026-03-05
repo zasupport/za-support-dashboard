@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   const client_id = req.nextUrl.searchParams.get('client_id') || '';
   try {
     const res = await fetch(
-      `${API_URL}/api/v1/vault?client_id=${encodeURIComponent(client_id)}&limit=50`,
+      `${API_URL}/api/v1/vault/entries?client_id=${encodeURIComponent(client_id)}&limit=50`,
       { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' }
     );
     if (!res.ok) return NextResponse.json([]);
