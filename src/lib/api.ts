@@ -58,3 +58,37 @@ export async function fetchShieldEvents(last_hours = 24) {
     return res.json();
   } catch { return []; }
 }
+
+export async function fetchClients(status?: string, page = 1, per_page = 100) {
+  try {
+    const params = new URLSearchParams({ page: String(page), per_page: String(per_page) });
+    if (status) params.set('status', status);
+    const res = await fetch(`${API_URL}/api/v1/clients?${params}`, { headers: headers(), signal: withTimeout(TIMEOUT_MS), next: { revalidate: 30 } });
+    if (!res.ok) return { data: [], meta: { total: 0 } };
+    return res.json();
+  } catch { return { data: [], meta: { total: 0 } }; }
+}
+
+export async function fetchClient(client_id: string) {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/clients/${client_id}`, { headers: headers(), signal: withTimeout(TIMEOUT_MS), next: { revalidate: 30 } });
+    if (!res.ok) return null;
+    return res.json();
+  } catch { return null; }
+}
+
+export async function fetchClientTasks(client_id: string) {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/clients/${client_id}/tasks`, { headers: headers(), signal: withTimeout(TIMEOUT_MS), next: { revalidate: 30 } });
+    if (!res.ok) return [];
+    return res.json();
+  } catch { return []; }
+}
+
+export async function fetchClientCheckins(client_id: string) {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/clients/${client_id}/checkins`, { headers: headers(), signal: withTimeout(TIMEOUT_MS), next: { revalidate: 30 } });
+    if (!res.ok) return [];
+    return res.json();
+  } catch { return []; }
+}
