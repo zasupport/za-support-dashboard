@@ -1,6 +1,7 @@
 import { fetchDiagnostics, fetchDeviceSnapshots } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
+import { TrendCharts } from './TrendCharts';
 
 export default async function DeviceDetailPage({ params }: { params: Promise<{ serial: string }> }) {
   const { serial } = await params;
@@ -85,6 +86,27 @@ export default async function DeviceDetailPage({ params }: { params: Promise<{ s
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Trend charts */}
+      <div>
+        <h2 className="text-base font-semibold text-white mb-3">Historical Trends</h2>
+        <TrendCharts serial={serial} />
+      </div>
+
+      {/* Report download */}
+      {diag.client_id && (
+        <div className="flex items-center gap-3">
+          <a
+            href={`/api/reports/${diag.client_id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs px-4 py-2 rounded-md bg-teal-700 hover:bg-teal-600 text-white font-medium transition-colors"
+          >
+            Download CyberPulse Report (PDF)
+          </a>
+          <span className="text-slate-500 text-xs">Generated from latest diagnostic snapshot</span>
+        </div>
       )}
 
       {/* First/last seen */}
