@@ -8,8 +8,9 @@ const COOKIE_MAX_AGE = 60 * 60 * 8; // 8 hours
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Allow login page and its POST action
+  // Allow login page and auth API
   if (pathname === '/login') return NextResponse.next();
+  if (pathname.startsWith('/api/auth/')) return NextResponse.next();
 
   // Allow internal Next.js routes
   if (pathname.startsWith('/_next') || pathname.startsWith('/favicon')) return NextResponse.next();
