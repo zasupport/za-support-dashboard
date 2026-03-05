@@ -1,0 +1,41 @@
+{
+  "name": "za-support-dashboard",
+  "display_name": "ZA Support CyberPulse Dashboard",
+  "version": "1.0.0",
+  "description": "Health Check v11 monitoring dashboard — devices, ISP status, shield events, app intelligence, interaction analytics",
+  "owner": "Courtney Bentley / ZA Support",
+  "stack": {
+    "framework": "Next.js 16",
+    "language": "TypeScript",
+    "styling": "Tailwind CSS + shadcn/ui",
+    "runtime": "Node.js"
+  },
+  "deployment": {
+    "platform": "Vercel",
+    "region": "auto",
+    "repo": "zasupport/za-support-dashboard",
+    "branch": "main",
+    "auto_deploy": true
+  },
+  "env_vars": [
+    { "name": "ZA_API_URL", "description": "V11 backend base URL", "example": "https://api.zasupport.com", "required": true, "secret": false },
+    { "name": "ZA_API_TOKEN", "description": "Agent bearer token for V11 API auth", "example": "fTiuW8z...", "required": true, "secret": true },
+    { "name": "DASHBOARD_PASSWORD", "description": "Dashboard login password", "example": "zasupport2026", "required": true, "secret": true }
+  ],
+  "ecosystem": {
+    "depends_on": [
+      { "project": "za-support-backend", "reason": "All data fetched from V11 API", "url": "https://api.zasupport.com" }
+    ],
+    "depended_by": []
+  },
+  "pages": [
+    { "route": "/", "description": "Dashboard home — summary cards" },
+    { "route": "/devices", "description": "Device list + per-device diagnostic detail" },
+    { "route": "/isp", "description": "ISP status — 13 SA ISPs" },
+    { "route": "/shield", "description": "Shield security events feed (48h)" },
+    { "route": "/intelligence", "description": "App Intelligence fleet health by client" },
+    { "route": "/analytics", "description": "Interaction Analytics fleet view" },
+    { "route": "/alerts", "description": "Alert feed" },
+    { "route": "/login", "description": "Password authentication" }
+  ]
+}
