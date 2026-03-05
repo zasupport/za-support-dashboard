@@ -113,6 +113,19 @@ export default async function ClientDetailPage({ params }: { params: { client_id
         </Card>
       )}
 
+      {/* Report download */}
+      <div className="flex items-center gap-3">
+        <a
+          href={`/api/reports/${client.client_id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs px-4 py-2 rounded-md bg-teal-700 hover:bg-teal-600 text-white font-medium transition-colors"
+        >
+          Download CyberPulse Report (PDF)
+        </a>
+        <span className="text-slate-500 text-xs">Generated from latest Scout diagnostic</span>
+      </div>
+
       {/* Onboarding tasks — interactive checklist */}
       <TaskChecklist initialTasks={tasks as any[]} clientId={client.client_id} />
 
