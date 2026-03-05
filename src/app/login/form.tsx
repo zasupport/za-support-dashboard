@@ -1,13 +1,12 @@
 'use client';
 import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
 function LoginFormInner() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   async function handleSubmit(e: React.FormEvent) {
@@ -20,7 +19,7 @@ function LoginFormInner() {
       body: JSON.stringify({ password }),
     });
     if (res.ok) {
-      router.push(searchParams.get('from') || '/');
+      window.location.href = searchParams.get('from') || '/';
     } else {
       setError('Incorrect password');
       setLoading(false);
