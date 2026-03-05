@@ -2,6 +2,8 @@ import { fetchClient, fetchClientTasks, fetchClientCheckins } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TaskChecklist } from './TaskChecklist';
 import { StatusUpdater } from './StatusUpdater';
+import { ClientNotes } from './ClientNotes';
+import { CreateJobButton } from './CreateJobButton';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -16,11 +18,35 @@ function Row({ label, value }: { label: string; value?: string | boolean | null 
   );
 }
 
+const GRADE_COLORS: Record<string, string> = {
+  A: 'text-green-400 bg-green-500/10 border-green-500/30',
+  B: 'text-teal-400 bg-teal-500/10 border-teal-500/30',
+  C: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30',
+  D: 'text-orange-400 bg-orange-500/10 border-orange-500/30',
+  F: 'text-red-400 bg-red-500/10 border-red-500/30',
+};
+
+async function fetchHealthScore(clientId: string) {
+  const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
+  const API_TOKEN = process.env.ZA_API_TOKEN || '';
+  try {
+    const res = await fetch(`${API_URL}/api/v1/clients/${clientId}/health`, {
+      headers: { Authorization: `Bearer ${API_TOKEN}` },
+      cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
+
 export default async function ClientDetailPage({ params }: { params: { client_id: string } }) {
-  const [client, tasks, checkins] = await Promise.all([
+  const [client, tasks, checkins, health] = await Promise.all([
     fetchClient(params.client_id),
     fetchClientTasks(params.client_id),
     fetchClientCheckins(params.client_id),
+    fetchHealthScore(params.client_id),
   ]);
 
   if (!client) notFound();
@@ -37,12 +63,17 @@ export default async function ClientDetailPage({ params }: { params: { client_id
           <h1 className="text-2xl font-bold text-white">{client.first_name} {client.last_name}</h1>
           <p className="text-slate-400 text-sm font-mono mt-0.5">{client.client_id}</p>
         </div>
-        <div className="flex gap-2 flex-wrap justify-end">
+        <div className="flex gap-2 flex-wrap justify-end items-center">
           {isUrgent && (
             <span className="text-xs px-3 py-1 rounded-full border bg-red-500/20 text-red-300 border-red-500/30 font-medium">URGENT</span>
           )}
           {client.has_business && (
             <span className="text-xs px-3 py-1 rounded-full border bg-purple-500/20 text-purple-300 border-purple-500/30 font-medium">Has Business</span>
+          )}
+          {health?.grade && (
+            <span className={`text-sm px-3 py-1 rounded-full border font-bold ${GRADE_COLORS[health.grade] ?? ''}`}>
+              Grade {health.grade} · {health.health_score}/100
+            </span>
           )}
           <StatusUpdater clientId={client.client_id} currentStatus={client.status} />
         </div>
@@ -115,8 +146,8 @@ export default async function ClientDetailPage({ params }: { params: { client_id
         </Card>
       )}
 
-      {/* Report download */}
-      <div className="flex items-center gap-3">
+      {/* Report download + workshop job */}
+      <div className="flex items-center gap-3 flex-wrap">
         <a
           href={`/api/reports/${client.client_id}`}
           target="_blank"
@@ -125,8 +156,12 @@ export default async function ClientDetailPage({ params }: { params: { client_id
         >
           Download CyberPulse Report (PDF)
         </a>
+        <CreateJobButton clientId={client.client_id} />
         <span className="text-slate-500 text-xs">Generated from latest Scout diagnostic</span>
       </div>
+
+      {/* Internal notes */}
+      <ClientNotes clientId={client.client_id} />
 
       {/* Onboarding tasks — interactive checklist */}
       <TaskChecklist initialTasks={tasks as any[]} clientId={client.client_id} />

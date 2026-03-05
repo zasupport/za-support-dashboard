@@ -29,6 +29,23 @@ function DaysBadge({ days }: { days?: number | null }) {
   return <span className={`text-xs ${cls}`}>{days}d ago</span>;
 }
 
+function GradeBadge({ riskScore, riskLevel, daysSinceScan }: {
+  riskScore?: number | null;
+  riskLevel?: string | null;
+  daysSinceScan?: number | null;
+}) {
+  if (riskScore == null && !riskLevel) return <span className="text-slate-600 text-xs">—</span>;
+  const score = riskScore ?? 0;
+  const days = daysSinceScan ?? 0;
+  const riskPts = Math.max(0, 40 - score * 4);
+  const scanPts = days <= 30 ? 20 : days <= 60 ? 10 : 0;
+  const total = riskPts + scanPts; // simplified (no backup/task pts)
+  const grade = total >= 48 ? 'A' : total >= 40 ? 'B' : total >= 28 ? 'C' : total >= 16 ? 'D' : 'F';
+  const cls = grade === 'A' ? 'text-green-400' : grade === 'B' ? 'text-teal-400'
+    : grade === 'C' ? 'text-yellow-400' : grade === 'D' ? 'text-orange-400' : 'text-red-400';
+  return <span className={`text-xs font-bold ${cls}`}>{grade}</span>;
+}
+
 export default async function MorningPage() {
   const clients = await fetchMorning();
   const urgent = clients.filter((c: any) => c.urgency_level?.toLowerCase().startsWith('urgent'));
@@ -61,6 +78,7 @@ export default async function MorningPage() {
                 <th className="text-left px-4 py-3 font-medium">Client</th>
                 <th className="text-left px-4 py-3 font-medium">Status</th>
                 <th className="text-left px-4 py-3 font-medium">Risk</th>
+                <th className="text-center px-4 py-3 font-medium">Grade</th>
                 <th className="text-left px-4 py-3 font-medium">Last Scan</th>
                 <th className="text-center px-4 py-3 font-medium">Devices</th>
                 <th className="text-center px-4 py-3 font-medium">Open Tasks</th>
@@ -91,6 +109,9 @@ export default async function MorningPage() {
                     </td>
                     <td className="px-4 py-3">
                       <RiskBadge level={c.risk_level} score={c.risk_score} />
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <GradeBadge riskScore={c.risk_score} riskLevel={c.risk_level} daysSinceScan={c.days_since_scan} />
                     </td>
                     <td className="px-4 py-3">
                       <span className={isOverdue ? 'text-orange-400' : 'text-slate-400'}>

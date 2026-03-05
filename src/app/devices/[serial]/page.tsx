@@ -2,6 +2,7 @@ import { fetchDiagnostics, fetchDeviceSnapshots } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { TrendCharts } from './TrendCharts';
+import { CreateJobButton } from './CreateJobButton';
 
 // Make client_id a clickable link to the client profile
 
@@ -102,9 +103,9 @@ export default async function DeviceDetailPage({ params }: { params: Promise<{ s
         <TrendCharts serial={serial} />
       </div>
 
-      {/* Report download */}
+      {/* Report download + workshop job */}
       {diag.client_id && (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <a
             href={`/api/reports/${diag.client_id}`}
             target="_blank"
@@ -113,7 +114,7 @@ export default async function DeviceDetailPage({ params }: { params: Promise<{ s
           >
             Download CyberPulse Report (PDF)
           </a>
-          <span className="text-slate-500 text-xs">Generated from latest diagnostic snapshot</span>
+          <CreateJobButton clientId={diag.client_id} serial={serial} />
         </div>
       )}
 

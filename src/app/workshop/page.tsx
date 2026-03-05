@@ -1,9 +1,11 @@
 import { WorkshopBoard } from './WorkshopBoard';
+import { WorkshopNewJob } from './WorkshopNewJob';
 import { AutoRefresh } from '@/components/auto-refresh';
 
+const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
+const API_TOKEN = process.env.ZA_API_TOKEN || '';
+
 async function fetchJobs() {
-  const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
-  const API_TOKEN = process.env.ZA_API_TOKEN || '';
   try {
     const res = await fetch(`${API_URL}/api/v1/workshop/jobs?per_page=100`, {
       headers: { Authorization: `Bearer ${API_TOKEN}` },
@@ -15,12 +17,31 @@ async function fetchJobs() {
   } catch { return []; }
 }
 
+async function fetchClients() {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/clients?per_page=100`, {
+      headers: { Authorization: `Bearer ${API_TOKEN}` },
+      cache: 'no-store',
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.data ?? [];
+  } catch { return []; }
+}
+
 export default async function WorkshopPage() {
-  const jobs = await fetchJobs();
-  const open    = jobs.filter((j: any) => j.status === 'open').length;
-  const inProg  = jobs.filter((j: any) => j.status === 'in_progress').length;
-  const urgent  = jobs.filter((j: any) => j.priority === 'urgent' && j.status !== 'completed' && j.status !== 'cancelled').length;
-  const auto    = jobs.filter((j: any) => j.source === 'auto_diagnostic').length;
+  const [jobs, clients] = await Promise.all([fetchJobs(), fetchClients()]);
+
+  // Build client_id → name lookup
+  const clientNames: Record<string, string> = {};
+  for (const c of clients) {
+    clientNames[c.client_id] = `${c.first_name} ${c.last_name}`;
+  }
+
+  const open   = jobs.filter((j: any) => j.status === 'open').length;
+  const inProg = jobs.filter((j: any) => j.status === 'in_progress').length;
+  const urgent = jobs.filter((j: any) => j.priority === 'urgent' && !['completed','cancelled','done'].includes(j.status)).length;
+  const auto   = jobs.filter((j: any) => j.source === 'auto_diagnostic').length;
 
   return (
     <div className="space-y-6">
@@ -29,22 +50,23 @@ export default async function WorkshopPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Workshop</h1>
-          <p className="text-slate-400 text-sm mt-0.5">Job cards — click status badge to advance</p>
+          <p className="text-slate-400 text-sm mt-0.5">Click status badge to advance · Click job ref for detail</p>
         </div>
-        <div className="flex gap-3 text-xs">
+        <div className="flex items-center gap-3">
           {urgent > 0 && (
-            <span className="px-3 py-1 rounded-full border bg-red-500/20 text-red-300 border-red-500/30 font-medium">
+            <span className="text-xs px-3 py-1 rounded-full border bg-red-500/20 text-red-300 border-red-500/30 font-medium">
               {urgent} URGENT
             </span>
           )}
-          <span className="px-3 py-1 rounded-full border bg-slate-700/50 text-slate-300 border-slate-600">
+          <span className="text-xs px-3 py-1 rounded-full border bg-slate-700/50 text-slate-300 border-slate-600">
             {open} open · {inProg} in progress
           </span>
           {auto > 0 && (
-            <span className="px-3 py-1 rounded-full border bg-purple-500/20 text-purple-300 border-purple-500/30">
-              {auto} auto-generated
+            <span className="text-xs px-3 py-1 rounded-full border bg-purple-500/20 text-purple-300 border-purple-500/30">
+              {auto} auto
             </span>
           )}
+          <WorkshopNewJob clients={clients} />
         </div>
       </div>
 
@@ -53,7 +75,7 @@ export default async function WorkshopPage() {
           No workshop jobs yet. Jobs are auto-created when Scout diagnostics find CRITICAL or HIGH severity issues.
         </div>
       ) : (
-        <WorkshopBoard initialJobs={jobs} />
+        <WorkshopBoard initialJobs={jobs} clientNames={clientNames} />
       )}
     </div>
   );
