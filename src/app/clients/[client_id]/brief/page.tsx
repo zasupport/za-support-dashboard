@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PrintButton } from './PrintButton';
+import { ClientNotes } from '../ClientNotes';
 
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
 const API_TOKEN = process.env.ZA_API_TOKEN || '';
@@ -206,6 +207,9 @@ export default async function SiteVisitBriefPage({ params }: { params: { client_
           )}
         </CardContent>
       </Card>
+
+      {/* Internal notes */}
+      <ClientNotes clientId={client.client_id} />
 
       {/* Report links */}
       <div className="flex gap-3 flex-wrap">
