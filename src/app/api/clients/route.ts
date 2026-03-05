@@ -5,9 +5,12 @@ const API_TOKEN = process.env.ZA_API_TOKEN || '';
 
 export async function GET(req: NextRequest) {
   const status = req.nextUrl.searchParams.get('status') || '';
-  const page = req.nextUrl.searchParams.get('page') || '1';
-  const params = new URLSearchParams({ page, per_page: '50' });
+  const page   = req.nextUrl.searchParams.get('page')   || '1';
+  const search = req.nextUrl.searchParams.get('search') || '';
+  const per_page = req.nextUrl.searchParams.get('per_page') || '50';
+  const params = new URLSearchParams({ page, per_page });
   if (status) params.set('status', status);
+  if (search) params.set('search', search);
   try {
     const res = await fetch(
       `${API_URL}/api/v1/clients?${params}`,

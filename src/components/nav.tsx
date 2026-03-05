@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { GlobalSearch } from './GlobalSearch';
 
 const links = [
   { href: '/', label: 'Dashboard', icon: Monitor },
@@ -25,9 +26,9 @@ export function Nav() {
   const pathname = usePathname();
   return (
     <aside className="w-56 min-h-screen bg-slate-900 text-slate-100 flex flex-col">
-      <div className="px-6 py-5 border-b border-slate-700">
-        <span className="font-bold text-white tracking-wide text-sm">ZA Support</span>
-        <p className="text-slate-400 text-xs mt-0.5">Health Check AI</p>
+      <div className="px-4 py-4 border-b border-slate-700">
+        <span className="font-bold text-white tracking-wide text-sm block mb-3">ZA Support</span>
+        <GlobalSearch />
       </div>
       <nav className="flex-1 px-3 py-4 space-y-1">
         {links.map(({ href, label, icon: Icon }) => (

@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { TrendCharts } from './TrendCharts';
 
+// Make client_id a clickable link to the client profile
+
 export default async function DeviceDetailPage({ params }: { params: Promise<{ serial: string }> }) {
   const { serial } = await params;
   const [diag, snapshots] = await Promise.all([fetchDiagnostics(serial), fetchDeviceSnapshots(serial)]);
@@ -26,17 +28,23 @@ export default async function DeviceDetailPage({ params }: { params: Promise<{ s
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: 'Serial', value: diag.serial },
-          { label: 'Client', value: diag.client_id },
+          { label: 'Client', value: diag.client_id, href: diag.client_id ? `/clients/${diag.client_id}` : undefined },
           { label: 'Model', value: diag.model },
           { label: 'Chip', value: diag.chip_type?.replace('_', ' ') },
           { label: 'CPU', value: diag.cpu },
           { label: 'RAM', value: diag.ram_gb ? `${diag.ram_gb} GB` : null },
           { label: 'Storage', value: diag.storage_gb ? `${diag.storage_gb} GB` : null },
           { label: 'macOS', value: diag.macos_version },
-        ].map(({ label, value }) => (
+        ].map(({ label, value, href }: any) => (
           <Card key={label} className="bg-slate-800 border-slate-700">
             <CardHeader className="pb-1"><CardTitle className="text-xs text-slate-400">{label}</CardTitle></CardHeader>
-            <CardContent><p className="text-sm text-white font-medium">{value || '—'}</p></CardContent>
+            <CardContent>
+              {href ? (
+                <Link href={href} className="text-sm text-teal-400 hover:text-teal-300 font-medium">{value || '—'}</Link>
+              ) : (
+                <p className="text-sm text-white font-medium">{value || '—'}</p>
+              )}
+            </CardContent>
           </Card>
         ))}
       </div>
