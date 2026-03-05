@@ -1,4 +1,4 @@
-import { fetchClient, fetchClientTasks, fetchClientCheckins } from '@/lib/api';
+import { fetchClient, fetchClientTasks, fetchClientCheckins, fetchClientJobs } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TaskChecklist } from './TaskChecklist';
 import { StatusUpdater } from './StatusUpdater';
@@ -42,11 +42,12 @@ async function fetchHealthScore(clientId: string) {
 }
 
 export default async function ClientDetailPage({ params }: { params: { client_id: string } }) {
-  const [client, tasks, checkins, health] = await Promise.all([
+  const [client, tasks, checkins, health, jobs] = await Promise.all([
     fetchClient(params.client_id),
     fetchClientTasks(params.client_id),
     fetchClientCheckins(params.client_id),
     fetchHealthScore(params.client_id),
+    fetchClientJobs(params.client_id),
   ]);
 
   if (!client) notFound();
@@ -159,6 +160,37 @@ export default async function ClientDetailPage({ params }: { params: { client_id
         <CreateJobButton clientId={client.client_id} />
         <span className="text-slate-500 text-xs">Generated from latest Scout diagnostic</span>
       </div>
+
+      {/* Open workshop jobs */}
+      {(() => {
+        const openJobs = (jobs as any[]).filter(j => !['done', 'completed', 'cancelled'].includes(j.status));
+        if (openJobs.length === 0) return null;
+        const P: Record<string, string> = { urgent: 'text-red-400', high: 'text-orange-400', normal: 'text-slate-300', low: 'text-slate-500' };
+        const S: Record<string, string> = { open: 'bg-slate-600/40 text-slate-300 border-slate-600', in_progress: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30', waiting_parts: 'bg-orange-500/20 text-orange-300 border-orange-500/30' };
+        return (
+          <Card className="bg-slate-800 border-slate-700">
+            <CardHeader className="flex-row items-center justify-between pb-2">
+              <CardTitle className="text-white text-sm">Open Workshop Jobs ({openJobs.length})</CardTitle>
+              <Link href="/workshop" className="text-xs text-teal-400 hover:text-teal-300">View all →</Link>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {openJobs.map((j: any) => (
+                <Link key={j.job_ref} href={`/workshop/${j.job_ref}`}
+                  className="flex items-center justify-between py-2 border-b border-slate-700/50 last:border-0 hover:bg-slate-700/30 rounded px-2 -mx-2 transition-colors">
+                  <div>
+                    <p className="text-sm text-slate-200">{j.title}</p>
+                    <p className="text-xs text-slate-500 font-mono">{j.job_ref}{j.serial ? ` · ${j.serial}` : ''}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-medium ${P[j.priority] ?? 'text-slate-400'}`}>{j.priority.toUpperCase()}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded border ${S[j.status] ?? S.open}`}>{j.status.replace(/_/g, ' ')}</span>
+                  </div>
+                </Link>
+              ))}
+            </CardContent>
+          </Card>
+        );
+      })()}
 
       {/* Internal notes */}
       <ClientNotes clientId={client.client_id} />

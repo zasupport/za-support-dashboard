@@ -108,3 +108,36 @@ export async function fetchWorkshopStats() {
     return res.json();
   } catch { return null; }
 }
+
+export async function fetchClientJobs(client_id: string) {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/workshop/jobs?client_id=${encodeURIComponent(client_id)}&per_page=20`, {
+      headers: headers(), signal: withTimeout(TIMEOUT_MS), cache: 'no-store',
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.data ?? [];
+  } catch { return []; }
+}
+
+export async function fetchSnapshot(snapshotId: string) {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/diagnostics/snapshots/${snapshotId}`, {
+      headers: headers(), signal: withTimeout(TIMEOUT_MS), cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch { return null; }
+}
+
+export async function fetchOpenWorkshopJobs() {
+  try {
+    const params = new URLSearchParams({ per_page: '100' });
+    // Fetch open + in_progress separately via multiple calls, or just fetch all and filter client-side
+    const res = await fetch(`${API_URL}/api/v1/workshop/jobs?per_page=100`, {
+      headers: headers(), signal: withTimeout(TIMEOUT_MS), next: { revalidate: 60 },
+    });
+    if (!res.ok) return { data: [], meta: {} };
+    return res.json();
+  } catch { return { data: [], meta: {} }; }
+}

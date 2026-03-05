@@ -1,7 +1,7 @@
-import { fetchDevices, fetchISPStatus, fetchAlerts, fetchShieldEvents, fetchClients, fetchActivityFeed } from '@/lib/api';
+import { fetchDevices, fetchISPStatus, fetchAlerts, fetchShieldEvents, fetchClients, fetchActivityFeed, fetchOpenWorkshopJobs } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Monitor, Wifi, Shield, Bell, Users, Wrench, Activity } from 'lucide-react';
+import { Monitor, Wifi, Shield, Bell, Users, Wrench, Activity, Coffee } from 'lucide-react';
 import { AutoRefresh } from '@/components/auto-refresh';
 import Link from 'next/link';
 
@@ -24,13 +24,14 @@ const SEVERITY_COLOR: Record<string, string> = {
 };
 
 export default async function DashboardPage() {
-  const [devices, ispStatus, alerts, shieldEvents, clients, activity] = await Promise.allSettled([
+  const [devices, ispStatus, alerts, shieldEvents, clients, activity, workshopData] = await Promise.allSettled([
     fetchDevices(),
     fetchISPStatus(),
     fetchAlerts(5),
     fetchShieldEvents(24),
     fetchClients(undefined, 1, 1),
     fetchActivityFeed(18),
+    fetchOpenWorkshopJobs(),
   ]);
 
   const deviceList  = devices.status  === 'fulfilled' ? devices.value  : [];
@@ -40,8 +41,11 @@ export default async function DashboardPage() {
   const clientMeta  = clients.status  === 'fulfilled' ? clients.value?.meta  : null;
   const activityData = activity.status === 'fulfilled' ? activity.value?.events ?? [] : [];
 
-  const outages      = Array.isArray(ispList)    ? ispList.filter((i: any) => i.status === 'outage' || i.status === 'degraded') : [];
+  const workshopAll   = workshopData.status === 'fulfilled' ? (workshopData.value?.data ?? []) : [];
+  const outages       = Array.isArray(ispList)    ? ispList.filter((i: any) => i.status === 'outage' || i.status === 'degraded') : [];
   const criticalShield = Array.isArray(shieldList) ? shieldList.filter((e: any) => e.severity === 'CRITICAL' || e.severity === 'HIGH') : [];
+  const openJobs      = workshopAll.filter((j: any) => !['done', 'completed', 'cancelled'].includes(j.status));
+  const urgentJobs    = openJobs.filter((j: any) => j.priority === 'urgent');
 
   return (
     <div>
@@ -49,7 +53,7 @@ export default async function DashboardPage() {
       <h1 className="text-2xl font-bold text-white mb-6">Dashboard</h1>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-7 gap-4 mb-8">
         <Card className="bg-slate-800 border-slate-700">
           <CardHeader className="pb-2"><CardTitle className="text-xs text-slate-400 flex items-center gap-2"><Users size={13} /> Clients</CardTitle></CardHeader>
           <CardContent>
@@ -96,7 +100,19 @@ export default async function DashboardPage() {
         </Card>
 
         <Card className="bg-slate-800 border-slate-700">
-          <CardHeader className="pb-2"><CardTitle className="text-xs text-slate-400 flex items-center gap-2"><Activity size={13} /> Morning</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-xs text-slate-400 flex items-center gap-2"><Wrench size={13} /> Workshop</CardTitle></CardHeader>
+          <CardContent>
+            <Link href="/workshop" className={`text-3xl font-bold hover:opacity-80 transition-opacity ${urgentJobs.length > 0 ? 'text-red-400' : openJobs.length > 0 ? 'text-yellow-400' : 'text-white'}`}>
+              {openJobs.length}
+            </Link>
+            {urgentJobs.length > 0 && (
+              <p className="text-xs text-red-400 mt-0.5">{urgentJobs.length} urgent</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="pb-2"><CardTitle className="text-xs text-slate-400 flex items-center gap-2"><Coffee size={13} /> Morning</CardTitle></CardHeader>
           <CardContent>
             <Link href="/morning" className="text-sm font-semibold text-teal-400 hover:text-teal-300 transition-colors">
               View Brief →
