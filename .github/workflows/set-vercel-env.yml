@@ -16,17 +16,26 @@ jobs:
       - name: Install Vercel CLI
         run: npm install -g vercel
 
-      - name: Set env vars via Vercel CLI
+      - name: Reset all env vars across all environments
         run: |
-          vercel env rm ZA_API_URL production --yes --token=$VERCEL_TOKEN 2>/dev/null || true
-          vercel env rm ZA_API_TOKEN production --yes --token=$VERCEL_TOKEN 2>/dev/null || true
-          vercel env rm DASHBOARD_PASSWORD production --yes --token=$VERCEL_TOKEN 2>/dev/null || true
+          # Remove from all environments
+          for env in production preview development; do
+            vercel env rm ZA_API_URL $env --yes --token=$VERCEL_TOKEN 2>/dev/null || true
+            vercel env rm ZA_API_TOKEN $env --yes --token=$VERCEL_TOKEN 2>/dev/null || true
+            vercel env rm DASHBOARD_PASSWORD $env --yes --token=$VERCEL_TOKEN 2>/dev/null || true
+          done
 
-          echo "https://api.zasupport.com" | vercel env add ZA_API_URL production --token=$VERCEL_TOKEN
-          echo "${{ secrets.ZA_API_TOKEN }}" | vercel env add ZA_API_TOKEN production --token=$VERCEL_TOKEN
-          echo "zasupport2026" | vercel env add DASHBOARD_PASSWORD production --token=$VERCEL_TOKEN
+          # Add to all environments using printf to avoid trailing newline
+          printf '%s' 'https://api.zasupport.com' | vercel env add ZA_API_URL production --token=$VERCEL_TOKEN
+          printf '%s' 'https://api.zasupport.com' | vercel env add ZA_API_URL preview --token=$VERCEL_TOKEN
+          printf '%s' '${{ secrets.ZA_API_TOKEN }}' | vercel env add ZA_API_TOKEN production --token=$VERCEL_TOKEN
+          printf '%s' '${{ secrets.ZA_API_TOKEN }}' | vercel env add ZA_API_TOKEN preview --token=$VERCEL_TOKEN
+          printf '%s' 'zasupport2026' | vercel env add DASHBOARD_PASSWORD production --token=$VERCEL_TOKEN
+          printf '%s' 'zasupport2026' | vercel env add DASHBOARD_PASSWORD preview --token=$VERCEL_TOKEN
 
-          echo "Done."
+          echo "All env vars set."
 
       - name: Trigger fresh production deploy
-        run: vercel deploy --prod --token=$VERCEL_TOKEN --yes
+        run: |
+          vercel deploy --prod --token=$VERCEL_TOKEN --yes
+          echo "Deployed."
