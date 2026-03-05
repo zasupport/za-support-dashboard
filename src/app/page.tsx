@@ -2,6 +2,7 @@ import { fetchDevices, fetchISPStatus, fetchAlerts, fetchShieldEvents } from '@/
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Monitor, Wifi, Shield, Bell } from 'lucide-react';
+import { AutoRefresh } from '@/components/auto-refresh';
 
 export default async function DashboardPage() {
   const [devices, ispStatus, alerts, shieldEvents] = await Promise.allSettled([
@@ -21,6 +22,7 @@ export default async function DashboardPage() {
 
   return (
     <div>
+      <AutoRefresh intervalMs={60000} />
       <h1 className="text-2xl font-bold text-white mb-6">Dashboard</h1>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

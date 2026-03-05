@@ -1,12 +1,13 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users } from 'lucide-react';
+import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const links = [
   { href: '/', label: 'Dashboard', icon: Monitor },
   { href: '/clients', label: 'Clients', icon: Users },
+  { href: '/workshop', label: 'Workshop', icon: Wrench },
   { href: '/devices', label: 'Devices', icon: Monitor },
   { href: '/isp', label: 'ISP Status', icon: Wifi },
   { href: '/shield', label: 'Shield Events', icon: Shield },

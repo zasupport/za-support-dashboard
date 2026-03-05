@@ -1,5 +1,6 @@
 import { fetchDiagnostics, fetchDeviceSnapshots } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Link from 'next/link';
 
 export default async function DeviceDetailPage({ params }: { params: Promise<{ serial: string }> }) {
   const { serial } = await params;
@@ -68,13 +69,18 @@ export default async function DeviceDetailPage({ params }: { params: Promise<{ s
           <CardContent>
             <div className="space-y-2">
               {snapshots.map((s: any) => (
-                <div key={s.id} className="flex justify-between items-center py-2 border-b border-slate-700 last:border-0">
+                <Link
+                  key={s.id}
+                  href={`/devices/${serial}/snapshot/${s.id}`}
+                  className="flex justify-between items-center py-2 border-b border-slate-700 last:border-0 hover:bg-slate-700/40 rounded px-2 -mx-2 transition-colors"
+                >
                   <span className="text-sm text-slate-300">{new Date(s.scan_date).toLocaleString('en-ZA')}</span>
                   <div className="flex gap-4 text-xs text-slate-400">
                     <span>Risk: {s.risk_score ?? '—'}</span>
                     <span>Recs: {s.recommendation_count ?? 0}</span>
+                    <span className="text-slate-500">View →</span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </CardContent>

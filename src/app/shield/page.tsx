@@ -1,6 +1,7 @@
 import { fetchShieldEvents } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { AutoRefresh } from '@/components/auto-refresh';
 
 export default async function ShieldPage() {
   const events = await fetchShieldEvents(48);
@@ -14,6 +15,7 @@ export default async function ShieldPage() {
 
   return (
     <div>
+      <AutoRefresh intervalMs={30000} />
       <h1 className="text-2xl font-bold text-white mb-6">Shield Events</h1>
       <p className="text-slate-400 text-sm mb-4">Last 48 hours — {list.length} events</p>
       <Card className="bg-slate-800 border-slate-700">

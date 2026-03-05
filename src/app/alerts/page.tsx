@@ -1,6 +1,7 @@
 import { fetchAlerts } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { AutoRefresh } from '@/components/auto-refresh';
 
 export default async function AlertsPage() {
   const alerts = await fetchAlerts(50);
@@ -8,6 +9,7 @@ export default async function AlertsPage() {
 
   return (
     <div>
+      <AutoRefresh intervalMs={30000} />
       <h1 className="text-2xl font-bold text-white mb-6">Alerts</h1>
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader>
