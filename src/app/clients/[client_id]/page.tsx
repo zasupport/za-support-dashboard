@@ -1,6 +1,7 @@
 import { fetchClient, fetchClientTasks, fetchClientCheckins } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TaskChecklist } from './TaskChecklist';
+import { StatusUpdater } from './StatusUpdater';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -43,7 +44,7 @@ export default async function ClientDetailPage({ params }: { params: { client_id
           {client.has_business && (
             <span className="text-xs px-3 py-1 rounded-full border bg-purple-500/20 text-purple-300 border-purple-500/30 font-medium">Has Business</span>
           )}
-          <span className="text-xs px-3 py-1 rounded-full border bg-yellow-500/20 text-yellow-300 border-yellow-500/30 font-medium capitalize">{client.status}</span>
+          <StatusUpdater clientId={client.client_id} currentStatus={client.status} />
         </div>
       </div>
 

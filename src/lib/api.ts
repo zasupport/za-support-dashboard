@@ -92,3 +92,19 @@ export async function fetchClientCheckins(client_id: string) {
     return res.json();
   } catch { return []; }
 }
+
+export async function fetchActivityFeed(limit = 18) {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/system/activity?limit=${limit}`, { headers: headers(), signal: withTimeout(TIMEOUT_MS), cache: 'no-store' });
+    if (!res.ok) return { events: [] };
+    return res.json();
+  } catch { return { events: [] }; }
+}
+
+export async function fetchWorkshopStats() {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/workshop/jobs?per_page=1`, { headers: headers(), signal: withTimeout(TIMEOUT_MS), next: { revalidate: 60 } });
+    if (!res.ok) return null;
+    return res.json();
+  } catch { return null; }
+}
