@@ -1,47 +1,91 @@
-import { fetchDiagnostics } from '@/lib/api';
+import { fetchDiagnostics, fetchDeviceSnapshots } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default async function DeviceDetailPage({ params }: { params: Promise<{ serial: string }> }) {
   const { serial } = await params;
-  const diag = await fetchDiagnostics(serial);
+  const [diag, snapshots] = await Promise.all([fetchDiagnostics(serial), fetchDeviceSnapshots(serial)]);
+
+  if (!diag) {
+    return (
+      <div>
+        <h1 className="text-2xl font-bold text-white mb-2">Device: {serial}</h1>
+        <p className="text-slate-400">No diagnostic data found for this device.</p>
+      </div>
+    );
+  }
+
+  const snap = diag.latest_snapshot;
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-white mb-2">Device: {serial}</h1>
-      {!diag ? (
-        <p className="text-slate-400">No diagnostic data found for this device.</p>
-      ) : (
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              { label: 'Hostname', value: diag.hostname },
-              { label: 'Client', value: diag.client_id },
-              { label: 'macOS', value: diag.payload?.macos_version || diag.macos_version },
-              { label: 'Last Report', value: diag.created_at ? new Date(diag.created_at).toLocaleString('en-ZA') : '—' },
-            ].map(({ label, value }) => (
-              <Card key={label} className="bg-slate-800 border-slate-700">
-                <CardHeader className="pb-1">
-                  <CardTitle className="text-xs text-slate-400">{label}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-white font-medium">{value || '—'}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold text-white">{diag.hostname || serial}</h1>
 
-          <Card className="bg-slate-800 border-slate-700">
-            <CardHeader>
-              <CardTitle className="text-white text-base">Raw Diagnostic Payload</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <pre className="text-xs text-slate-300 overflow-auto max-h-96 bg-slate-900 p-4 rounded">
-                {JSON.stringify(diag.payload || diag, null, 2)}
-              </pre>
-            </CardContent>
+      {/* Hardware overview */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: 'Serial', value: diag.serial },
+          { label: 'Client', value: diag.client_id },
+          { label: 'Model', value: diag.model },
+          { label: 'Chip', value: diag.chip_type?.replace('_', ' ') },
+          { label: 'CPU', value: diag.cpu },
+          { label: 'RAM', value: diag.ram_gb ? `${diag.ram_gb} GB` : null },
+          { label: 'Storage', value: diag.storage_gb ? `${diag.storage_gb} GB` : null },
+          { label: 'macOS', value: diag.macos_version },
+        ].map(({ label, value }) => (
+          <Card key={label} className="bg-slate-800 border-slate-700">
+            <CardHeader className="pb-1"><CardTitle className="text-xs text-slate-400">{label}</CardTitle></CardHeader>
+            <CardContent><p className="text-sm text-white font-medium">{value || '—'}</p></CardContent>
           </Card>
-        </div>
+        ))}
+      </div>
+
+      {/* Latest snapshot */}
+      {snap && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader><CardTitle className="text-white text-base">Latest Diagnostic Snapshot</CardTitle></CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { label: 'Scan Date', value: snap.scan_date ? new Date(snap.scan_date).toLocaleString('en-ZA') : null },
+                { label: 'Risk Score', value: snap.risk_score ?? '—' },
+                { label: 'Risk Level', value: snap.risk_level },
+                { label: 'Recommendations', value: snap.recommendation_count },
+              ].map(({ label, value }) => (
+                <div key={label}>
+                  <p className="text-xs text-slate-400 mb-1">{label}</p>
+                  <p className="text-sm text-white font-medium">{value ?? '—'}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       )}
+
+      {/* Snapshot history */}
+      {snapshots.length > 0 && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader><CardTitle className="text-white text-base">Diagnostic History ({snapshots.length} runs)</CardTitle></CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {snapshots.map((s: any) => (
+                <div key={s.id} className="flex justify-between items-center py-2 border-b border-slate-700 last:border-0">
+                  <span className="text-sm text-slate-300">{new Date(s.scan_date).toLocaleString('en-ZA')}</span>
+                  <div className="flex gap-4 text-xs text-slate-400">
+                    <span>Risk: {s.risk_score ?? '—'}</span>
+                    <span>Recs: {s.recommendation_count ?? 0}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* First/last seen */}
+      <div className="text-xs text-slate-500">
+        First seen: {diag.first_seen ? new Date(diag.first_seen).toLocaleString('en-ZA') : '—'} ·
+        Last seen: {diag.last_seen ? new Date(diag.last_seen).toLocaleString('en-ZA') : '—'}
+      </div>
     </div>
   );
 }
