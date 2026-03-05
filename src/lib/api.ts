@@ -13,7 +13,7 @@ function withTimeout(ms: number) {
 
 export async function fetchDevices() {
   try {
-    const res = await fetch(`${API_URL}/api/v1/devices`, { headers: headers(), signal: withTimeout(TIMEOUT_MS), next: { revalidate: 60 } });
+    const res = await fetch(`${API_URL}/api/v1/diagnostics/devices`, { headers: headers(), signal: withTimeout(TIMEOUT_MS), next: { revalidate: 60 } });
     if (!res.ok) return [];
     return res.json();
   } catch { return []; }
