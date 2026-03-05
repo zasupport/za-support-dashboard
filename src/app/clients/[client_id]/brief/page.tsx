@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PrintButton } from './PrintButton';
 
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
 const API_TOKEN = process.env.ZA_API_TOKEN || '';
@@ -53,12 +54,7 @@ export default async function SiteVisitBriefPage({ params }: { params: { client_
           <h1 className="text-2xl font-bold text-white">Site Visit Brief</h1>
           <p className="text-slate-400 text-sm mt-0.5">{client.first_name} {client.last_name}</p>
         </div>
-        <button
-          onClick={() => window.print()}
-          className="text-xs px-4 py-2 rounded bg-slate-700 hover:bg-slate-600 text-white transition-colors print:hidden"
-        >
-          Print / Save PDF
-        </button>
+        <PrintButton />
       </div>
 
       {/* Print-only header */}

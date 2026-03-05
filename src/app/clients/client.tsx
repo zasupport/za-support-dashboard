@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type Client = {
@@ -90,12 +91,14 @@ export function ClientsClient() {
       {clients.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {clients.map(client => (
-            <Card key={client.client_id} className="bg-slate-800 border-slate-700">
+            <Card key={client.client_id} className="bg-slate-800 border-slate-700 hover:border-slate-500 transition-colors">
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm text-white">
-                    {client.first_name} {client.last_name}
-                  </CardTitle>
+                  <Link href={`/clients/${client.client_id}`} className="hover:text-teal-400 transition-colors">
+                    <CardTitle className="text-sm text-white">
+                      {client.first_name} {client.last_name}
+                    </CardTitle>
+                  </Link>
                   <span className={`text-xs font-semibold ${STATUS_COLORS[client.status] ?? 'text-slate-400'}`}>
                     {client.status.toUpperCase()}
                   </span>
@@ -134,6 +137,11 @@ export function ClientsClient() {
                 <div className="flex justify-between">
                   <span>Registered</span>
                   <span>{client.created_at?.slice(0, 10) ?? '—'}</span>
+                </div>
+                <div className="flex gap-3 pt-2 border-t border-slate-700/50">
+                  <Link href={`/clients/${client.client_id}`} className="text-teal-400 hover:text-teal-300">Profile</Link>
+                  <Link href={`/clients/${client.client_id}/brief`} className="text-slate-400 hover:text-white">Site Brief</Link>
+                  <a href={`/api/reports/${client.client_id}`} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-white ml-auto">PDF</a>
                 </div>
               </CardContent>
             </Card>
