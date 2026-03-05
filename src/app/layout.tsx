@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'ZA Support — CyberPulse Dashboard',
-  description: 'ZA Support Health Check v11 Dashboard',
+  description: 'ZA Support Health Check AI Dashboard',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
