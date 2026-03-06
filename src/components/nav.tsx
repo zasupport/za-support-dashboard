@@ -23,8 +23,6 @@ const links = [
   { href: '/sales', label: 'Sales CRM', icon: TrendingUp },
   { href: '/medical', label: 'Medical', icon: Stethoscope },
   { href: '/dedup', label: 'Deduplication', icon: Copy },
-  { href: '/sales', label: 'Sales CRM', icon: TrendingUp },
-  { href: '/medical', label: 'Medical', icon: Stethoscope },
   { href: '/guides', label: 'Guides', icon: BookOpen },
   { href: '/reports', label: 'Reports', icon: FileText },
   { href: '/installer', label: 'Scout Installer', icon: Download },
