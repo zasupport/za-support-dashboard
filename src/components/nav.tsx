@@ -10,6 +10,7 @@ const links = [
   { href: '/morning', label: 'Morning Brief', icon: Coffee },
   { href: '/clients', label: 'Clients', icon: Users },
   { href: '/workshop', label: 'Workshop', icon: Wrench },
+  { href: '/workshop/revenue', label: 'Revenue', icon: BarChart2 },
   { href: '/devices', label: 'Devices', icon: Monitor },
   { href: '/isp', label: 'ISP Status', icon: Wifi },
   { href: '/shield', label: 'Shield Events', icon: Shield },

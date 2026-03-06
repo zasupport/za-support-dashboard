@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { GeneratePDFButton } from './GeneratePDFButton';
+import { BillingStatusButton } from './BillingStatusButton';
 
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
 const API_TOKEN = process.env.ZA_API_TOKEN || '';
@@ -45,13 +46,6 @@ function fmt(v: number | null | undefined, prefix = '') {
   if (v == null) return '—';
   return `${prefix}${v.toLocaleString()}`;
 }
-
-const STATUS_COLOUR: Record<string, string> = {
-  pending: 'bg-slate-700 text-slate-300',
-  sent:    'bg-blue-900/40 text-blue-300',
-  paid:    'bg-teal-900/40 text-teal-300',
-  overdue: 'bg-red-900/40 text-red-300',
-};
 
 export default async function CyberShieldPage() {
   const [summary, enrollments, reports, billingSummary, billing] = await Promise.all([
@@ -187,9 +181,7 @@ export default async function CyberShieldPage() {
                   <td className="px-4 py-3 text-slate-300 text-xs">{b.month_label}</td>
                   <td className="px-4 py-3 text-slate-300 text-xs">R {Number(b.amount).toLocaleString('en-ZA')}</td>
                   <td className="px-4 py-3">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLOUR[b.status] ?? 'bg-slate-700 text-slate-400'}`}>
-                      {b.status}
-                    </span>
+                    <BillingStatusButton billingId={b.id} currentStatus={b.status} />
                   </td>
                   <td className="px-4 py-3 text-slate-400 text-xs font-mono">{b.invoice_ref ?? '—'}</td>
                   <td className="px-4 py-3 text-slate-400 text-xs">
