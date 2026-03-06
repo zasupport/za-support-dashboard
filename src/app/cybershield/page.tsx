@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { GeneratePDFButton } from './GeneratePDFButton';
 
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
 const API_TOKEN = process.env.ZA_API_TOKEN || '';
@@ -111,14 +112,7 @@ export default async function CyberShieldPage() {
                     {e.enrolled_at ? new Date(e.enrolled_at).toLocaleDateString('en-ZA') : '—'}
                   </td>
                   <td className="px-4 py-3">
-                    <a
-                      href={`/api/cybershield/report/${e.client_id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-teal-400 hover:text-teal-300 whitespace-nowrap"
-                    >
-                      ↓ PDF
-                    </a>
+                    <GeneratePDFButton clientId={e.client_id} />
                   </td>
                 </tr>
               ))}

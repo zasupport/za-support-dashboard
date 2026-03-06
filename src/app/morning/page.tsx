@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { AutoRefresh } from '@/components/auto-refresh';
 import { fetchCyberShieldSummary } from '@/lib/api';
+import { TrendAlerts } from './TrendAlerts';
 
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
 const API_TOKEN = process.env.ZA_API_TOKEN || '';
@@ -82,6 +83,9 @@ export default async function MorningPage() {
           <Link href="/cybershield" className="ml-auto text-teal-400 hover:text-teal-300">Manage →</Link>
         </div>
       )}
+
+      {/* Trajectory alerts */}
+      <TrendAlerts />
 
       {/* Client table */}
       <Card className="bg-slate-800 border-slate-700">
