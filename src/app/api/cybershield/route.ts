@@ -13,6 +13,17 @@ export async function GET(req: NextRequest) {
   const qstr = qs.toString();
   try {
     const res = await fetch(`${API_URL}/api/v1/cybershield/${path}${qstr ? `?${qstr}` : ''}`, { headers: headers() });
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/pdf')) {
+      const buf = await res.arrayBuffer();
+      return new NextResponse(buf, {
+        status: res.status,
+        headers: {
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': res.headers.get('Content-Disposition') || 'attachment',
+        },
+      });
+    }
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });
   } catch {
