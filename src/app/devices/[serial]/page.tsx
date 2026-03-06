@@ -1,4 +1,5 @@
 import { fetchDiagnostics, fetchDeviceSnapshots } from '@/lib/api';
+import { AutoRefresh } from '@/components/auto-refresh';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { TrendCharts } from './TrendCharts';
@@ -23,6 +24,7 @@ export default async function DeviceDetailPage({ params }: { params: Promise<{ s
 
   return (
     <div className="space-y-6">
+      <AutoRefresh intervalMs={300000} />
       <h1 className="text-2xl font-bold text-white">{diag.hostname || serial}</h1>
 
       {/* Hardware overview */}
