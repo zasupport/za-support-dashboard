@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee } from 'lucide-react';
+import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GlobalSearch } from './GlobalSearch';
 
@@ -20,6 +20,7 @@ const links = [
   { href: '/breach-scanner', label: 'Breach Scanner', icon: Search },
   { href: '/forensics', label: 'Forensics', icon: Microscope },
   { href: '/reports', label: 'Reports', icon: FileText },
+  { href: '/cybershield', label: 'CyberShield', icon: ShieldCheck },
 ];
 
 export function Nav() {
