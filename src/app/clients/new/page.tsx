@@ -46,7 +46,7 @@ export default function NewClientPage() {
     setSaving(true);
     setError('');
     try {
-      const res = await fetch('/api/clients', {
+      const res = await fetch('/api/clients/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

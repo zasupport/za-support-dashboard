@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { JobActions } from './JobActions';
+import { WorkshopLineItems } from './WorkshopLineItems';
 
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
 const API_TOKEN = process.env.ZA_API_TOKEN || '';
@@ -119,39 +120,11 @@ export default async function JobDetailPage({ params }: { params: { job_ref: str
       )}
 
       {/* Line items */}
-      {job.line_items?.length > 0 && (
-        <Card className="bg-slate-800 border-slate-700">
-          <CardHeader><CardTitle className="text-white text-sm">Line Items</CardTitle></CardHeader>
-          <CardContent className="p-0">
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="border-b border-slate-700 text-slate-400">
-                  <th className="text-left px-4 py-2">Description</th>
-                  <th className="text-right px-4 py-2">Qty</th>
-                  <th className="text-right px-4 py-2">Unit Price</th>
-                  <th className="text-right px-4 py-2">Total</th>
-                  <th className="text-left px-4 py-2">Type</th>
-                </tr>
-              </thead>
-              <tbody>
-                {job.line_items.map((item: any) => (
-                  <tr key={item.id} className="border-b border-slate-700/40 last:border-0">
-                    <td className="px-4 py-2 text-slate-200">{item.description}</td>
-                    <td className="px-4 py-2 text-right text-slate-400">{item.qty}</td>
-                    <td className="px-4 py-2 text-right text-slate-400">
-                      {item.unit_price != null ? `R ${Number(item.unit_price).toFixed(2)}` : '—'}
-                    </td>
-                    <td className="px-4 py-2 text-right text-white font-medium">
-                      {item.line_total != null ? `R ${Number(item.line_total).toFixed(2)}` : '—'}
-                    </td>
-                    <td className="px-4 py-2 text-slate-500 capitalize">{item.item_type}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </CardContent>
-        </Card>
-      )}
+      <WorkshopLineItems
+        jobRef={job.job_ref}
+        initialItems={job.line_items ?? []}
+        isDone={isDone}
+      />
 
       {/* Status history */}
       {job.history?.length > 0 && (
