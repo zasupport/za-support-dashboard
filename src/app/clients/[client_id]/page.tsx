@@ -4,6 +4,7 @@ import { TaskChecklist } from './TaskChecklist';
 import { StatusUpdater } from './StatusUpdater';
 import { ClientNotes } from './ClientNotes';
 import { CreateJobButton } from './CreateJobButton';
+import { EditClientButton } from './EditClientButton';
 import Link from 'next/link';
 import { AutoRefresh } from '@/components/auto-refresh';
 import { notFound } from 'next/navigation';
@@ -79,6 +80,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
               Grade {health.grade} · {health.health_score}/100
             </span>
           )}
+          <EditClientButton client={client} />
           <StatusUpdater clientId={client.client_id} currentStatus={client.status} />
         </div>
       </div>
