@@ -5,14 +5,13 @@ const API_TOKEN = process.env.ZA_API_TOKEN || '';
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { client_id: string } }
+  { params }: { params: Promise<{ client_id: string }> }
 ) {
-  const res = await fetch(`${API_URL}/api/v1/clients/${params.client_id}/brief`, {
+  const { client_id } = await params;
+  const res = await fetch(`${API_URL}/api/v1/clients/${client_id}/brief`, {
     headers: { Authorization: `Bearer ${API_TOKEN}` },
     cache: 'no-store',
   });
-  if (!res.ok) {
-    return NextResponse.json({ error: 'Not found' }, { status: res.status });
-  }
+  if (!res.ok) return NextResponse.json({ error: 'Not found' }, { status: res.status });
   return NextResponse.json(await res.json());
 }

@@ -5,12 +5,12 @@ const API_TOKEN = process.env.ZA_API_TOKEN || '';
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { job_ref: string } }
+  { params }: { params: Promise<{ job_ref: string }> }
 ) {
+  const { job_ref } = await params;
   try {
-    const res = await fetch(`${API_URL}/api/v1/workshop/jobs/${params.job_ref}`, {
-      headers: { Authorization: `Bearer ${API_TOKEN}` },
-      cache: 'no-store',
+    const res = await fetch(`${API_URL}/api/v1/workshop/jobs/${job_ref}`, {
+      headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store',
     });
     if (!res.ok) return NextResponse.json(null, { status: res.status });
     return NextResponse.json(await res.json());
@@ -21,14 +21,14 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { job_ref: string } }
+  { params }: { params: Promise<{ job_ref: string }> }
 ) {
+  const { job_ref } = await params;
   try {
     const body = await req.json();
-    // Route to status endpoint or general update based on body keys
     const endpoint = body.status
-      ? `${API_URL}/api/v1/workshop/jobs/${params.job_ref}/status`
-      : `${API_URL}/api/v1/workshop/jobs/${params.job_ref}`;
+      ? `${API_URL}/api/v1/workshop/jobs/${job_ref}/status`
+      : `${API_URL}/api/v1/workshop/jobs/${job_ref}`;
     const res = await fetch(endpoint, {
       method: 'PATCH',
       headers: { Authorization: `Bearer ${API_TOKEN}`, 'Content-Type': 'application/json' },

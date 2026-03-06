@@ -5,6 +5,7 @@ import { StatusUpdater } from './StatusUpdater';
 import { ClientNotes } from './ClientNotes';
 import { CreateJobButton } from './CreateJobButton';
 import Link from 'next/link';
+import { AutoRefresh } from '@/components/auto-refresh';
 import { notFound } from 'next/navigation';
 
 function Row({ label, value }: { label: string; value?: string | boolean | null }) {
@@ -41,13 +42,14 @@ async function fetchHealthScore(clientId: string) {
   }
 }
 
-export default async function ClientDetailPage({ params }: { params: { client_id: string } }) {
+export default async function ClientDetailPage({ params }: { params: Promise<{ client_id: string }> }) {
+  const { client_id } = await params;
   const [client, tasks, checkins, health, jobs] = await Promise.all([
-    fetchClient(params.client_id),
-    fetchClientTasks(params.client_id),
-    fetchClientCheckins(params.client_id),
-    fetchHealthScore(params.client_id),
-    fetchClientJobs(params.client_id),
+    fetchClient(client_id),
+    fetchClientTasks(client_id),
+    fetchClientCheckins(client_id),
+    fetchHealthScore(client_id),
+    fetchClientJobs(client_id),
   ]);
 
   if (!client) notFound();
@@ -56,6 +58,7 @@ export default async function ClientDetailPage({ params }: { params: { client_id
 
   return (
     <div className="space-y-6">
+      <AutoRefresh intervalMs={300000} />
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>

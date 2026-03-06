@@ -5,13 +5,13 @@ const API_TOKEN = process.env.ZA_API_TOKEN || '';
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { serial: string; snapshot_id: string } }
+  { params }: { params: Promise<{ serial: string; snapshot_id: string }> }
 ) {
+  const { snapshot_id } = await params;
   try {
-    const res = await fetch(
-      `${API_URL}/api/v1/diagnostics/snapshots/${params.snapshot_id}`,
-      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' }
-    );
+    const res = await fetch(`${API_URL}/api/v1/diagnostics/snapshots/${snapshot_id}`, {
+      headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store',
+    });
     if (!res.ok) return NextResponse.json(null, { status: res.status });
     return NextResponse.json(await res.json());
   } catch {

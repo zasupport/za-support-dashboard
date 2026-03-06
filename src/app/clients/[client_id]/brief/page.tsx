@@ -39,8 +39,9 @@ function RiskBadge({ level }: { level?: string }) {
   );
 }
 
-export default async function SiteVisitBriefPage({ params }: { params: { client_id: string } }) {
-  const brief = await fetchBrief(params.client_id);
+export default async function SiteVisitBriefPage({ params }: { params: Promise<{ client_id: string }> }) {
+  const { client_id } = await params;
+  const brief = await fetchBrief(client_id);
   if (!brief) notFound();
 
   const { client, devices, open_tasks, completed_task_count, latest_checkin, open_workshop_jobs } = brief;

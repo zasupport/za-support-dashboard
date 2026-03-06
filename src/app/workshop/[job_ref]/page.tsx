@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { JobActions } from './JobActions';
 import { WorkshopLineItems } from './WorkshopLineItems';
+import { AutoRefresh } from '@/components/auto-refresh';
 
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
 const API_TOKEN = process.env.ZA_API_TOKEN || '';
@@ -44,14 +45,16 @@ function Row({ label, value }: { label: string; value?: string | number | null }
   );
 }
 
-export default async function JobDetailPage({ params }: { params: { job_ref: string } }) {
-  const job = await fetchJob(params.job_ref);
+export default async function JobDetailPage({ params }: { params: Promise<{ job_ref: string }> }) {
+  const { job_ref } = await params;
+  const job = await fetchJob(job_ref);
   if (!job) notFound();
 
   const isDone = job.status === 'done' || job.status === 'completed';
 
   return (
     <div className="space-y-6 max-w-3xl">
+      <AutoRefresh intervalMs={300000} />
       <div className="flex items-start justify-between gap-4">
         <div>
           <Link href="/workshop" className="text-slate-400 text-xs hover:text-white mb-1 block">← Workshop</Link>
