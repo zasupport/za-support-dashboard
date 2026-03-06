@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AutoRefresh } from '@/components/auto-refresh';
 import { Wifi, WifiOff, AlertTriangle } from 'lucide-react';
+import { ISPTimelineChart } from './ISPTimelineChart';
 
 function statusVariant(status: string): 'default' | 'destructive' | 'secondary' {
   if (status === 'operational') return 'default';
@@ -147,6 +148,9 @@ export default async function ISPPage() {
           <p className="text-slate-400 text-sm col-span-3">No ISP data available.</p>
         )}
       </div>
+
+      {/* Outage timeline chart */}
+      <ISPTimelineChart outages={outageLog} />
 
       {/* Outage history */}
       {outageLog.length > 0 && (
