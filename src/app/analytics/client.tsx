@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+  LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, ReferenceLine,
 } from 'recharts';
 import Link from 'next/link';
@@ -15,6 +15,7 @@ type DeviceData = {
   total_rage_clicks?: number | null;
   sample_count?: number | null;
 };
+type TimelinePoint = { timestamp: string; frustration_score: number; rage_clicks?: number };
 
 const chartStyle = {
   contentStyle: { background: '#1e293b', border: '1px solid #334155', borderRadius: 6 },
@@ -22,11 +23,52 @@ const chartStyle = {
   itemStyle: { color: '#e2e8f0', fontSize: 11 },
 };
 
+function FrustrationTimeline({ deviceId }: { deviceId: string }) {
+  const [timeline, setTimeline] = useState<TimelinePoint[]>([]);
+  const [loading, setLoading]   = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(`/api/analytics/frustration-timeline/${encodeURIComponent(deviceId)}?days=30`)
+      .then(r => r.json())
+      .then(d => setTimeline(Array.isArray(d) ? d : []))
+      .catch(() => setTimeline([]))
+      .finally(() => setLoading(false));
+  }, [deviceId]);
+
+  if (loading) return <p className="text-slate-500 text-xs mt-2">Loading timeline…</p>;
+  if (!timeline.length) return <p className="text-slate-600 text-xs mt-2">No timeline data.</p>;
+
+  const chartData = timeline.map(p => ({
+    t: new Date(p.timestamp).toLocaleDateString('en-ZA', { day: '2-digit', month: 'short' }),
+    score: Math.round(p.frustration_score),
+    rageClicks: p.rage_clicks ?? 0,
+  }));
+
+  return (
+    <div className="mt-3 h-32">
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={chartData}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+          <XAxis dataKey="t" tick={{ fill: '#475569', fontSize: 9 }} interval="preserveStartEnd" />
+          <YAxis domain={[0, 100]} tick={{ fill: '#475569', fontSize: 9 }} width={24} />
+          <Tooltip
+            contentStyle={{ background: '#0f172a', border: '1px solid #334155', borderRadius: 4, fontSize: 11 }}
+          />
+          <ReferenceLine y={60} stroke="#ef4444" strokeDasharray="3 2" />
+          <Area type="monotone" dataKey="score" name="Frustration" stroke="#f97316" fill="#f9731620" strokeWidth={1.5} dot={false} />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
 export function InteractionClient() {
-  const [clients, setClients]   = useState<Client[]>([]);
-  const [clientId, setClientId] = useState('');
-  const [data, setData]         = useState<DeviceData[]>([]);
-  const [loading, setLoading]   = useState(false);
+  const [clients, setClients]       = useState<Client[]>([]);
+  const [clientId, setClientId]     = useState('');
+  const [data, setData]             = useState<DeviceData[]>([]);
+  const [loading, setLoading]       = useState(false);
+  const [expandedDevice, setExpanded] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/clients?per_page=100')
@@ -109,10 +151,18 @@ export function InteractionClient() {
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {data.map((device, i) => {
               const frustrated = (device.avg_frustration_score ?? 0) > 60;
+              const isExpanded = expandedDevice === device.device_id;
               return (
-                <Card key={i} className={`bg-slate-800 border-slate-700 ${frustrated ? 'border-orange-500/40' : ''}`}>
+                <Card
+                  key={i}
+                  className={`bg-slate-800 border-slate-700 cursor-pointer transition-colors ${frustrated ? 'border-orange-500/40' : ''} ${isExpanded ? 'border-teal-500/40' : ''}`}
+                  onClick={() => setExpanded(isExpanded ? null : device.device_id)}
+                >
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm text-white font-mono">{device.device_id}</CardTitle>
+                    <CardTitle className="text-sm text-white font-mono flex items-center justify-between">
+                      <span>{device.device_id}</span>
+                      <span className="text-xs text-slate-500 font-normal">{isExpanded ? '▲ collapse' : '▼ timeline'}</span>
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-1 text-xs text-slate-400">
                     <div className="flex justify-between">
@@ -135,6 +185,7 @@ export function InteractionClient() {
                       <span>Samples</span>
                       <span>{device.sample_count ?? '—'}</span>
                     </div>
+                    {isExpanded && <FrustrationTimeline deviceId={device.device_id} />}
                   </CardContent>
                 </Card>
               );
