@@ -12,6 +12,8 @@ type MetricRow = {
   battery_cycle_count?: number | null;
   disk_used_pct?: number | null;
   risk_score?: number | null;
+  ram_pressure_pct?: number | null;
+  swap_used_mb?: number | null;
 };
 
 function fmt(ts: string) {
@@ -42,6 +44,8 @@ export function TrendCharts({ serial }: { serial: string }) {
   const hasBattery = data.some(d => d.battery_health_pct != null);
   const hasDisk    = data.some(d => d.disk_used_pct != null);
   const hasRisk    = data.some(d => d.risk_score != null);
+  const hasRAM     = data.some(d => d.ram_pressure_pct != null);
+  const hasSwap    = data.some(d => d.swap_used_mb != null);
 
   const chartClass = "w-full h-44";
   const grid = <CartesianGrid strokeDasharray="3 3" stroke="#334155" />;
@@ -111,9 +115,49 @@ export function TrendCharts({ serial }: { serial: string }) {
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={data}>
                   {grid}
-                  {axis([0, 10])}
+                  {axis([0, 100])}
                   {tip}
                   <Line type="monotone" dataKey="risk_score" name="Risk" stroke="#ef4444" dot={false} strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {hasRAM && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm">RAM Pressure (%)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className={chartClass}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data}>
+                  {grid}
+                  {axis([0, 100])}
+                  {tip}
+                  <Line type="monotone" dataKey="ram_pressure_pct" name="RAM %" stroke="#a78bfa" dot={false} strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {hasSwap && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm">Swap Used (MB)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className={chartClass}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data}>
+                  {grid}
+                  {axis()}
+                  {tip}
+                  <Line type="monotone" dataKey="swap_used_mb" name="Swap MB" stroke="#60a5fa" dot={false} strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
