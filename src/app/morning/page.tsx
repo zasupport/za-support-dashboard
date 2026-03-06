@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { AutoRefresh } from '@/components/auto-refresh';
+import { fetchCyberShieldSummary } from '@/lib/api';
 
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
 const API_TOKEN = process.env.ZA_API_TOKEN || '';
@@ -48,7 +49,7 @@ function GradeBadge({ riskScore, riskLevel, daysSinceScan }: {
 }
 
 export default async function MorningPage() {
-  const clients = await fetchMorning();
+  const [clients, shield] = await Promise.all([fetchMorning(), fetchCyberShieldSummary()]);
   const urgent = clients.filter((c: any) => c.urgency_level?.toLowerCase().startsWith('urgent'));
   const overdue = clients.filter((c: any) => (c.days_since_scan ?? 999) > 30);
 
@@ -68,6 +69,17 @@ export default async function MorningPage() {
       {urgent.length > 0 && (
         <div className="rounded-md border border-red-500/40 bg-red-500/10 px-4 py-3 text-red-300 text-sm">
           URGENT clients: {urgent.map((c: any) => `${c.first_name} ${c.last_name}`).join(', ')} — action today.
+        </div>
+      )}
+
+      {/* CyberShield status strip */}
+      {shield && (
+        <div className="flex items-center gap-6 px-4 py-3 rounded-md bg-slate-800 border border-slate-700 text-xs text-slate-300">
+          <span className="text-teal-400 font-semibold">CyberShield</span>
+          <span><span className="text-white font-bold">{shield.active_subscriptions ?? 0}</span> active practices</span>
+          <span><span className="text-green-400 font-bold">R {Number(shield.monthly_arr ?? 0).toLocaleString()}</span>/month ARR</span>
+          <span><span className="text-slate-400">{shield.reports_generated ?? 0}</span> reports generated</span>
+          <Link href="/cybershield" className="ml-auto text-teal-400 hover:text-teal-300">Manage →</Link>
         </div>
       )}
 
