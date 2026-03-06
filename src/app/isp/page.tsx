@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { fetchISPStatus, fetchClientISPMap, fetchISPOutages } from '@/lib/api';
+import { ISPOutageChart } from './ISPOutageChart';
+import { ISPTimelineChart } from './ISPTimelineChart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AutoRefresh } from '@/components/auto-refresh';
 import { Wifi, WifiOff, AlertTriangle } from 'lucide-react';
-import { ISPTimelineChart } from './ISPTimelineChart';
 
 function statusVariant(status: string): 'default' | 'destructive' | 'secondary' {
   if (status === 'operational') return 'default';
@@ -149,7 +150,8 @@ export default async function ISPPage() {
         )}
       </div>
 
-      {/* Outage timeline chart */}
+      {/* Outage charts */}
+      <ISPOutageChart outages={outageLog} />
       <ISPTimelineChart outages={outageLog} />
 
       {/* Outage history */}
