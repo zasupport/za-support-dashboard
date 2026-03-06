@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { fetchISPStatus, fetchClientISPMap } from '@/lib/api';
+import { fetchISPStatus, fetchClientISPMap, fetchISPOutages } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AutoRefresh } from '@/components/auto-refresh';
@@ -18,12 +18,14 @@ function statusIcon(status: string) {
 }
 
 export default async function ISPPage() {
-  const [ispList, clientISPs] = await Promise.all([
+  const [ispList, clientISPs, outages] = await Promise.all([
     fetchISPStatus(),
     fetchClientISPMap(),
+    fetchISPOutages(30),
   ]);
 
   const list: any[] = Array.isArray(ispList) ? ispList : [];
+  const outageLog: any[] = Array.isArray(outages) ? outages : [];
 
   // Build ISP name → [client] lookup (case-insensitive partial match)
   const impactMap: Record<string, { client_id: string; name: string }[]> = {};
@@ -145,6 +147,56 @@ export default async function ISPPage() {
           <p className="text-slate-400 text-sm col-span-3">No ISP data available.</p>
         )}
       </div>
+
+      {/* Outage history */}
+      {outageLog.length > 0 && (
+        <div>
+          <h2 className="text-base font-semibold text-white mb-3">Outage Log (last 30 days)</h2>
+          <Card className="bg-slate-800 border-slate-700">
+            <CardContent className="p-0">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-slate-700">
+                    <th className="text-left px-4 py-2 text-slate-400 font-medium">ISP</th>
+                    <th className="text-left px-4 py-2 text-slate-400 font-medium">Started</th>
+                    <th className="text-left px-4 py-2 text-slate-400 font-medium">Resolved</th>
+                    <th className="text-left px-4 py-2 text-slate-400 font-medium">Duration</th>
+                    <th className="text-left px-4 py-2 text-slate-400 font-medium">Severity</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {outageLog.map((o: any, i: number) => {
+                    const start = o.started_at ? new Date(o.started_at) : null;
+                    const end   = o.ended_at   ? new Date(o.ended_at)   : null;
+                    let duration = '—';
+                    if (start && end) {
+                      const mins = Math.round((end.getTime() - start.getTime()) / 60000);
+                      duration = mins < 60 ? `${mins}m` : `${Math.round(mins / 60)}h ${mins % 60}m`;
+                    } else if (start) {
+                      duration = 'Ongoing';
+                    }
+                    return (
+                      <tr key={i} className="border-b border-slate-700/50 last:border-0 hover:bg-slate-700/20">
+                        <td className="px-4 py-2 text-white">{o.isp_name || `Provider #${o.provider_id}`}</td>
+                        <td className="px-4 py-2 text-slate-300">{start ? start.toLocaleString('en-ZA') : '—'}</td>
+                        <td className="px-4 py-2 text-slate-300">{end ? end.toLocaleString('en-ZA') : <span className="text-red-400">Active</span>}</td>
+                        <td className="px-4 py-2 text-slate-300">{duration}</td>
+                        <td className="px-4 py-2">
+                          <span className={`px-1.5 py-0.5 rounded text-xs ${
+                            o.severity === 'critical' ? 'bg-red-500/20 text-red-300' :
+                            o.severity === 'high'     ? 'bg-orange-500/20 text-orange-300' :
+                            'bg-yellow-500/20 text-yellow-300'
+                          }`}>{o.severity || 'unknown'}</span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

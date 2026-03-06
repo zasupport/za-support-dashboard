@@ -140,6 +140,15 @@ export async function fetchClientISPMap(): Promise<{ client_id: string; first_na
   } catch { return []; }
 }
 
+export async function fetchISPOutages(days = 30) {
+  try {
+    const hours = days * 24;
+    const res = await fetch(`${API_URL}/api/v1/isp/outages?hours=${hours}`, { headers: headers(), signal: withTimeout(TIMEOUT_MS), next: { revalidate: 60 } });
+    if (!res.ok) return [];
+    return res.json();
+  } catch { return []; }
+}
+
 export async function fetchOpenWorkshopJobs() {
   try {
     const params = new URLSearchParams({ per_page: '100' });
