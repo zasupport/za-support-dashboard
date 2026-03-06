@@ -86,6 +86,7 @@ export default async function CyberShieldPage() {
                 <th className="text-left px-4 py-3">Status</th>
                 <th className="text-left px-4 py-3">Monthly Fee</th>
                 <th className="text-left px-4 py-3">Enrolled</th>
+                <th className="px-4 py-3"></th>
               </tr>
             </thead>
             <tbody>
@@ -108,6 +109,16 @@ export default async function CyberShieldPage() {
                   </td>
                   <td className="px-4 py-3 text-slate-400 text-xs">
                     {e.enrolled_at ? new Date(e.enrolled_at).toLocaleDateString('en-ZA') : '—'}
+                  </td>
+                  <td className="px-4 py-3">
+                    <a
+                      href={`/api/cybershield/report/${e.client_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-teal-400 hover:text-teal-300 whitespace-nowrap"
+                    >
+                      ↓ PDF
+                    </a>
                   </td>
                 </tr>
               ))}

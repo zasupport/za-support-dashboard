@@ -149,6 +149,16 @@ export async function fetchISPOutages(days = 30) {
   } catch { return []; }
 }
 
+export async function fetchCyberShieldSummary() {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/cybershield/summary`, {
+      headers: headers(), signal: withTimeout(TIMEOUT_MS), next: { revalidate: 300 },
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch { return null; }
+}
+
 export async function fetchOpenWorkshopJobs() {
   try {
     const params = new URLSearchParams({ per_page: '100' });

@@ -1,7 +1,7 @@
-import { fetchDevices, fetchISPStatus, fetchAlerts, fetchShieldEvents, fetchClients, fetchActivityFeed, fetchOpenWorkshopJobs } from '@/lib/api';
+import { fetchDevices, fetchISPStatus, fetchAlerts, fetchShieldEvents, fetchClients, fetchActivityFeed, fetchOpenWorkshopJobs, fetchCyberShieldSummary } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Monitor, Wifi, Shield, Bell, Users, Wrench, Activity, Coffee } from 'lucide-react';
+import { Monitor, Wifi, Shield, Bell, Users, Wrench, Activity, Coffee, ShieldCheck } from 'lucide-react';
 import { AutoRefresh } from '@/components/auto-refresh';
 import Link from 'next/link';
 
@@ -24,7 +24,7 @@ const SEVERITY_COLOR: Record<string, string> = {
 };
 
 export default async function DashboardPage() {
-  const [devices, ispStatus, alerts, shieldEvents, clients, activity, workshopData] = await Promise.allSettled([
+  const [devices, ispStatus, alerts, shieldEvents, clients, activity, workshopData, cyberShield] = await Promise.allSettled([
     fetchDevices(),
     fetchISPStatus(),
     fetchAlerts(5),
@@ -32,6 +32,7 @@ export default async function DashboardPage() {
     fetchClients(undefined, 1, 1),
     fetchActivityFeed(18),
     fetchOpenWorkshopJobs(),
+    fetchCyberShieldSummary(),
   ]);
 
   const deviceList  = devices.status  === 'fulfilled' ? devices.value  : [];
@@ -42,6 +43,7 @@ export default async function DashboardPage() {
   const activityData = activity.status === 'fulfilled' ? activity.value?.events ?? [] : [];
 
   const workshopAll   = workshopData.status === 'fulfilled' ? (workshopData.value?.data ?? []) : [];
+  const cyberShieldData = cyberShield.status === 'fulfilled' ? cyberShield.value : null;
   const outages       = Array.isArray(ispList)    ? ispList.filter((i: any) => i.status === 'outage' || i.status === 'degraded') : [];
   const criticalShield = Array.isArray(shieldList) ? shieldList.filter((e: any) => e.severity === 'CRITICAL' || e.severity === 'HIGH') : [];
   const openJobs      = workshopAll.filter((j: any) => !['done', 'completed', 'cancelled'].includes(j.status));
@@ -117,6 +119,18 @@ export default async function DashboardPage() {
             <Link href="/morning" className="text-sm font-semibold text-teal-400 hover:text-teal-300 transition-colors">
               View Brief →
             </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="pb-2"><CardTitle className="text-xs text-slate-400 flex items-center gap-2"><ShieldCheck size={13} /> CyberShield</CardTitle></CardHeader>
+          <CardContent>
+            <Link href="/cybershield" className="text-3xl font-bold text-teal-400 hover:text-teal-300 transition-colors">
+              {cyberShieldData?.active_subscriptions ?? '—'}
+            </Link>
+            <p className="text-xs text-slate-500 mt-0.5">
+              {cyberShieldData?.monthly_arr ? `R ${Number(cyberShieldData.monthly_arr).toLocaleString()}/mo` : 'practices'}
+            </p>
           </CardContent>
         </Card>
       </div>
