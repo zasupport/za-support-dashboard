@@ -168,6 +168,7 @@ export default async function CyberShieldPage() {
                 <th className="text-left px-4 py-3">Invoice Ref</th>
                 <th className="text-left px-4 py-3">Due</th>
                 <th className="text-left px-4 py-3">Paid</th>
+                <th className="px-4 py-3"></th>
               </tr>
             </thead>
             <tbody>
@@ -191,6 +192,16 @@ export default async function CyberShieldPage() {
                     {b.paid_at
                       ? <span className="text-green-400">{new Date(b.paid_at).toLocaleDateString('en-ZA')}</span>
                       : <span className="text-slate-600">—</span>}
+                  </td>
+                  <td className="px-4 py-3">
+                    <a
+                      href={`/api/cybershield?_path=billing/${b.id}/invoice`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-teal-400 hover:text-teal-300 whitespace-nowrap"
+                    >
+                      ↓ Invoice
+                    </a>
                   </td>
                 </tr>
               ))}
