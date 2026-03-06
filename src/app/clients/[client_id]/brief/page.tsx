@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { AutoRefresh } from '@/components/auto-refresh';
 import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PrintButton } from './PrintButton';
@@ -49,6 +50,7 @@ export default async function SiteVisitBriefPage({ params }: { params: Promise<{
 
   return (
     <div className="space-y-6 max-w-4xl">
+      <AutoRefresh intervalMs={300000} />
       {/* Print header */}
       <div className="flex items-start justify-between print:hidden">
         <div>
