@@ -1,17 +1,51 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, Cell,
+} from 'recharts';
+import Link from 'next/link';
+
+type Client = { client_id: string; first_name: string; last_name: string };
+type DeviceData = {
+  device_id: string;
+  avg_app_health?: number | null;
+  avg_cpu?: number | null;
+  total_crashes?: number | null;
+};
+
+const chartStyle = {
+  contentStyle: { background: '#1e293b', border: '1px solid #334155', borderRadius: 6 },
+  labelStyle: { color: '#94a3b8', fontSize: 11 },
+  itemStyle: { color: '#e2e8f0', fontSize: 11 },
+};
+
+function healthColor(score: number) {
+  if (score >= 80) return '#0FEA7A';
+  if (score >= 60) return '#f59e0b';
+  return '#ef4444';
+}
 
 export function AppIntelligenceClient() {
+  const [clients, setClients]   = useState<Client[]>([]);
   const [clientId, setClientId] = useState('');
-  const [data, setData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [data, setData]         = useState<DeviceData[]>([]);
+  const [loading, setLoading]   = useState(false);
 
-  async function loadFleet() {
-    if (!clientId) return;
+  useEffect(() => {
+    fetch('/api/clients?per_page=100')
+      .then(r => r.json())
+      .then(j => setClients(j.data ?? []))
+      .catch(() => {});
+  }, []);
+
+  async function load(id: string) {
+    if (!id) return;
+    setClientId(id);
     setLoading(true);
     try {
-      const res = await fetch(`/api/intelligence/fleet?client_id=${encodeURIComponent(clientId)}`);
+      const res = await fetch(`/api/intelligence/fleet?client_id=${encodeURIComponent(id)}`);
       const json = await res.json();
       setData(Array.isArray(json) ? json : []);
     } finally {
@@ -19,56 +53,117 @@ export function AppIntelligenceClient() {
     }
   }
 
+  const healthData = data.map(d => ({
+    device: d.device_id?.slice(-8) ?? '?',
+    health: d.avg_app_health ? Math.round(d.avg_app_health) : 0,
+    cpu: d.avg_cpu ? Number(d.avg_cpu.toFixed(1)) : 0,
+    crashes: d.total_crashes ?? 0,
+  }));
+
   return (
-    <div>
-      <div className="flex gap-3 mb-6">
-        <input
-          className="bg-slate-800 border border-slate-600 rounded px-3 py-2 text-sm text-white w-64 focus:outline-none focus:border-blue-500"
-          placeholder="Client ID (e.g. gillian-pearson)"
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <select
+          className="bg-slate-800 border border-slate-600 rounded px-3 py-2 text-sm text-white w-64 focus:outline-none focus:border-teal-400"
           value={clientId}
-          onChange={e => setClientId(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && loadFleet()}
-        />
-        <button
-          onClick={loadFleet}
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded transition-colors"
+          onChange={e => load(e.target.value)}
         >
-          Load
-        </button>
+          <option value="">Select client…</option>
+          {clients.map(c => (
+            <option key={c.client_id} value={c.client_id}>
+              {c.first_name} {c.last_name}
+            </option>
+          ))}
+        </select>
+        {clientId && (
+          <Link href={`/clients/${clientId}`} className="text-xs text-teal-400 hover:text-teal-300">
+            View profile →
+          </Link>
+        )}
       </div>
 
-      {loading && <p className="text-slate-400 text-sm">Loading...</p>}
+      {loading && <p className="text-slate-400 text-sm">Loading…</p>}
 
       {!loading && data.length === 0 && clientId && (
-        <p className="text-slate-400 text-sm">No app intelligence data for this client.</p>
+        <p className="text-slate-500 text-sm">No app intelligence data for this client yet.</p>
       )}
 
       {data.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {data.map((device: any, i: number) => (
-            <Card key={i} className="bg-slate-800 border-slate-700">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm text-white font-mono">{device.device_id}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-1 text-xs text-slate-400">
-                <div className="flex justify-between">
-                  <span>Avg App Health</span>
-                  <span className={(device.avg_app_health ?? 100) < 70 ? 'text-red-400' : 'text-green-400'}>
-                    {device.avg_app_health?.toFixed(0) ?? '—'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Avg CPU</span>
-                  <span>{device.avg_cpu?.toFixed(1) ?? '—'}%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Crashes (7d)</span>
-                  <span className={device.total_crashes > 0 ? 'text-red-400' : ''}>{device.total_crashes ?? '—'}</span>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <>
+          {/* App health bar chart */}
+          <Card className="bg-slate-800 border-slate-700">
+            <CardHeader><CardTitle className="text-white text-sm">App Health Score by Device (higher is better)</CardTitle></CardHeader>
+            <CardContent>
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={healthData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                    <XAxis dataKey="device" tick={{ fill: '#64748b', fontSize: 10 }} />
+                    <YAxis domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 10 }} />
+                    <Tooltip {...chartStyle} />
+                    <Bar dataKey="health" name="App Health" radius={[3, 3, 0, 0]}>
+                      {healthData.map((entry, i) => (
+                        <Cell key={i} fill={healthColor(entry.health)} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* CPU chart */}
+          <Card className="bg-slate-800 border-slate-700">
+            <CardHeader><CardTitle className="text-white text-sm">Average CPU Usage % by Device</CardTitle></CardHeader>
+            <CardContent>
+              <div className="h-40">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={healthData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                    <XAxis dataKey="device" tick={{ fill: '#64748b', fontSize: 10 }} />
+                    <YAxis domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 10 }} />
+                    <Tooltip {...chartStyle} />
+                    <Bar dataKey="cpu" name="CPU %" fill="#f97316" radius={[3, 3, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Summary cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {data.map((device, i) => {
+              const unhealthy = (device.avg_app_health ?? 100) < 70;
+              return (
+                <Card key={i} className={`bg-slate-800 border-slate-700 ${unhealthy ? 'border-orange-500/40' : ''}`}>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm text-white font-mono">{device.device_id}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-1 text-xs text-slate-400">
+                    <div className="flex justify-between">
+                      <span>App Health</span>
+                      <span className={unhealthy ? 'text-orange-400 font-semibold' : 'text-green-400'}>
+                        {device.avg_app_health?.toFixed(0) ?? '—'} / 100
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Avg CPU</span>
+                      <span className={(device.avg_cpu ?? 0) > 80 ? 'text-red-400' : 'text-slate-300'}>
+                        {device.avg_cpu?.toFixed(1) ?? '—'}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Crashes (7d)</span>
+                      <span className={(device.total_crashes ?? 0) > 0 ? 'text-red-400' : 'text-slate-500'}>
+                        {device.total_crashes ?? 0}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </>
       )}
     </div>
   );
