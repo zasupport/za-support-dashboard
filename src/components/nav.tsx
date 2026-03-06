@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee, ShieldCheck, Download } from 'lucide-react';
+import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee, ShieldCheck, Download, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GlobalSearch } from './GlobalSearch';
 
@@ -22,6 +22,7 @@ const links = [
   { href: '/forensics', label: 'Forensics', icon: Microscope },
   { href: '/reports', label: 'Reports', icon: FileText },
   { href: '/installer', label: 'Scout Installer', icon: Download },
+  { href: '/system', label: 'System Health', icon: Settings },
 ];
 
 // Top 5 links shown in mobile bottom nav
