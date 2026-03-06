@@ -109,6 +109,17 @@ export async function fetchWorkshopStats() {
   } catch { return null; }
 }
 
+export async function fetchClientDevices(client_id: string) {
+  try {
+    const res = await fetch(
+      `${API_URL}/api/v1/diagnostics/devices?client_id=${encodeURIComponent(client_id)}&per_page=50`,
+      { headers: headers(), signal: withTimeout(TIMEOUT_MS), cache: 'no-store' }
+    );
+    if (!res.ok) return [];
+    return res.json();
+  } catch { return []; }
+}
+
 export async function fetchClientJobs(client_id: string) {
   try {
     const res = await fetch(`${API_URL}/api/v1/workshop/jobs?client_id=${encodeURIComponent(client_id)}&per_page=20`, {

@@ -1,4 +1,4 @@
-import { fetchClient, fetchClientTasks, fetchClientCheckins, fetchClientJobs } from '@/lib/api';
+import { fetchClient, fetchClientTasks, fetchClientCheckins, fetchClientJobs, fetchClientDevices } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TaskChecklist } from './TaskChecklist';
 import { StatusUpdater } from './StatusUpdater';
@@ -45,12 +45,13 @@ async function fetchHealthScore(clientId: string) {
 
 export default async function ClientDetailPage({ params }: { params: Promise<{ client_id: string }> }) {
   const { client_id } = await params;
-  const [client, tasks, checkins, health, jobs] = await Promise.all([
+  const [client, tasks, checkins, health, jobs, devices] = await Promise.all([
     fetchClient(client_id),
     fetchClientTasks(client_id),
     fetchClientCheckins(client_id),
     fetchHealthScore(client_id),
     fetchClientJobs(client_id),
+    fetchClientDevices(client_id),
   ]);
 
   if (!client) notFound();
@@ -148,6 +149,47 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
             <Row label="Staff count"      value={client.business_staff_count} />
             <Row label="Devices in biz"   value={client.business_device_count} />
             <Row label="HC interest"      value={client.business_health_check_interest} />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Registered devices */}
+      {(devices as any[]).length > 0 && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="flex-row items-center justify-between pb-2">
+            <CardTitle className="text-white text-sm">Registered Devices ({(devices as any[]).length})</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {(devices as any[]).map((d: any) => {
+              const riskCls = d.risk_level === 'CRITICAL' ? 'text-red-400'
+                : d.risk_level === 'HIGH' ? 'text-orange-400'
+                : d.risk_level === 'MODERATE' ? 'text-yellow-400'
+                : d.risk_level === 'LOW' ? 'text-green-400' : 'text-slate-500';
+              return (
+                <Link
+                  key={d.serial}
+                  href={`/devices/${d.serial}`}
+                  className="flex items-center justify-between py-2 border-b border-slate-700/50 last:border-0 hover:bg-slate-700/30 rounded px-2 -mx-2 transition-colors"
+                >
+                  <div>
+                    <p className="text-sm text-slate-200">{d.hostname || d.serial}</p>
+                    <p className="text-xs text-slate-500 font-mono">{d.serial}{d.model ? ` · ${d.model}` : ''}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {d.risk_level && (
+                      <span className={`text-xs font-semibold ${riskCls}`}>
+                        {d.risk_level}{d.risk_score != null ? ` (${d.risk_score})` : ''}
+                      </span>
+                    )}
+                    {d.last_seen && (
+                      <span className="text-xs text-slate-500">
+                        {new Date(d.last_seen).toLocaleDateString('en-ZA')}
+                      </span>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
           </CardContent>
         </Card>
       )}
