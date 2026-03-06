@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
+import { AutoRefresh } from '@/components/auto-refresh';
 
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
 const API_TOKEN = process.env.ZA_API_TOKEN || '';
@@ -53,6 +54,7 @@ export default async function MorningPage() {
 
   return (
     <div className="space-y-6">
+      <AutoRefresh intervalMs={300000} />
       <div>
         <h1 className="text-2xl font-bold text-white">Morning Brief</h1>
         <p className="text-slate-400 text-sm mt-0.5">

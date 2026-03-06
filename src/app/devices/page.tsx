@@ -1,6 +1,7 @@
 import { fetchDevices } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
+import { AutoRefresh } from '@/components/auto-refresh';
 
 function RiskBadge({ level }: { level?: string }) {
   if (!level) return <span className="text-slate-600 text-xs">—</span>;
@@ -30,6 +31,7 @@ export default async function DevicesPage() {
 
   return (
     <div className="space-y-6">
+      <AutoRefresh intervalMs={300000} />
       <div>
         <h1 className="text-2xl font-bold text-white">Devices</h1>
         <p className="text-slate-400 text-sm mt-0.5">
