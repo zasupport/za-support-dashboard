@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee, ShieldCheck, Download, Settings, BookOpen, LogOut } from 'lucide-react';
+import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee, ShieldCheck, Download, Settings, BookOpen, LogOut, TrendingUp, Stethoscope, Copy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GlobalSearch } from './GlobalSearch';
 
@@ -20,6 +20,11 @@ const links = [
   { href: '/vault', label: 'Vault', icon: Lock },
   { href: '/breach-scanner', label: 'Breach Scanner', icon: Search },
   { href: '/forensics', label: 'Forensics', icon: Microscope },
+  { href: '/sales', label: 'Sales CRM', icon: TrendingUp },
+  { href: '/medical', label: 'Medical', icon: Stethoscope },
+  { href: '/dedup', label: 'Deduplication', icon: Copy },
+  { href: '/sales', label: 'Sales CRM', icon: TrendingUp },
+  { href: '/medical', label: 'Medical', icon: Stethoscope },
   { href: '/guides', label: 'Guides', icon: BookOpen },
   { href: '/reports', label: 'Reports', icon: FileText },
   { href: '/installer', label: 'Scout Installer', icon: Download },
