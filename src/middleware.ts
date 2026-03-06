@@ -13,10 +13,13 @@ export function middleware(request: NextRequest) {
   // Allow internal Next.js routes
   if (pathname.startsWith('/_next') || pathname.startsWith('/favicon')) return NextResponse.next();
 
-  // Validate auth cookie — compare against base64 token derived from env var
+  // If no password configured, allow all traffic (unauthenticated mode)
   const DASHBOARD_PASSWORD = process.env.DASHBOARD_PASSWORD;
+  if (!DASHBOARD_PASSWORD) return NextResponse.next();
+
+  // Validate auth cookie — compare against base64 token derived from env var
   const authCookie = request.cookies.get(COOKIE_NAME);
-  if (DASHBOARD_PASSWORD && authCookie?.value === Buffer.from(`za:${DASHBOARD_PASSWORD}`).toString('base64')) {
+  if (authCookie?.value === Buffer.from(`za:${DASHBOARD_PASSWORD}`).toString('base64')) {
     return NextResponse.next();
   }
 
