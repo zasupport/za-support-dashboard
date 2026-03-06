@@ -26,15 +26,36 @@ async function fetchReports() {
   } catch { return []; }
 }
 
+async function fetchBillingSummary() {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/cybershield/billing/summary`, { headers: h, cache: 'no-store' });
+    return res.ok ? res.json() : null;
+  } catch { return null; }
+}
+
+async function fetchBilling() {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/cybershield/billing?per_page=20`, { headers: h, cache: 'no-store' });
+    return res.ok ? (await res.json()).data ?? [] : [];
+  } catch { return []; }
+}
+
 
 function fmt(v: number | null | undefined, prefix = '') {
   if (v == null) return '—';
   return `${prefix}${v.toLocaleString()}`;
 }
 
+const STATUS_COLOUR: Record<string, string> = {
+  pending: 'bg-slate-700 text-slate-300',
+  sent:    'bg-blue-900/40 text-blue-300',
+  paid:    'bg-teal-900/40 text-teal-300',
+  overdue: 'bg-red-900/40 text-red-300',
+};
+
 export default async function CyberShieldPage() {
-  const [summary, enrollments, reports] = await Promise.all([
-    fetchSummary(), fetchEnrollments(), fetchReports(),
+  const [summary, enrollments, reports, billingSummary, billing] = await Promise.all([
+    fetchSummary(), fetchEnrollments(), fetchReports(), fetchBillingSummary(), fetchBilling(),
   ]);
 
   const arr = summary?.monthly_arr ? Number(summary.monthly_arr).toLocaleString('en-ZA', { minimumFractionDigits: 0 }) : '0';
@@ -120,6 +141,71 @@ export default async function CyberShieldPage() {
           </table>
         )}
       </div>
+
+      {/* Billing */}
+      {billingSummary && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { label: 'Outstanding', value: `R ${Number(billingSummary.outstanding).toLocaleString('en-ZA')}`, colour: 'text-yellow-400' },
+            { label: 'Paid This Month', value: `R ${Number(billingSummary.paid_this_month).toLocaleString('en-ZA')}`, colour: 'text-green-400' },
+            { label: 'Total Paid (All Time)', value: `R ${Number(billingSummary.total_paid_all_time).toLocaleString('en-ZA')}`, colour: 'text-teal-400' },
+            { label: 'Overdue Invoices', value: String(billingSummary.overdue_count), colour: billingSummary.overdue_count > 0 ? 'text-red-400' : 'text-slate-500' },
+          ].map(({ label, value, colour }) => (
+            <div key={label} className="bg-slate-800 border border-slate-700 rounded-lg p-4">
+              <p className="text-xs text-slate-400 mb-1">{label}</p>
+              <p className={`text-xl font-bold ${colour}`}>{value}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {billing.length > 0 && (
+        <div className="bg-slate-800 border border-slate-700 rounded-lg overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-700">
+            <h2 className="text-white font-semibold">Billing Records</h2>
+          </div>
+          <table className="w-full text-sm">
+            <thead className="text-xs text-slate-400 bg-slate-900/40">
+              <tr>
+                <th className="text-left px-4 py-3">Client</th>
+                <th className="text-left px-4 py-3">Month</th>
+                <th className="text-left px-4 py-3">Amount</th>
+                <th className="text-left px-4 py-3">Status</th>
+                <th className="text-left px-4 py-3">Invoice Ref</th>
+                <th className="text-left px-4 py-3">Due</th>
+                <th className="text-left px-4 py-3">Paid</th>
+              </tr>
+            </thead>
+            <tbody>
+              {billing.map((b: any, i: number) => (
+                <tr key={b.id} className={i % 2 === 0 ? 'bg-slate-800' : 'bg-slate-800/60'}>
+                  <td className="px-4 py-3 font-mono text-xs">
+                    <Link href={`/clients/${b.client_id}`} className="text-teal-400 hover:text-teal-300">
+                      {b.client_id}
+                    </Link>
+                  </td>
+                  <td className="px-4 py-3 text-slate-300 text-xs">{b.month_label}</td>
+                  <td className="px-4 py-3 text-slate-300 text-xs">R {Number(b.amount).toLocaleString('en-ZA')}</td>
+                  <td className="px-4 py-3">
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLOUR[b.status] ?? 'bg-slate-700 text-slate-400'}`}>
+                      {b.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-slate-400 text-xs font-mono">{b.invoice_ref ?? '—'}</td>
+                  <td className="px-4 py-3 text-slate-400 text-xs">
+                    {b.due_date ? new Date(b.due_date).toLocaleDateString('en-ZA') : '—'}
+                  </td>
+                  <td className="px-4 py-3 text-xs">
+                    {b.paid_at
+                      ? <span className="text-green-400">{new Date(b.paid_at).toLocaleDateString('en-ZA')}</span>
+                      : <span className="text-slate-600">—</span>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Recent Reports */}
       <div className="bg-slate-800 border border-slate-700 rounded-lg overflow-hidden">

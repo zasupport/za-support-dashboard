@@ -18,3 +18,22 @@ export async function GET(
     return NextResponse.json(null, { status: 503 });
   }
 }
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ client_id: string }> }
+) {
+  const { client_id } = await params;
+  try {
+    const body = await req.text();
+    const res = await fetch(`${API_URL}/api/v1/clients/${client_id}`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${API_TOKEN}`, 'Content-Type': 'application/json' },
+      body,
+    });
+    const data = await res.json().catch(() => null);
+    return NextResponse.json(data, { status: res.status });
+  } catch {
+    return NextResponse.json({ error: 'Failed' }, { status: 503 });
+  }
+}
