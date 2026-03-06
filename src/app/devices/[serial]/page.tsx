@@ -3,6 +3,7 @@ import { AutoRefresh } from '@/components/auto-refresh';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { TrendCharts } from './TrendCharts';
+import { FrustrationTimeline } from './FrustrationTimeline';
 import { CreateJobButton } from './CreateJobButton';
 
 // Make client_id a clickable link to the client profile
@@ -104,6 +105,9 @@ export default async function DeviceDetailPage({ params }: { params: Promise<{ s
         <h2 className="text-base font-semibold text-white mb-3">Historical Trends</h2>
         <TrendCharts serial={serial} />
       </div>
+
+      {/* Frustration timeline */}
+      <FrustrationTimeline serial={serial} />
 
       {/* Report download + workshop job */}
       {diag.client_id && (

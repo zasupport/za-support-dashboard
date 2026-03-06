@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { GeneratePDFButton } from './GeneratePDFButton';
 import { BillingStatusButton } from './BillingStatusButton';
+import { BillingActions } from './BillingActions';
+import { BillingEmailButton } from './BillingEmailButton';
 
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
 const API_TOKEN = process.env.ZA_API_TOKEN || '';
@@ -62,12 +64,15 @@ export default async function CyberShieldPage() {
           <h1 className="text-2xl font-bold text-white">CyberShield</h1>
           <p className="text-slate-400 text-sm mt-1">Network security service — R 1,499/month per practice</p>
         </div>
-        <Link
-          href="/cybershield/new"
-          className="bg-teal-600 hover:bg-teal-500 text-white text-sm px-4 py-2 rounded transition-colors"
-        >
-          + Enroll Practice
-        </Link>
+        <div className="flex items-center gap-2">
+          <BillingActions />
+          <Link
+            href="/cybershield/new"
+            className="bg-teal-600 hover:bg-teal-500 text-white text-sm px-4 py-2 rounded transition-colors"
+          >
+            + Enroll Practice
+          </Link>
+        </div>
       </div>
 
       {/* Stats Grid */}
@@ -193,15 +198,16 @@ export default async function CyberShieldPage() {
                       ? <span className="text-green-400">{new Date(b.paid_at).toLocaleDateString('en-ZA')}</span>
                       : <span className="text-slate-600">—</span>}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 flex gap-2 items-center">
                     <a
                       href={`/api/cybershield?_path=billing/${b.id}/invoice`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs text-teal-400 hover:text-teal-300 whitespace-nowrap"
                     >
-                      ↓ Invoice
+                      ↓ PDF
                     </a>
+                    <BillingEmailButton billingId={b.id} />
                   </td>
                 </tr>
               ))}
