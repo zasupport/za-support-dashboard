@@ -87,9 +87,12 @@ ZA_API_TOKEN=<agent bearer token>
 - [x] Global search — client + device search in nav sidebar
 - [x] Dark theme throughout (slate-800/900/950)
 - [x] Server-side auth (bearer token never exposed to browser)
-- [x] Login page skeleton
+- [x] Login page + full session auth — middleware, cookie, login form, logout route + nav button
+- [x] Customer Guides page — list, create, send to client, delete, category filter, tag display
+- [x] Interaction Analytics — frustration timeline chart (Recharts AreaChart, per device, 30d)
+- [x] Scout Installer page — /installer
 
 ## What is pending
 
-- [ ] Full authentication (session/cookie middleware) — login page exists but no session guard
-- [ ] Charts — Recharts graphs for resource trends, frustration timeline (TrendCharts.tsx exists for devices)
+- [ ] DASHBOARD_PASSWORD env var not set on Vercel → session guard inactive (set in Vercel dashboard)
+- [ ] Charts — Recharts resource trend graphs on devices page (TrendCharts.tsx exists, needs wiring)
