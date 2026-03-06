@@ -5,9 +5,10 @@ const API_TOKEN = process.env.ZA_API_TOKEN || '';
 
 const authHeaders = () => ({ Authorization: `Bearer ${API_TOKEN}`, 'Content-Type': 'application/json' });
 
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   try {
-    const res = await fetch(`${API_URL}/api/v1/guides/${params.id}`, {
+    const res = await fetch(`${API_URL}/api/v1/guides/${id}`, {
       headers: authHeaders(),
       cache: 'no-store',
     });
@@ -18,10 +19,11 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const body = await req.json();
   try {
-    const res = await fetch(`${API_URL}/api/v1/guides/${params.id}`, {
+    const res = await fetch(`${API_URL}/api/v1/guides/${id}`, {
       method: 'PATCH',
       headers: authHeaders(),
       body: JSON.stringify(body),
@@ -34,9 +36,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   try {
-    await fetch(`${API_URL}/api/v1/guides/${params.id}`, {
+    await fetch(`${API_URL}/api/v1/guides/${id}`, {
       method: 'DELETE',
       headers: authHeaders(),
     });
