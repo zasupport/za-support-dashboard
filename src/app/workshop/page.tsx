@@ -75,12 +75,12 @@ export default async function WorkshopPage() {
         </div>
       )}
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-white">Workshop</h1>
           <p className="text-slate-400 text-sm mt-0.5">Click status badge to advance · Click job ref for detail</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {urgent > 0 && (
             <span className="text-xs px-3 py-1 rounded-full border bg-red-500/20 text-red-300 border-red-500/30 font-medium">
               {urgent} URGENT

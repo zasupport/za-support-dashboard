@@ -76,9 +76,11 @@ export function Nav() {
       </aside>
 
       {/* Mobile top bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-slate-900 border-b border-slate-700 px-4 py-3 flex items-center justify-between">
-        <span className="font-bold text-white text-sm">ZA Support</span>
-        <GlobalSearch />
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-slate-900 border-b border-slate-700 px-4 py-3 flex items-center gap-3">
+        <span className="font-bold text-white text-sm shrink-0">ZA Support</span>
+        <div className="flex-1 min-w-0">
+          <GlobalSearch />
+        </div>
       </div>
 
       {/* Mobile bottom nav */}

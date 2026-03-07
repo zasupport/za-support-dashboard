@@ -4,7 +4,7 @@ import { ClientsClient } from './client';
 export default function ClientsPage() {
   return (
     <div>
-      <div className="flex items-start justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">Clients</h1>
           <p className="text-slate-400 text-sm">Client registry · intake records · POPIA consent · onboarding status</p>

@@ -75,7 +75,7 @@ export default async function MorningPage() {
 
       {/* CyberShield status strip */}
       {shield && (
-        <div className="flex items-center gap-6 px-4 py-3 rounded-md bg-slate-800 border border-slate-700 text-xs text-slate-300">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 rounded-md bg-slate-800 border border-slate-700 text-xs text-slate-300">
           <span className="text-teal-400 font-semibold">CyberShield</span>
           <span><span className="text-white font-bold">{shield.active_subscriptions ?? 0}</span> active practices</span>
           <span><span className="text-green-400 font-bold">R {Number(shield.monthly_arr ?? 0).toLocaleString()}</span>/month ARR</span>
@@ -90,7 +90,8 @@ export default async function MorningPage() {
       {/* Client table */}
       <Card className="bg-slate-800 border-slate-700">
         <CardContent className="p-0">
-          <table className="w-full text-xs">
+          <div className="overflow-x-auto">
+          <table className="w-full text-xs min-w-[640px]">
             <thead>
               <tr className="border-b border-slate-700 text-slate-400">
                 <th className="text-left px-4 py-3 font-medium">Client</th>
@@ -171,6 +172,7 @@ export default async function MorningPage() {
           {clients.length === 0 && (
             <p className="text-slate-500 text-sm text-center py-8">No active clients.</p>
           )}
+          </div>
         </CardContent>
       </Card>
     </div>

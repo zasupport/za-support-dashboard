@@ -55,7 +55,7 @@ export default async function DashboardPage() {
       <h1 className="text-2xl font-bold text-white mb-6">Dashboard</h1>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-7 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-8">
         <Card className="bg-slate-800 border-slate-700">
           <CardHeader className="pb-2"><CardTitle className="text-xs text-slate-400 flex items-center gap-2"><Users size={13} /> Clients</CardTitle></CardHeader>
           <CardContent>

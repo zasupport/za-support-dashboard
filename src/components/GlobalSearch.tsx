@@ -65,10 +65,10 @@ export function GlobalSearch() {
 
   return (
     <div ref={ref} className="relative">
-      <div className="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-md px-3 py-1.5">
+      <div className="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-md px-3 py-1.5 w-full md:w-auto">
         <Search size={13} className="text-slate-500 shrink-0" />
         <input
-          className="bg-transparent text-sm text-white placeholder-slate-500 outline-none w-40 focus:w-56 transition-all"
+          className="bg-transparent text-sm text-white placeholder-slate-500 outline-none w-full md:w-40 md:focus:w-56 md:transition-all"
           placeholder="Search clients, devices…"
           value={query}
           onChange={e => setQuery(e.target.value)}
@@ -77,7 +77,7 @@ export function GlobalSearch() {
       </div>
 
       {open && results.length > 0 && (
-        <div className="absolute top-full mt-1 left-0 z-50 w-72 bg-slate-800 border border-slate-700 rounded-md shadow-xl overflow-hidden">
+        <div className="absolute top-full mt-1 left-0 z-50 w-64 md:w-72 bg-slate-800 border border-slate-700 rounded-md shadow-xl overflow-hidden">
           {results.map((r, i) => (
             <button
               key={i}
@@ -97,7 +97,7 @@ export function GlobalSearch() {
       )}
 
       {open && loading && (
-        <div className="absolute top-full mt-1 left-0 z-50 w-72 bg-slate-800 border border-slate-700 rounded-md px-4 py-3">
+        <div className="absolute top-full mt-1 left-0 z-50 w-64 md:w-72 bg-slate-800 border border-slate-700 rounded-md px-4 py-3">
           <p className="text-xs text-slate-400">Searching…</p>
         </div>
       )}

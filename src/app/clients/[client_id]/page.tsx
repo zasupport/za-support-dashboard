@@ -62,7 +62,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
     <div className="space-y-6">
       <AutoRefresh intervalMs={300000} />
       {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div>
           <Link href="/clients" className="text-slate-400 text-xs hover:text-white mb-1 block">← All Clients</Link>
           <Link href={`/clients/${client.client_id}/brief`} className="text-teal-400 text-xs hover:text-teal-300 mb-1 block">Site Visit Brief →</Link>
@@ -99,7 +99,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Contact details */}
         <Card className="bg-slate-800 border-slate-700">
           <CardHeader><CardTitle className="text-white text-sm">Contact</CardTitle></CardHeader>
