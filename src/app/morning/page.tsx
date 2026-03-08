@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { AutoRefresh } from '@/components/auto-refresh';
-import { fetchCyberShieldSummary } from '@/lib/api';
+import { fetchCyberShieldSummary, fetchUpgradeRadar } from '@/lib/api';
 import { TrendAlerts } from './TrendAlerts';
 import { FleetInterventionsFeed } from '@/components/FleetInterventionsFeed';
 
@@ -51,7 +51,7 @@ function GradeBadge({ riskScore, riskLevel, daysSinceScan }: {
 }
 
 export default async function MorningPage() {
-  const [clients, shield] = await Promise.all([fetchMorning(), fetchCyberShieldSummary()]);
+  const [clients, shield, radar] = await Promise.all([fetchMorning(), fetchCyberShieldSummary(), fetchUpgradeRadar()]);
   const urgent = clients.filter((c: any) => c.urgency_level?.toLowerCase().startsWith('urgent'));
   const overdue = clients.filter((c: any) => (c.days_since_scan ?? 999) > 30);
 
@@ -87,6 +87,46 @@ export default async function MorningPage() {
 
       {/* Trajectory alerts */}
       <TrendAlerts />
+
+      {/* Upgrade Radar — devices needing replacement today */}
+      {radar && ((radar.meta?.critical ?? 0) + (radar.meta?.overdue ?? 0)) > 0 && (
+        <Card className="bg-slate-800 border-orange-500/30">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <p className="text-orange-300 font-semibold text-sm">
+                  Device Replacement Alerts — {(radar.meta?.critical ?? 0) + (radar.meta?.overdue ?? 0)} device{((radar.meta?.critical ?? 0) + (radar.meta?.overdue ?? 0)) !== 1 ? 's' : ''} need attention
+                </p>
+                <p className="text-orange-200/60 text-xs mt-0.5">
+                  {radar.meta?.critical ?? 0} critical · {radar.meta?.overdue ?? 0} overdue · {radar.meta?.soon ?? 0} soon
+                </p>
+              </div>
+              <Link href="/upgrade-radar" className="text-xs text-orange-400 hover:text-orange-300 shrink-0">
+                Full radar →
+              </Link>
+            </div>
+            <div className="space-y-1.5">
+              {(radar.data ?? []).filter((d: any) => d.replacement_urgency === 'critical' || d.replacement_urgency === 'overdue').slice(0, 5).map((d: any) => (
+                <div key={d.id} className="flex items-center justify-between gap-3 text-xs py-1.5 border-b border-slate-700/50 last:border-0">
+                  <div className="min-w-0 flex-1">
+                    <span className={`font-medium ${d.replacement_urgency === 'critical' ? 'text-red-300' : 'text-orange-300'}`}>
+                      [{d.replacement_urgency.toUpperCase()}]
+                    </span>
+                    {' '}
+                    <span className="text-slate-300">{d.display_name}</span>
+                    {' — '}
+                    <Link href={`/clients/${d.client_id}`} className="text-teal-400 hover:text-teal-300">{d.client_name}</Link>
+                    {d.age_years != null && <span className="text-slate-500"> · {d.age_years.toFixed(1)}y old</span>}
+                  </div>
+                  <Link href="/upgrade-radar" className="shrink-0 text-orange-400 hover:text-orange-300 underline">
+                    Pitch →
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Client table */}
       <Card className="bg-slate-800 border-slate-700">
