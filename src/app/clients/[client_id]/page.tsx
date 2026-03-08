@@ -7,6 +7,7 @@ import { CreateJobButton } from './CreateJobButton';
 import { EditClientButton } from './EditClientButton';
 import { PortalLinkButton } from './PortalLinkButton';
 import { RoiWidget } from '@/components/RoiWidget';
+import { RoiTrendChart } from '@/components/RoiTrendChart';
 import Link from 'next/link';
 import { AutoRefresh } from '@/components/auto-refresh';
 import { notFound } from 'next/navigation';
@@ -142,8 +143,9 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
         </Card>
       </div>
 
-      {/* ROI Widget */}
+      {/* ROI Widget + Trend Chart */}
       <RoiWidget clientId={client.client_id} clientName={`${client.first_name} ${client.last_name}`} />
+      <RoiTrendChart clientId={client.client_id} />
 
       {/* Business section (if applicable) */}
       {client.has_business && (
