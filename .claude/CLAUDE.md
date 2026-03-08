@@ -1,5 +1,5 @@
 # ZA SUPPORT — GLOBAL CLAUDE CODE STANDARDS
-# Owner: Courtney Bentley | Last Updated: 08/03/2026 (session 7 — INSTRUCTIONS-5.md + branding rules, Sections 23-26)
+# Owner: Courtney Bentley | Last Updated: 08/03/2026 (session 9 — Section 28: Core Value Proposition pipeline, ROI engine, data verification, automated interventions)
 # Location: ~/.claude/CLAUDE.md
 # Scope: All development tasks across all ZA Support repositories
 
@@ -889,6 +889,14 @@ When generating instructions intended for Claude Code projects: ALWAYS create or
 ## When Both Apply
 If a request generates rules relevant to both global preferences AND Claude Code, produce BOTH: the code block for preferences AND the .md file for Claude Code. Do not ask which format — deliver both.
 
+## API Keys Required — Always Declare Upfront (CRITICAL)
+Before starting ANY task that requires an external API key, credential, or service account:
+1. List every API/key needed by name BEFORE writing any code
+2. Format: "APIs needed: [Service Name] — [what it's used for]"
+3. Wait for Courtney to confirm she has them OR proceed if already stored in ~/.za-keys-pending.env
+4. Never write code that silently assumes a key exists — always surface the dependency first
+5. If a task is already in progress and a new key need is discovered mid-build: STOP and declare it immediately
+
 ---
 
 # SECTION 23: CHATGPT HISTORY IMPORT (PENDING)
@@ -1078,3 +1086,233 @@ At the end of every multi-step session:
 1. Run the health check above
 2. If any service is degraded: fix before closing
 3. Emit task completion notification only when all services are healthy
+
+---
+
+# SECTION 28: CORE VALUE PROPOSITION — DATA INTEGRITY, ROI ENGINE & PROOF OF VALUE
+# Owner: Courtney Bentley | Added: 08/03/2026 (session 9)
+# CRITICAL — these rules protect the quality and commercial value of everything ZA Support delivers.
+
+## 28.1 The Non-Negotiable Pipeline (EVERY CLIENT, EVERY SESSION)
+
+The ZA Support core value proposition is ONLY fully delivered when ALL five stages complete:
+
+```
+Stage 1: COLLECT   — Scout runs all 19 phases → raw TXT + JSON produced
+Stage 2: VERIFY    — Data cross-checked, confidence scores assigned, Claude validation pass
+Stage 3: ANALYSE   — Findings analysed, patterns detected, risk scored, priorities assigned
+Stage 4: ROI       — Every finding mapped to financial impact (exposure prevented OR value delivered)
+Stage 5: REPORT    — Client receives: what was found + what was done automatically + what it's worth
+```
+
+NEVER skip Stage 2 (Verify). NEVER skip Stage 4 (ROI). A report without ROI is incomplete.
+NEVER generate a client-facing document from unverified data.
+NEVER deliver a report that does not show what the system has done automatically for that client.
+
+## 28.2 Data Verification Protocol — Mandatory After Every Scout Run
+
+### First-Collection Verification (new client or first-ever Scout run)
+1. Parse Scout TXT + JSON via diagnostic_parser
+2. Cross-check all hardware fields: RAM, storage, processor, macOS version, serial number
+   - Source priority: JSON manifest → TXT (system_profiler) → About This Mac screenshot → client record
+   - If JSON vs TXT disagree by >10% on any hardware value: flag, use TXT as ground truth, mark UNVERIFIED
+3. Run hardware verification checklist (Section 16) — every field must have a confirmed source
+4. Assign DATA CONFIDENCE SCORE per field: HIGH / MEDIUM / LOW
+   - HIGH: confirmed from 2+ sources, values match
+   - MEDIUM: confirmed from 1 source, no contradiction
+   - LOW: inferred, inconsistent, or absent
+5. Send structured findings to Claude with this exact prompt:
+   "Cross-check these hardware values against macOS norms for this device model. Flag any value that is
+   inconsistent with the model specification, impossible given the OS version, or shows signs of
+   data collection error. Return: field, status (PASS/FLAG), reason."
+6. Any Claude-flagged field: mark UNVERIFIED — do NOT include in client report without a note
+7. Store result in `diagnostic_verifications` table (see 28.5) — passed=TRUE required before report generation
+
+### Ongoing Verification (subsequent Scout runs)
+1. Compare new run against previous diagnostic snapshot stored in diagnostic_snapshots
+2. Flag any field that changed by >15% — classify as DATA ERROR or REAL CHANGE
+3. Auto-fail (require Courtney review) if: RAM changed, processor changed, serial number changed, macOS downgraded
+4. Auto-pass if delta is within expected range: storage free space, battery health declining, macOS upgraded
+
+### Verification Gate Rule
+NO client-facing report may be generated unless `diagnostic_verifications.passed = TRUE` for that snapshot.
+If verification fails: pause, flag to Courtney, wait for manual sign-off. Never silently skip.
+
+## 28.3 ROI Engine — Map Every Finding to Financial Value (CRITICAL)
+
+### Finding-to-Financial-Impact Mapping Table
+Every Scout finding category maps to a conservative SA-market financial figure. Use ALWAYS.
+
+| Finding Category | Financial Impact | Basis |
+|---|---|---|
+| Backup failure (N months) | N × R 2,500 | Avg data recovery cost per month |
+| No Time Machine at all | R 15,000 | One-time data loss risk |
+| No FileVault — medical practice | R 50,000 risk-adjusted | POPIA max fine R 10M, probability-weighted |
+| No FileVault — individual | R 25,000 | Identity theft + data breach exposure |
+| Malware detected | R 35,000 | Avg SA SME ransomware incident |
+| Failed SIP / system integrity | R 50,000 | System compromise exposure |
+| Battery <50% health | R 1,200/month productivity loss | 2h/day at R 899/h × 30 days × 50% productivity hit |
+| Storage >90% full | R 8,500 risk | Emergency data recovery if disk fails |
+| Outdated macOS (>2 major versions) | R 45,000 | Avg SA cybercrime incident, zero-day exposure |
+| Unverified remote access tool | R 75,000 | Unauthorised access exposure |
+| Unencrypted patient data (medical) | R 150,000 risk-adjusted | POPIA + HPCSA combined exposure |
+| No password manager / sharing detected | R 25,000 | Credential breach exposure |
+| No MDM / device management | R 899/month | Manual oversight cost ZA Support absorbs |
+| SMART warning on drive | R 12,000 | Data loss + recovery if drive fails |
+| ISP outage not detected proactively | R 3,500/hour downtime | Avg SA professional hourly productivity |
+
+### ROI Calculation Rules
+- ALWAYS use conservative figures — never inflate
+- ALWAYS show ZA Support cost vs exposure to frame value
+- ROI ratio = (total_exposure_identified + total_value_delivered) ÷ zasupport_cost_this_period
+- Store ALL ROI calculations in `client_roi_records` table (see 28.5)
+- Present cumulative ROI to client monthly — growing number is the most powerful retention tool
+
+### ROI Report Block — Required in Every Periodic Client Report
+```
+ZA SUPPORT ROI — [Month] [Year]
+
+WHAT WE FOUND:
+• [Finding]: [description] — Exposure: R [amount]
+• [Finding]: [description] — Exposure: R [amount]
+Total exposure identified: R [sum]
+
+WHAT WE DID (automatically — no intervention required):
+• [Action]: [description] — Value: R [amount] prevented
+• [Action]: [description] — Time saved: [N] hours (R [Y])
+Total value delivered: R [sum]
+
+YOUR ZA SUPPORT ROI THIS PERIOD:
+Value delivered: R [sum]
+ZA Support investment: R [subscription × months]
+ROI ratio: [X]:1
+
+"For every R 1 invested in ZA Support, R [X] in risk or cost was avoided this period."
+
+Cumulative ROI since [start date]: R [lifetime value delivered]
+```
+
+## 28.4 Automated Actions Log — Proof of Zero-Intervention Value (CRITICAL)
+
+### Purpose
+The single most powerful client retention mechanism is PROOF that ZA Support's system works 24/7
+without anyone having to ask. Every automated action MUST be logged in real-time and surfaced in reports.
+
+### What Counts as an Automated Action
+- Scout detected a backup failure → Workshop job created automatically
+- Health Check detected new threat pattern → alert email sent
+- Monthly CyberPulse report generated and delivered without request
+- Patch monitor detected OS update available → client notification sent
+- ISP outage detected → client alerted before they experienced it
+- UniFi event processed → escalation created automatically
+- Stale diagnostic detected → reminder sent to client
+- CyberShield event blocked → logged and included in monthly report
+- Research digest delivered weekly without any manual trigger
+- Agent auto-updated on client machine → logged
+- Backup schedule verified and confirmed healthy → logged (positive confirmation matters too)
+
+### Logging Rule — Real-Time Only
+Log automated actions AT THE MOMENT they happen — not retroactively.
+Every scheduled job, every event handler, every webhook processor MUST write to `automated_interventions`
+on completion (success OR failure with resolution). Never batch-reconstruct logs later.
+
+### Report Section: "What ZA Support Did While You Worked"
+Required in EVERY periodic report. Even if month was quiet:
+```
+AUTOMATED THIS MONTH — Zero intervention required from you
+
+  15/02/2026  Backup failure detected → job logged + alert sent       R 2,500 risk addressed
+  18/02/2026  macOS update alert delivered automatically               R 45,000 exposure flagged
+  01/03/2026  Monthly CyberPulse report generated + delivered          R 899 manual work saved
+  01/03/2026  CyberShield: 3 threats blocked, 1 phishing site blocked  R 35,000 exposure prevented
+
+  Automated actions this month:  4
+  Hours ZA Support system worked for you:  18h
+  Hours you needed to spend:  0
+  Value delivered without your involvement:  R 84,298
+```
+If no interventions occurred: "System healthy — monitoring continued, no interventions required."
+
+## 28.5 Database Tables Required (add to next migration)
+
+```sql
+-- ROI per client per reporting period
+CREATE TABLE client_roi_records (
+  id                          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id                   UUID REFERENCES clients NOT NULL,
+  period_start                DATE NOT NULL,
+  period_end                  DATE NOT NULL,
+  total_exposure_identified   DECIMAL(12,2) DEFAULT 0,
+  total_value_delivered       DECIMAL(12,2) DEFAULT 0,
+  zasupport_cost_period       DECIMAL(10,2) DEFAULT 0,
+  roi_ratio                   DECIMAL(6,2),
+  automated_actions_count     INTEGER DEFAULT 0,
+  manual_hours_saved          DECIMAL(6,2) DEFAULT 0,
+  findings_json               JSONB,
+  generated_at                TIMESTAMPTZ DEFAULT NOW(),
+  included_in_report_id       UUID
+);
+
+-- Verification result per diagnostic snapshot
+CREATE TABLE diagnostic_verifications (
+  id                          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  diagnostic_snapshot_id      UUID NOT NULL,
+  client_id                   UUID REFERENCES clients,
+  verified_at                 TIMESTAMPTZ DEFAULT NOW(),
+  overall_confidence          TEXT CHECK (overall_confidence IN ('HIGH','MEDIUM','LOW')),
+  field_confidence            JSONB,     -- {"ram_gb": "HIGH", "storage_gb": "MEDIUM", ...}
+  claude_review_result        JSONB,     -- Claude's flagged fields + reasons
+  flags                       JSONB,     -- fields requiring manual verification
+  passed                      BOOLEAN NOT NULL DEFAULT FALSE,
+  reviewed_by                 TEXT DEFAULT 'auto'   -- 'auto' or 'courtney'
+);
+
+-- Every automated action taken by the system
+CREATE TABLE automated_interventions (
+  id                          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id                   UUID REFERENCES clients,
+  device_id                   UUID,
+  detected_at                 TIMESTAMPTZ DEFAULT NOW(),
+  intervention_type           TEXT NOT NULL,
+  -- Types: backup_failure_detected, threat_blocked, report_generated,
+  --        alert_sent, job_created, patch_alert, isp_outage_detected,
+  --        stale_scan_alert, cybershield_event, research_digest, agent_updated,
+  --        verification_passed, verification_failed
+  description                 TEXT NOT NULL,
+  automated                   BOOLEAN DEFAULT TRUE,
+  manual_hours_saved          DECIMAL(4,2),
+  financial_value_rand        DECIMAL(12,2),
+  source_agent                TEXT,
+  evidence_json               JSONB,
+  resolved_at                 TIMESTAMPTZ,
+  resolution_notes            TEXT
+);
+```
+
+## 28.6 Build Order — Gap Closure Priority
+
+Priority order to close the gap between current state and a fully robust core value proposition:
+
+1. **[CRITICAL] automated_interventions table + logging** — wire into every scheduled job, every event
+   handler. Without this, zero proof of automated value to clients. Migration: 025_automated_interventions.sql
+2. **[CRITICAL] diagnostic_verifications table + Claude verification pass** — gate report generation
+   on passed=TRUE. Migration: 026_diagnostic_verifications.sql
+3. **[CRITICAL] client_roi_records table + ROI engine** — calculate + store ROI per client per period.
+   Migration: 027_client_roi_records.sql. Service: app/modules/reports/roi_engine.py
+4. **[HIGH] Report generator** — add "What ZA Support Did" section + ROI block to every periodic report
+5. **[HIGH] Dashboard ROI widget** — real-time cumulative ROI per client (retention + upsell driver)
+6. **[HIGH] POST /api/v1/diagnostics/{id}/verify** — calls Claude API with hardware cross-check prompt,
+   writes to diagnostic_verifications, returns pass/fail + flagged fields
+7. **[MEDIUM] First-collection flow** — stricter verification for new clients, requires Courtney sign-off
+8. **[MEDIUM] ROI trends chart on dashboard** — 12-month cumulative ROI trend per client
+
+## 28.7 Zero-Exception Rules (GLOBAL, PERMANENT — all chats, all sessions)
+
+1. NEVER generate a client-facing report from unverified diagnostic data. `verification.passed = TRUE` required.
+2. NEVER omit the ROI section from any periodic client report. No data = partial estimate with note.
+3. ALWAYS log automated actions in real-time — every scheduled job, every event handler writes to automated_interventions on completion.
+4. ALWAYS include "What ZA Support Did" section in every report — even if answer is "system healthy, no interventions required."
+5. ALWAYS calculate and store ROI before closing any report generation task. ROI is not optional.
+6. Data disagreement (JSON vs TXT >10% on hardware): STOP → flag to Courtney → verify before proceeding.
+7. First Scout run for any client: mandatory Claude verification pass before any client communication using that data.
+8. ROI figures: ALWAYS conservative, ALWAYS cite basis, NEVER inflate. Credibility is the product.
