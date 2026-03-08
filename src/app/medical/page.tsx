@@ -205,7 +205,7 @@ function AddPracticeModal({ onClose, onSave }: { onClose: () => void; onSave: ()
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <label style={labelStyle}>Practice Name *
             <input value={form.practice_name} onChange={e => set('practice_name', e.target.value)}
-              placeholder='e.g. "Dr\'s Pieterse, Hunt, Meyberg & Associates"' style={inputStyle} />
+              placeholder="e.g. Pieterse, Hunt, Meyberg &amp; Associates" style={inputStyle} />
           </label>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
