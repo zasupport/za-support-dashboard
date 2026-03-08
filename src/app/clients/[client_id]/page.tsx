@@ -9,6 +9,7 @@ import { PortalLinkButton } from './PortalLinkButton';
 import { RoiWidget } from '@/components/RoiWidget';
 import { RoiTrendChart } from '@/components/RoiTrendChart';
 import { InterventionsFeed } from '@/components/InterventionsFeed';
+import { SimilarInsights } from './SimilarInsights';
 import Link from 'next/link';
 import { AutoRefresh } from '@/components/auto-refresh';
 import { notFound } from 'next/navigation';
@@ -339,6 +340,9 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
           </Card>
         );
       })()}
+
+      {/* AI Client Insights — similar clients + cross-pattern detection */}
+      <SimilarInsights clientId={client.client_id} />
 
       {/* Internal notes */}
       <ClientNotes clientId={client.client_id} />
