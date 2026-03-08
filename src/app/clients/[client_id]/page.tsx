@@ -7,6 +7,7 @@ import { CreateJobButton } from './CreateJobButton';
 import { EditClientButton } from './EditClientButton';
 import { PortalLinkButton } from './PortalLinkButton';
 import { ProposalButton } from './ProposalButton';
+import { ActiveProposalBanner } from './ActiveProposalBanner';
 import { RoiWidget } from '@/components/RoiWidget';
 import { RoiTrendChart } from '@/components/RoiTrendChart';
 import { InterventionsFeed } from '@/components/InterventionsFeed';
@@ -95,6 +96,9 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
           <StatusUpdater clientId={client.client_id} currentStatus={client.status} />
         </div>
       </div>
+
+      {/* Active proposal status banner */}
+      <ActiveProposalBanner clientId={client.client_id} />
 
       {/* Urgent / business action banners */}
       {isUrgent && (

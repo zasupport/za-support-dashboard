@@ -19,10 +19,14 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// GET /api/proposals — list proposals
+// GET /api/proposals — list proposals (supports ?status=X&client_id=Y)
 export async function GET(req: NextRequest) {
-  const status = req.nextUrl.searchParams.get('status') || '';
-  const qs = status ? `?status=${encodeURIComponent(status)}` : '';
+  const status    = req.nextUrl.searchParams.get('status')    || '';
+  const client_id = req.nextUrl.searchParams.get('client_id') || '';
+  const parts: string[] = [];
+  if (status)    parts.push(`status=${encodeURIComponent(status)}`);
+  if (client_id) parts.push(`client_id=${encodeURIComponent(client_id)}`);
+  const qs = parts.length ? `?${parts.join('&')}` : '';
   try {
     const res = await fetch(`${API_URL}/api/v1/proposals/${qs}`, {
       headers: { Authorization: `Bearer ${API_TOKEN}` },
