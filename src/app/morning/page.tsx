@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { AutoRefresh } from '@/components/auto-refresh';
-import { fetchCyberShieldSummary, fetchUpgradeRadar } from '@/lib/api';
+import { fetchCyberShieldSummary, fetchUpgradeRadar, fetchCheckinStatus } from '@/lib/api';
 import { TrendAlerts } from './TrendAlerts';
 import { FleetInterventionsFeed } from '@/components/FleetInterventionsFeed';
 
@@ -51,7 +51,9 @@ function GradeBadge({ riskScore, riskLevel, daysSinceScan }: {
 }
 
 export default async function MorningPage() {
-  const [clients, shield, radar] = await Promise.all([fetchMorning(), fetchCyberShieldSummary(), fetchUpgradeRadar()]);
+  const [clients, shield, radar, checkins] = await Promise.all([
+    fetchMorning(), fetchCyberShieldSummary(), fetchUpgradeRadar(), fetchCheckinStatus(),
+  ]);
   const urgent = clients.filter((c: any) => c.urgency_level?.toLowerCase().startsWith('urgent'));
   const overdue = clients.filter((c: any) => (c.days_since_scan ?? 999) > 30);
 
@@ -84,6 +86,33 @@ export default async function MorningPage() {
           <Link href="/cybershield" className="ml-auto text-teal-400 hover:text-teal-300">Manage →</Link>
         </div>
       )}
+
+      {/* 6-Month Check-in strip — clients due soon or overdue */}
+      {(() => {
+        const actionable = (checkins as any[]).filter((c: any) =>
+          c.checkin_status === 'due_soon' || c.checkin_status === 'overdue'
+        );
+        if (actionable.length === 0) return null;
+        const overdueCi = actionable.filter((c: any) => c.checkin_status === 'overdue');
+        const dueSoonCi = actionable.filter((c: any) => c.checkin_status === 'due_soon');
+        return (
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 rounded-md bg-slate-800 border border-slate-700 text-xs text-slate-300">
+            <span className="text-purple-400 font-semibold">6-Month Check-ins</span>
+            {overdueCi.length > 0 && (
+              <span>
+                <span className="text-red-400 font-bold">{overdueCi.length} overdue:</span>{' '}
+                {overdueCi.map((c: any) => c.client_name).join(', ')}
+              </span>
+            )}
+            {dueSoonCi.length > 0 && (
+              <span>
+                <span className="text-yellow-400 font-bold">{dueSoonCi.length} due soon:</span>{' '}
+                {dueSoonCi.map((c: any) => `${c.client_name} (${c.days_until_due}d)`).join(', ')}
+              </span>
+            )}
+          </div>
+        );
+      })()}
 
       {/* Trajectory alerts */}
       <TrendAlerts />

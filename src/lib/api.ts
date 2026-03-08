@@ -212,6 +212,17 @@ export async function fetchUpgradeRadar() {
   } catch { return { data: [], meta: { total: 0, critical: 0, overdue: 0, soon: 0 } }; }
 }
 
+export async function fetchCheckinStatus() {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/checkin/status`, {
+      headers: headers(), signal: withTimeout(TIMEOUT_MS), next: { revalidate: 3600 },
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json?.data ?? json ?? [];
+  } catch { return []; }
+}
+
 export async function fetchFleetInterventionSummary(days = 30) {
   try {
     const res = await fetch(`${API_URL}/api/v1/reports/interventions/fleet/recent?days=${days}&limit=5`, {
