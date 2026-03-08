@@ -6,6 +6,7 @@ import { TrendAlerts } from './TrendAlerts';
 import { FleetInterventionsFeed } from '@/components/FleetInterventionsFeed';
 import { ServicesPanel } from '@/components/ServicesPanel';
 import { UpsellLeadActions } from '@/components/UpsellLeadActions';
+import { DailyActionQueue } from '@/components/DailyActionQueue';
 
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
 const API_TOKEN = process.env.ZA_API_TOKEN || '';
@@ -132,6 +133,9 @@ export default async function MorningPage() {
           URGENT clients: {urgent.map((c: any) => `${c.first_name} ${c.last_name}`).join(', ')} — action today.
         </div>
       )}
+
+      {/* Daily Client Action Queue — prioritised tap-to-WhatsApp actions */}
+      <DailyActionQueue />
 
       {/* Client Alerts Sent Today */}
       {todayAlerts && todayAlerts.count > 0 && (() => {
