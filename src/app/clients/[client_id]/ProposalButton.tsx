@@ -21,7 +21,7 @@ export function ProposalButton({ clientId, clientName }: { clientId: string; cli
       });
       if (!res.ok) throw new Error();
       const data = await res.json();
-      setUrl(data.proposal_url);
+      setUrl(data.url);
     } catch {
       setError('Failed to generate proposal. Check backend is running.');
     } finally {
