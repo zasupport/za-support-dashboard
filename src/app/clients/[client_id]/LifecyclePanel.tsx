@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
+import { AddDeviceButton } from './AddDeviceButton';
 
 interface LifecycleDevice {
   id: string;
@@ -85,7 +86,6 @@ export function LifecyclePanel({ clientId }: { clientId: string }) {
   }, [clientId]);
 
   if (loading) return null;
-  if (devices.length === 0) return null;
 
   const critical = devices.filter(d => d.replacement_urgency === 'critical');
   const overdue  = devices.filter(d => d.replacement_urgency === 'overdue');
@@ -95,13 +95,22 @@ export function LifecyclePanel({ clientId }: { clientId: string }) {
     <Card className="bg-slate-800 border-slate-700">
       <CardHeader className="flex-row items-center justify-between pb-2">
         <CardTitle className="text-white text-sm">
-          Device Lifecycle ({devices.length})
+          Device Lifecycle {devices.length > 0 ? `(${devices.length})` : ''}
         </CardTitle>
-        <Link href="/upgrade-radar" className="text-xs text-teal-400 hover:text-teal-300">
-          Fleet radar →
-        </Link>
+        <div className="flex items-center gap-3">
+          <AddDeviceButton clientId={clientId} />
+          <Link href="/upgrade-radar" className="text-xs text-teal-400 hover:text-teal-300">
+            Fleet radar →
+          </Link>
+        </div>
       </CardHeader>
       <CardContent className="space-y-0">
+
+        {devices.length === 0 && (
+          <p className="text-slate-500 text-xs py-2 text-center">
+            No devices tracked yet. Add a device to start monitoring its lifecycle.
+          </p>
+        )}
 
         {/* Upgrade call-to-action when critical/overdue devices exist */}
         {actionable.length > 0 && (
