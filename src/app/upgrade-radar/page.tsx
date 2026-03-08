@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 
 type Device = {
@@ -23,6 +23,64 @@ type Device = {
   applecare_expires: string | null;
   last_seen_at: string | null;
 };
+
+function InlineProposalButton({
+  clientId, clientName, deviceName, urgency,
+}: {
+  clientId: string; clientName: string; deviceName: string; urgency: string;
+}) {
+  const [loading, setLoading] = useState(false);
+  const [url, setUrl] = useState('');
+  const [copied, setCopied] = useState(false);
+  const [err, setErr] = useState('');
+
+  async function generate() {
+    setLoading(true); setErr('');
+    try {
+      const summary = `${deviceName} is flagged as ${urgency} on the Upgrade Radar. This proposal covers replacement options through ZA Support including data migration, setup, and 3-month complimentary monitoring.`;
+      const res = await fetch('/api/proposals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ client_id: clientId, client_name: clientName, assessment_summary: summary }),
+      });
+      if (!res.ok) throw new Error('Failed');
+      const data = await res.json();
+      setUrl(data.url || '');
+    } catch {
+      setErr('Proposal generation failed');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function copy() {
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  if (url) return (
+    <div className="flex items-center gap-2">
+      <span className="text-xs text-teal-300 font-mono truncate max-w-[180px]">{url}</span>
+      <button onClick={copy} className="text-xs bg-teal-600 hover:bg-teal-500 text-white px-2 py-1 rounded transition-colors">
+        {copied ? 'Copied!' : 'Copy'}
+      </button>
+    </div>
+  );
+
+  return (
+    <div className="flex items-center gap-2">
+      <button
+        onClick={generate}
+        disabled={loading}
+        className="text-xs bg-teal-700 hover:bg-teal-600 text-white px-3 py-1.5 rounded transition-colors disabled:opacity-50"
+      >
+        {loading ? 'Generating…' : 'Generate Proposal →'}
+      </button>
+      {err && <span className="text-red-400 text-xs">{err}</span>}
+    </div>
+  );
+}
 
 type RadarMeta = {
   total: number;
@@ -368,6 +426,29 @@ export default function UpgradeRadarPage() {
                                       <p className="text-slate-300">{formatDate(device.last_seen_at)}</p>
                                     </div>
                                   )}
+                                </div>
+                                {/* Sales action bar */}
+                                <div className="flex items-center gap-3 pt-2 border-t border-slate-700/50 mt-1">
+                                  <a
+                                    href={whatsappUpgradeUrl(device)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs bg-green-700 hover:bg-green-600 text-white px-3 py-1.5 rounded transition-colors"
+                                  >
+                                    WhatsApp pitch →
+                                  </a>
+                                  <InlineProposalButton
+                                    clientId={device.client_id}
+                                    clientName={device.client_name}
+                                    deviceName={device.display_name}
+                                    urgency={device.replacement_urgency}
+                                  />
+                                  <Link
+                                    href={`/clients/${device.client_id}`}
+                                    className="text-xs text-slate-400 hover:text-white transition-colors"
+                                  >
+                                    View client profile →
+                                  </Link>
                                 </div>
                               </div>
                             </td>
