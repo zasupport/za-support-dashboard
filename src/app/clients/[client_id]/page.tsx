@@ -6,6 +6,7 @@ import { ClientNotes } from './ClientNotes';
 import { CreateJobButton } from './CreateJobButton';
 import { EditClientButton } from './EditClientButton';
 import { PortalLinkButton } from './PortalLinkButton';
+import { ProposalButton } from './ProposalButton';
 import { RoiWidget } from '@/components/RoiWidget';
 import { RoiTrendChart } from '@/components/RoiTrendChart';
 import { InterventionsFeed } from '@/components/InterventionsFeed';
@@ -319,6 +320,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
         </a>
         <CreateJobButton clientId={client.client_id} />
         <PortalLinkButton clientId={client.client_id} />
+        <ProposalButton clientId={client.client_id} clientName={`${client.first_name} ${client.last_name}`} />
         <span className="text-slate-500 text-xs">Generated from latest Scout diagnostic</span>
       </div>
 
