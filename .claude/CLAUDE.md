@@ -1,5 +1,5 @@
 # ZA SUPPORT — GLOBAL CLAUDE CODE STANDARDS
-# Owner: Courtney Bentley | Last Updated: 08/03/2026 (session 7 — INSTRUCTIONS-5.md sync, Sections 23-25, 11 agents)
+# Owner: Courtney Bentley | Last Updated: 08/03/2026 (session 7 — INSTRUCTIONS-5.md + branding rules, Sections 23-26)
 # Location: ~/.claude/CLAUDE.md
 # Scope: All development tasks across all ZA Support repositories
 
@@ -962,3 +962,52 @@ Always generate cleanup commands in order: unload → quarantine → rebuild cac
 - MMB10: ~$42.99/month or $299.88/year (subscription only, no perpetual licence)
 - MMB10 can import .mbd files from MMB7. Direct 6.x import path unconfirmed.
 - Applies to: film/production industry clients. Current: Gillian Pearson.
+
+---
+
+# SECTION 26: LOGO & BRAND SELECTION (CRITICAL — EVERY DOCUMENT)
+
+## Three Brands — Decision Tree
+```
+Is this for a medical practice or doctor?
+├─ YES → Medical IT Specialist ("Practice IT. Perfected.")
+└─ NO → Is this about Apple products/services?
+    ├─ YES → Apple Experts
+    └─ NO → IT Specialist
+```
+
+## Brand 1: Medical IT Specialist
+**Use for:** Dr Templates, POPIA/HPCSA compliance, patient data protection, medical network security, ANY document for doctors/clinics/medical professionals.
+**Phone: 064 529 5863** | Email: admin@zasupport.com
+**Files:** `Practise_IT__Perfected___ZA_Support_Medical_IT_Specialist_Logo_1.png` (variants 1-4)
+
+## Brand 2: Apple Experts
+**Use for:** Mac repair quotes/invoices, MacBook/iMac/iPhone guides, Apple product assessments, macOS support docs, AppleCare+ recommendations.
+**Phone: 064 529 5863** | Email: admin@zasupport.com
+**Files:** `Apple_specialists__za_logo_white_ph_no.png`, `Apple_Specialists_za_logo_black_ph_no.png`, `Apple_specialists_za_logo_dark_green__ph_no.png`, `Apple_specialists__za_logo_white_green_ph_no.png`
+
+## Brand 3: IT Specialist
+**Use for:** Network infrastructure (UniFi), Windows server, general business IT, non-Apple hardware, CyberShield (non-medical).
+**Phone: 063 529 5863** ← DIFFERENT NUMBER — verify on every IT Specialist document
+**Files:** `ZA_Support_IT_Specialist_Logo.png` (4 colour variants)
+
+## Context Override Rule
+- Medical client + strategic/compliance document → Medical IT Specialist (regardless of technology)
+- Any client + repair quote or product-specific guide → Apple Experts (if Apple) / IT Specialist (if non-Apple)
+
+## Examples
+| Document | Client | Brand |
+|---|---|---|
+| POPIA compliance assessment | Dr Shoul | Medical IT Specialist |
+| MacBook battery replacement quote | Dr Shoul | Apple Experts |
+| Network security report | Dr Shoul | Medical IT Specialist |
+| UniFi installation quote | SME | IT Specialist |
+| Dr Templates assessment | Any medical practice | Medical IT Specialist |
+
+## ⚠️ Phone Number Alert
+- Medical IT Specialist: **064** 529 5863
+- Apple Experts: **064** 529 5863
+- IT Specialist: **063** 529 5863 ← different prefix
+
+## File Location (document generation code)
+All logo files: `/mnt/project/` on server. Reference from there in ReportLab code.
