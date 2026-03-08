@@ -71,7 +71,7 @@ interface Client {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const TABS = ['Pipeline', 'Proposals', 'Clients', 'Upsell Recommendations', 'Insights'] as const;
+const TABS = ['Pipeline', 'Proposals', 'Follow-Up Sequences', 'Clients', 'Upsell Recommendations', 'Insights'] as const;
 type Tab = typeof TABS[number];
 
 const STAGES = ['lead', 'qualified', 'proposal', 'negotiation', 'won', 'lost'] as const;
@@ -761,6 +761,25 @@ interface Proposal {
   proposal_url?: string;
 }
 
+interface RepairSequence {
+  id: string;
+  client_id: string;
+  job_ref: string;
+  job_title: string;
+  client_name: string;
+  client_email?: string;
+  completed_at: string;
+  step_7d_sent_at?: string | null;
+  step_30d_sent_at?: string | null;
+  step_90d_sent_at?: string | null;
+  step_365d_sent_at?: string | null;
+  converted: boolean;
+  converted_product?: string | null;
+  converted_value_rand?: number | null;
+  opted_out: boolean;
+  created_at: string;
+}
+
 const TIER_VALUE: Record<string, number> = {
   individual:     4999,
   sla:            5999 * 12,
@@ -779,6 +798,166 @@ const PROPOSAL_STATUS_COLOUR: Record<string, string> = {
   selected: '#0FEA7A',
   expired:  '#CC0000',
 };
+
+// ─── Follow-Up Sequences Tab ──────────────────────────────────────────────────
+
+function seqStage(s: RepairSequence): { label: string; colour: string; next: string | null } {
+  if (s.opted_out)  return { label: 'Opted Out', colour: '#6B7280', next: null };
+  if (s.converted)  return { label: 'Converted ✓', colour: '#0FEA7A', next: null };
+  if (s.step_365d_sent_at) return { label: '365d sent', colour: '#8B5CF6', next: null };
+  if (s.step_90d_sent_at)  return { label: '90d sent', colour: '#3B82F6', next: '365d' };
+  if (s.step_30d_sent_at)  return { label: '30d sent', colour: '#F59E0B', next: '90d' };
+  if (s.step_7d_sent_at)   return { label: '7d sent',  colour: '#F97316', next: '30d' };
+  return { label: 'Awaiting 7d', colour: '#CC0000', next: '7d' };
+}
+
+function daysSince(s?: string | null) {
+  if (!s) return null;
+  return Math.floor((Date.now() - new Date(s).getTime()) / 86400000);
+}
+
+function FollowUpSequencesTab() {
+  const [seqs, setSeqs] = useState<RepairSequence[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<'all' | 'active' | 'converted' | 'opted_out'>('all');
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/sales/repair-sequences?per_page=100');
+      const data = await res.json();
+      setSeqs(data.data ?? []);
+    } catch { /* ignore */ }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const active    = seqs.filter(s => !s.converted && !s.opted_out && !s.step_365d_sent_at);
+  const converted = seqs.filter(s => s.converted);
+  const optedOut  = seqs.filter(s => s.opted_out);
+  const convValue = converted.reduce((sum, s) => sum + (s.converted_value_rand ?? 0), 0);
+
+  // Sequences where next step is overdue (past threshold, not sent yet)
+  const overdue = active.filter(s => {
+    const age = daysSince(s.completed_at) ?? 0;
+    if (!s.step_7d_sent_at && age >= 7)   return true;
+    if (s.step_7d_sent_at && !s.step_30d_sent_at && age >= 30)  return true;
+    if (s.step_30d_sent_at && !s.step_90d_sent_at && age >= 90) return true;
+    if (s.step_90d_sent_at && !s.step_365d_sent_at && age >= 365) return true;
+    return false;
+  });
+
+  const displayed = seqs.filter(s => {
+    if (filter === 'active')    return !s.converted && !s.opted_out && !s.step_365d_sent_at;
+    if (filter === 'converted') return s.converted;
+    if (filter === 'opted_out') return s.opted_out;
+    return true;
+  });
+
+  if (loading) return <div style={{ color: '#666', padding: 40, textAlign: 'center' }}>Loading sequences...</div>;
+
+  return (
+    <div>
+      {/* Summary cards */}
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
+        <SummaryCard label="Total Sequences" value={String(seqs.length)} />
+        <SummaryCard label="Active" value={String(active.length)} sub="In progress" colour="#3B82F6" />
+        <SummaryCard label="Overdue" value={String(overdue.length)} sub="Next step past due" colour="#CC0000" />
+        <SummaryCard label="Converted" value={String(converted.length)}
+          sub={convValue > 0 ? fmtRand(convValue) : undefined} colour="#0FEA7A" />
+      </div>
+
+      {/* Filter + Refresh */}
+      <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
+        {(['all', 'active', 'converted', 'opted_out'] as const).map(f => (
+          <button key={f} onClick={() => setFilter(f)} style={{
+            padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12,
+            fontWeight: 600,
+            background: filter === f ? '#27504D' : '#0d1f1e',
+            color: filter === f ? '#0FEA7A' : '#999',
+          }}>{f === 'opted_out' ? 'Opted Out' : f.charAt(0).toUpperCase() + f.slice(1)}</button>
+        ))}
+        <button onClick={load} style={{ ...btnSecStyle, marginLeft: 'auto' }}>↻ Refresh</button>
+      </div>
+
+      {/* Sequence table */}
+      {displayed.length === 0 ? (
+        <div style={{ color: '#666', padding: 40, textAlign: 'center' }}>No sequences in this view.</div>
+      ) : (
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+            <thead>
+              <tr style={{ color: '#999', textAlign: 'left' }}>
+                {['Client', 'Job', 'Repair Date', 'Stage', 'Steps Sent', 'Next Step', 'Overdue?', 'Converted'].map(h => (
+                  <th key={h} style={{ padding: '8px 10px', borderBottom: '1px solid #27504D', whiteSpace: 'nowrap' }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {displayed.map(s => {
+                const { label, colour, next } = seqStage(s);
+                const age = daysSince(s.completed_at) ?? 0;
+                const isOverdue = overdue.includes(s);
+                const stepsSent = [s.step_7d_sent_at, s.step_30d_sent_at, s.step_90d_sent_at, s.step_365d_sent_at]
+                  .filter(Boolean).length;
+                return (
+                  <tr key={s.id} style={{
+                    borderBottom: '1px solid #1a2e2d',
+                    background: s.converted ? '#0FEA7A11' : isOverdue ? '#CC000011' : 'transparent',
+                  }}>
+                    <td style={{ padding: '10px', color: '#E8F4F3', fontWeight: 600 }}>
+                      {s.client_name}
+                      {s.client_email && (
+                        <div style={{ fontSize: 10, color: '#666', fontWeight: 400 }}>{s.client_email}</div>
+                      )}
+                    </td>
+                    <td style={{ padding: '10px', color: '#A8D5D1', maxWidth: 160 }}>
+                      <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                        title={s.job_title}>{s.job_title}</div>
+                      <div style={{ fontSize: 10, color: '#666' }}>{s.job_ref}</div>
+                    </td>
+                    <td style={{ padding: '10px', color: '#999', whiteSpace: 'nowrap' }}>
+                      {fmtDate(s.completed_at)}
+                      <div style={{ fontSize: 10, color: '#666' }}>{age}d ago</div>
+                    </td>
+                    <td style={{ padding: '10px' }}>
+                      <Pill text={label} colour={colour} />
+                    </td>
+                    <td style={{ padding: '10px', color: '#999', textAlign: 'center' }}>
+                      {stepsSent}/4
+                    </td>
+                    <td style={{ padding: '10px', color: isOverdue ? '#CC0000' : '#666' }}>
+                      {next ? `${next} email` : '—'}
+                    </td>
+                    <td style={{ padding: '10px', textAlign: 'center' }}>
+                      {isOverdue ? <span style={{ color: '#CC0000', fontWeight: 700 }}>⚠ Yes</span> : <span style={{ color: '#555' }}>—</span>}
+                    </td>
+                    <td style={{ padding: '10px' }}>
+                      {s.converted ? (
+                        <div>
+                          <span style={{ color: '#0FEA7A', fontWeight: 700 }}>✓</span>
+                          {s.converted_product && (
+                            <div style={{ fontSize: 10, color: '#0FEA7A' }}>{s.converted_product}</div>
+                          )}
+                          {s.converted_value_rand ? (
+                            <div style={{ fontSize: 10, color: '#0FEA7A' }}>{fmtRand(s.converted_value_rand)}</div>
+                          ) : null}
+                        </div>
+                      ) : <span style={{ color: '#444' }}>—</span>}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Proposals Tab ────────────────────────────────────────────────────────────
 
 function ProposalsTab() {
   const [proposals, setProposals] = useState<Proposal[]>([]);
@@ -1047,6 +1226,9 @@ export default function SalesPage() {
       )}
       {!loading && tab === 'Proposals' && (
         <ProposalsTab />
+      )}
+      {!loading && tab === 'Follow-Up Sequences' && (
+        <FollowUpSequencesTab />
       )}
       {!loading && tab === 'Clients' && (
         <ClientsTab contacts={contacts} />
