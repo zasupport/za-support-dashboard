@@ -49,7 +49,9 @@ Before writing ANY code in a ZA Support project:
 4. NEVER ask "where is the config?" or "what is the file structure?" — the project contains its own answers
 
 ## 2.21 Instructions Document Auto-Sync (CRITICAL — filename-agnostic)
-Whenever ANY file path is provided (regardless of filename):
+Whenever ANY .md file path is provided: treat it as instructions IMMEDIATELY — no classifier.
+1. Read, merge into CLAUDE.md + MEMORY.md, sync to all project repos.
+For non-.md files: classifier still runs. Original rule:
 1. Run `~/bin/za-classify-doc.sh <path>` to determine if it's an instructions document
 2. If CLASSIFICATION = INSTRUCTIONS DOCUMENT: immediately run `~/bin/za-sync-claude.sh <path>`
 3. Apply all new/changed rules to CLAUDE.md and MEMORY.md — MERGE only, never blind overwrite
@@ -607,6 +609,7 @@ ACTION ITEMS:
 - **Security** (ESET, Norton, Sophos, CrowdStrike, Malwarebytes) — scan methods, telemetry, reports, resource cost
 - **Backup** (CCC, Backblaze, Arq, ChronoSync) — scheduling, verification, versioning, reports
 - **System utilities** (CleanMyMac, DaisyDisk, OnyX, iStat Menus) — metrics, cleanup, maintenance automation
+- **Collaboration/Communication** (Microsoft Teams, Slack, Zoom, Google Workspace) — data collected, resource cost, integrations, upsell vs managed M365
 - **Remote access** (TeamViewer, AnyDesk, LogMeIn) — auth, logging, access scope
 - **MDM/Management** (Jamf, Mosyle, Kandji, Munki) — feature sets that Health Check AI should match for SME
 - **Medical/industry-specific** (Vericlaim, billing, practice management) — workflow, data storage, integration requirements
@@ -666,7 +669,7 @@ Macs Fan Control: ALWAYS ask "Did we install this?"
 
 ---
 
-# SECTION 17: HEALTH CHECK SCOUT — 19 PHASES
+# SECTION 17: HEALTH CHECK SCOUT — 26 PHASES (v3.5.0)
 
 Phases 1–11: Core diagnostics
 Phase 12: External Drive Analytics
@@ -677,6 +680,14 @@ Phase 16: Storage & Duplicates
 Phase 17: Client Profile & Opportunity
 Phase 18: Service & Security (18A–18Z + AV profiling + outbound connections + power/thermal)
 Phase 19: Deep Security Intelligence (process ancestry, code signing, DYLD injection, DNS queries, firmware status)
+Phase 20: Environment Intelligence — login items, LaunchAgents/Daemons, cloud sync, remote access tools, CCC/Time Machine status, subscription apps
+Phase 21: Hardware Sensor Telemetry — CPU/GPU temps, fan RPM, power draw, voltages, thermal pressure
+Phase 22: GPU Intelligence — GPU model, VRAM, utilisation%, Metal support, display count/resolution
+Phase 23: App Intelligence — app_intelligence_grade A–F, score 0–100, crash count, unsigned/stale/network-active apps, top CPU/RAM consumers, medical app detection
+Phase 24: coconutBattery Gap Analysis — battery identity, Wh capacities, adapter details, NVME extended
+Phase 25: Macs Fan Control Gap Analysis — SMC fan names, target/safe RPM, heatpipe/cluster temps, dynamic T* key enumeration
+Phase 26a: Network Extended — wifi_security (WPA2/WPA3), primary_ip, primary_iface_bytes_in/out (colour-coded on dashboard: WPA3=green, WPA2=yellow)
+Phase 26b: Bluetooth — bt_enabled, paired/connected counts, bt_devices JSON array with battery_pct (red if <20%)
 
 Scout v3.5 flat env fields: `time_machine_status`, `time_machine_days_ago`, `ccc_installed`, `ccc_backup_status`, `remote_access_tools`
 Upsell trigger in output: `duplicate_gb_recoverable` | AV resource usage flags CyberShield upsell
