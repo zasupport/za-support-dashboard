@@ -71,7 +71,7 @@ interface Client {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const TABS = ['Pipeline', 'Proposals', 'Follow-Up Sequences', 'Clients', 'Upsell Recommendations', 'Insights'] as const;
+const TABS = ['Pipeline', 'Proposals', 'Contracts', 'Follow-Up Sequences', 'Clients', 'Upsell Recommendations', 'Insights'] as const;
 type Tab = typeof TABS[number];
 
 const STAGES = ['lead', 'qualified', 'proposal', 'negotiation', 'won', 'lost'] as const;
@@ -988,6 +988,127 @@ const PROPOSAL_STATUS_COLOUR: Record<string, string> = {
   expired:  '#CC0000',
 };
 
+// ─── Contracts Tab ────────────────────────────────────────────────────────────
+
+type Contract = {
+  id: string;
+  client_id: string | null;
+  client_name: string;
+  client_email: string | null;
+  tier_name: string;
+  price_str: string | null;
+  docseal_status: string;
+  docseal_signed_at: string | null;
+  docseal_embed_url: string | null;
+  payfast_status: string;
+  payfast_activated_at: string | null;
+  activation_email_sent: boolean;
+  service_activated: boolean;
+  created_at: string;
+};
+
+const CONTRACT_STATUS_COLOUR: Record<string, string> = {
+  pending:   '#F59E0B',
+  signed:    '#0FEA7A',
+  declined:  '#CC0000',
+  expired:   '#6B7280',
+  active:    '#0FEA7A',
+  cancelled: '#CC0000',
+  failed:    '#CC0000',
+};
+
+function ContractsTab() {
+  const [contracts, setContracts] = useState<Contract[]>([]);
+  const [loading, setLoading]     = useState(true);
+
+  useEffect(() => {
+    fetch('/api/sales/contracts?per_page=100')
+      .then(r => r.ok ? r.json() : { contracts: [] })
+      .then(d => setContracts(d.contracts ?? []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const activated = contracts.filter(c => c.service_activated).length;
+  const signed    = contracts.filter(c => c.docseal_status === 'signed').length;
+  const awaitSign = contracts.filter(c => c.docseal_status === 'pending' && !c.service_activated).length;
+  const awaitPay  = contracts.filter(c => c.payfast_status === 'pending' && c.docseal_status === 'signed').length;
+
+  if (loading) return <div style={{ padding: 32, color: '#64748b', textAlign: 'center' }}>Loading contracts…</div>;
+
+  return (
+    <div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 24 }}>
+        {[
+          { label: 'Active clients', value: activated, colour: '#0FEA7A' },
+          { label: 'Contracts signed', value: signed, colour: '#0FEA7A' },
+          { label: 'Awaiting signature', value: awaitSign, colour: '#F59E0B' },
+          { label: 'Payment pending', value: awaitPay, colour: '#F59E0B' },
+        ].map(k => (
+          <div key={k.label} style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: 8, padding: '14px 16px' }}>
+            <p style={{ fontSize: 11, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{k.label}</p>
+            <p style={{ fontSize: 28, fontWeight: 700, color: k.colour, margin: 0 }}>{k.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {contracts.length === 0 ? (
+        <div style={{ textAlign: 'center', color: '#64748b', padding: 48 }}>
+          <p>No contracts yet — created automatically when a client accepts a proposal.</p>
+          <p style={{ fontSize: 12, marginTop: 8 }}>Activate DocuSeal by setting DOCUSEAL_API_KEY + DOCUSEAL_TEMPLATE_ID on Render.</p>
+        </div>
+      ) : (
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid #334155' }}>
+                {['Client', 'Tier', 'Price', 'Email sent', 'Contract', 'Payment', 'Service', 'Created'].map(h => (
+                  <th key={h} style={{ textAlign: 'left', padding: '8px 12px', color: '#64748b', fontWeight: 500, fontSize: 11, textTransform: 'uppercase' }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {contracts.map(c => (
+                <tr key={c.id} style={{ borderBottom: '1px solid #1E293B' }}>
+                  <td style={{ padding: '10px 12px', color: '#fff', fontWeight: 500 }}>{c.client_name}</td>
+                  <td style={{ padding: '10px 12px', color: '#CBD5E1' }}>{c.tier_name}</td>
+                  <td style={{ padding: '10px 12px', color: '#CBD5E1' }}>{c.price_str || '—'}</td>
+                  <td style={{ padding: '10px 12px' }}>
+                    <span style={{ color: c.activation_email_sent ? '#0FEA7A' : '#64748b' }}>
+                      {c.activation_email_sent ? '✓ Sent' : '—'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '10px 12px' }}>
+                    <span style={{ background: CONTRACT_STATUS_COLOUR[c.docseal_status] || '#334155', color: '#000', borderRadius: 4, padding: '2px 8px', fontSize: 11, fontWeight: 600 }}>
+                      {c.docseal_status}
+                    </span>
+                    {c.docseal_embed_url && c.docseal_status === 'pending' && (
+                      <a href={c.docseal_embed_url} target="_blank" rel="noreferrer" style={{ marginLeft: 6, color: '#38BDF8', fontSize: 11 }}>Sign ↗</a>
+                    )}
+                  </td>
+                  <td style={{ padding: '10px 12px' }}>
+                    <span style={{ background: CONTRACT_STATUS_COLOUR[c.payfast_status] || '#334155', color: '#000', borderRadius: 4, padding: '2px 8px', fontSize: 11, fontWeight: 600 }}>
+                      {c.payfast_status}
+                    </span>
+                  </td>
+                  <td style={{ padding: '10px 12px' }}>
+                    <span style={{ color: c.service_activated ? '#0FEA7A' : '#64748b' }}>
+                      {c.service_activated ? '✓ Active' : 'Pending'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '10px 12px', color: '#64748b', fontSize: 11 }}>
+                    {new Date(c.created_at).toLocaleDateString('en-ZA')}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Follow-Up Sequences Tab ──────────────────────────────────────────────────
 
 function seqStage(s: RepairSequence): { label: string; colour: string; next: string | null } {
@@ -1416,8 +1537,8 @@ export default function SalesPage() {
       {!loading && tab === 'Proposals' && (
         <ProposalsTab />
       )}
-      {!loading && tab === 'Follow-Up Sequences' && (
-        <FollowUpTab />
+      {!loading && tab === 'Contracts' && (
+        <ContractsTab />
       )}
       {!loading && tab === 'Follow-Up Sequences' && (
         <FollowUpSequencesTab />
