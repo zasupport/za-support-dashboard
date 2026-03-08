@@ -165,6 +165,66 @@ export default async function DeviceDetailPage({ params }: { params: Promise<{ s
         </Card>
       )}
 
+      {/* Phase 26 — Network + Bluetooth */}
+      {(snap?.wifi_security || snap?.primary_ip || snap?.bt_enabled) && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader><CardTitle className="text-white text-base">Network &amp; Bluetooth — Phase 26</CardTitle></CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+              {[
+                { label: 'WiFi SSID', value: snap.wifi_ssid },
+                { label: 'WiFi Security', value: snap.wifi_security, highlight: snap.wifi_security === 'wpa2' ? 'yellow' : snap.wifi_security === 'wpa3' ? 'green' : undefined },
+                { label: 'WiFi Band', value: snap.wifi_band },
+                { label: 'RSSI (dBm)', value: snap.wifi_rssi_dbm },
+                { label: 'Primary IP', value: snap.primary_ip },
+                { label: 'Gateway', value: snap.network_gateway },
+                { label: 'Bytes In (boot)', value: snap.primary_iface_bytes_in ? Number(snap.primary_iface_bytes_in).toLocaleString() : null },
+                { label: 'Bytes Out (boot)', value: snap.primary_iface_bytes_out ? Number(snap.primary_iface_bytes_out).toLocaleString() : null },
+              ].filter(f => f.value).map(({ label, value, highlight }: any) => (
+                <div key={label}>
+                  <p className="text-xs text-slate-400 mb-1">{label}</p>
+                  <p className={`text-sm font-medium ${highlight === 'green' ? 'text-green-400' : highlight === 'yellow' ? 'text-yellow-400' : 'text-white'}`}>{value}</p>
+                </div>
+              ))}
+            </div>
+            {snap.bt_enabled && (
+              <div className="border-t border-slate-700 pt-4 mt-2">
+                <p className="text-xs text-slate-400 uppercase tracking-wide mb-3">Bluetooth</p>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-xs text-slate-400 mb-1">Status</p>
+                    <p className={`text-sm font-medium ${snap.bt_enabled?.toLowerCase() === 'yes' ? 'text-green-400' : 'text-slate-400'}`}>{snap.bt_enabled}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-400 mb-1">Paired Devices</p>
+                    <p className="text-sm font-medium text-white">{snap.bt_paired_device_count ?? '—'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-400 mb-1">Connected</p>
+                    <p className="text-sm font-medium text-white">{snap.bt_connected_count ?? '—'}</p>
+                  </div>
+                </div>
+                {snap.bt_devices && Array.isArray(snap.bt_devices) && snap.bt_devices.length > 0 && (
+                  <div className="mt-3">
+                    <p className="text-xs text-slate-400 uppercase tracking-wide mb-2">Paired Device List</p>
+                    <div className="space-y-1">
+                      {snap.bt_devices.slice(0, 6).map((dev: any, i: number) => (
+                        <div key={i} className="flex justify-between text-xs">
+                          <span className="text-slate-300">{dev.name || dev.device || JSON.stringify(dev)}</span>
+                          {dev.battery_pct != null && (
+                            <span className={dev.battery_pct < 20 ? 'text-red-400' : 'text-slate-400'}>{dev.battery_pct}%</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Trend charts */}
       <div>
         <h2 className="text-base font-semibold text-white mb-3">Historical Trends</h2>
