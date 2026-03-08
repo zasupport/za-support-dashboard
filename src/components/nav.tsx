@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee, ShieldCheck, Download, Settings, BookOpen, LogOut, TrendingUp, Stethoscope, Copy, FlaskConical, Cpu, Zap, Radar, Brain, ClipboardList } from 'lucide-react';
+import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee, ShieldCheck, Download, Settings, BookOpen, LogOut, TrendingUp, Stethoscope, Copy, FlaskConical, Cpu, Zap, Radar, Brain, ClipboardList, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GlobalSearch } from './GlobalSearch';
 
@@ -9,6 +9,7 @@ const links = [
   { href: '/', label: 'Dashboard', icon: Monitor },
   { href: '/morning', label: 'Morning Brief', icon: Coffee },
   { href: '/interventions', label: 'Automations', icon: Zap },
+  { href: '/whatsapp', label: 'WhatsApp Inbox', icon: MessageCircle },
   { href: '/clients', label: 'Clients', icon: Users },
   { href: '/ai-profiling', label: 'AI Insights', icon: Brain },
   { href: '/workshop', label: 'Workshop', icon: Wrench },
@@ -41,9 +42,9 @@ const mobileLinks = [
   { href: '/', label: 'Home', icon: Monitor },
   { href: '/morning', label: 'Brief', icon: Coffee },
   { href: '/interventions', label: 'Actions', icon: Zap },
+  { href: '/whatsapp', label: 'WhatsApp', icon: MessageCircle },
   { href: '/clients', label: 'Clients', icon: Users },
   { href: '/workshop', label: 'Workshop', icon: Wrench },
-  { href: '/cybershield', label: 'Shield', icon: ShieldCheck },
 ];
 
 export function Nav() {
