@@ -11,6 +11,7 @@ import { RoiTrendChart } from '@/components/RoiTrendChart';
 import { InterventionsFeed } from '@/components/InterventionsFeed';
 import { SimilarInsights } from './SimilarInsights';
 import { UpsellPanel } from './UpsellPanel';
+import { LifecyclePanel } from './LifecyclePanel';
 import Link from 'next/link';
 import { AutoRefresh } from '@/components/auto-refresh';
 import { notFound } from 'next/navigation';
@@ -153,6 +154,9 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
 
       {/* Upsell opportunities */}
       <UpsellPanel clientId={client.client_id} />
+
+      {/* Device Lifecycle — upgrade radar per client */}
+      <LifecyclePanel clientId={client.client_id} />
 
       {/* Business section (if applicable) */}
       {client.has_business && (
