@@ -185,16 +185,37 @@ export default async function MorningPage() {
               <span className="text-indigo-300 font-semibold">Portal Activity — Last 7 Days</span>
               <span className="text-slate-500">{unique.length} client{unique.length !== 1 ? 's' : ''} viewed</span>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {unique.map((v: any) => (
-                <span key={v.client_id} className="flex items-center gap-1.5 bg-slate-800/60 border border-indigo-700/30 rounded-full px-3 py-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 flex-shrink-0" />
-                  <span className="text-slate-200 font-medium">{v.client_name}</span>
-                  <span className="text-slate-500">{timeAgo(v.viewed_at)}</span>
-                </span>
-              ))}
+            <div className="space-y-1.5">
+              {unique.map((v: any) => {
+                const phone = (v.phone || '').replace(/\D/g, '').replace(/^0/, '27');
+                const waText = encodeURIComponent(
+                  `Hi ${v.client_name}, I noticed you were looking at your ZA Support health portal — just checking in to see if you had any questions or if there is anything I can help with.\n\nKind regards,\nCourtney Bentley\nZA Support\n064 529 5863`
+                );
+                const waHref = phone
+                  ? `https://wa.me/${phone}?text=${waText}`
+                  : `https://wa.me/?text=${waText}`;
+                return (
+                  <div key={v.client_id} className="flex items-center justify-between gap-3 bg-slate-800/60 border border-indigo-700/30 rounded-lg px-3 py-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 flex-shrink-0" />
+                      <Link href={`/clients/${v.client_id}`} className="text-slate-200 font-medium hover:text-white truncate">
+                        {v.client_name}
+                      </Link>
+                      <span className="text-slate-500 text-xs flex-shrink-0">{timeAgo(v.viewed_at)}</span>
+                    </div>
+                    <a
+                      href={waHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-shrink-0 text-xs px-2.5 py-1 rounded-full bg-green-800/50 hover:bg-green-700/60 text-green-300 hover:text-white border border-green-700/40 transition-colors whitespace-nowrap"
+                    >
+                      WhatsApp →
+                    </a>
+                  </div>
+                );
+              })}
             </div>
-            <p className="text-slate-500 mt-2">These clients are engaged — good time to follow up.</p>
+            <p className="text-slate-500 mt-2 text-xs">These clients are engaged — tap WhatsApp to follow up instantly.</p>
           </div>
         );
       })()}
