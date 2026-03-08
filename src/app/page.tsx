@@ -1,7 +1,7 @@
-import { fetchDevices, fetchISPStatus, fetchAlerts, fetchShieldEvents, fetchClients, fetchActivityFeed, fetchOpenWorkshopJobs, fetchCyberShieldSummary } from '@/lib/api';
+import { fetchDevices, fetchISPStatus, fetchAlerts, fetchShieldEvents, fetchClients, fetchActivityFeed, fetchOpenWorkshopJobs, fetchCyberShieldSummary, fetchUpgradeRadar, fetchFleetInterventionSummary } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Monitor, Wifi, Shield, Bell, Users, Wrench, Activity, Coffee, ShieldCheck } from 'lucide-react';
+import { Monitor, Wifi, Shield, Bell, Users, Wrench, Activity, Coffee, ShieldCheck, Radar, Zap } from 'lucide-react';
 import { AutoRefresh } from '@/components/auto-refresh';
 import { FleetAppHealthCard } from '@/components/FleetAppHealthCard';
 import Link from 'next/link';
@@ -25,7 +25,7 @@ const SEVERITY_COLOR: Record<string, string> = {
 };
 
 export default async function DashboardPage() {
-  const [devices, ispStatus, alerts, shieldEvents, clients, activity, workshopData, cyberShield] = await Promise.allSettled([
+  const [devices, ispStatus, alerts, shieldEvents, clients, activity, workshopData, cyberShield, radar, fleetActions] = await Promise.allSettled([
     fetchDevices(),
     fetchISPStatus(),
     fetchAlerts(5),
@@ -34,6 +34,8 @@ export default async function DashboardPage() {
     fetchActivityFeed(18),
     fetchOpenWorkshopJobs(),
     fetchCyberShieldSummary(),
+    fetchUpgradeRadar(),
+    fetchFleetInterventionSummary(30),
   ]);
 
   const deviceList  = devices.status  === 'fulfilled' ? devices.value  : [];
@@ -43,12 +45,16 @@ export default async function DashboardPage() {
   const clientMeta  = clients.status  === 'fulfilled' ? clients.value?.meta  : null;
   const activityData = activity.status === 'fulfilled' ? activity.value?.events ?? [] : [];
 
-  const workshopAll   = workshopData.status === 'fulfilled' ? (workshopData.value?.data ?? []) : [];
+  const workshopAll    = workshopData.status === 'fulfilled' ? (workshopData.value?.data ?? []) : [];
   const cyberShieldData = cyberShield.status === 'fulfilled' ? cyberShield.value : null;
-  const outages       = Array.isArray(ispList)    ? ispList.filter((i: any) => i.status === 'outage' || i.status === 'degraded') : [];
+  const radarData      = radar.status === 'fulfilled' ? radar.value : null;
+  const fleetActData   = fleetActions.status === 'fulfilled' ? fleetActions.value : null;
+  const outages        = Array.isArray(ispList)    ? ispList.filter((i: any) => i.status === 'outage' || i.status === 'degraded') : [];
   const criticalShield = Array.isArray(shieldList) ? shieldList.filter((e: any) => e.severity === 'CRITICAL' || e.severity === 'HIGH') : [];
-  const openJobs      = workshopAll.filter((j: any) => !['done', 'completed', 'cancelled'].includes(j.status));
-  const urgentJobs    = openJobs.filter((j: any) => j.priority === 'urgent');
+  const openJobs       = workshopAll.filter((j: any) => !['done', 'completed', 'cancelled'].includes(j.status));
+  const urgentJobs     = openJobs.filter((j: any) => j.priority === 'urgent');
+  const urgentDevices  = (radarData?.meta?.critical ?? 0) + (radarData?.meta?.overdue ?? 0);
+  const fleetValueRand = fleetActData?.total_value_protected ?? 0;
 
   return (
     <div>
@@ -56,7 +62,7 @@ export default async function DashboardPage() {
       <h1 className="text-2xl font-bold text-white mb-6">Dashboard</h1>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-4 mb-8">
         <Card className="bg-slate-800 border-slate-700">
           <CardHeader className="pb-2"><CardTitle className="text-xs text-slate-400 flex items-center gap-2"><Users size={13} /> Clients</CardTitle></CardHeader>
           <CardContent>
@@ -132,6 +138,37 @@ export default async function DashboardPage() {
             <p className="text-xs text-slate-500 mt-0.5">
               {cyberShieldData?.monthly_arr ? `R ${Number(cyberShieldData.monthly_arr).toLocaleString()}/mo` : 'practices'}
             </p>
+          </CardContent>
+        </Card>
+
+        <Card className={`border-slate-700 ${urgentDevices > 0 ? 'bg-orange-950/40' : 'bg-slate-800'}`}>
+          <CardHeader className="pb-2"><CardTitle className="text-xs text-slate-400 flex items-center gap-2"><Radar size={13} /> Upgrade</CardTitle></CardHeader>
+          <CardContent>
+            <Link href="/upgrade-radar" className={`text-3xl font-bold hover:opacity-80 transition-opacity ${urgentDevices > 0 ? 'text-orange-400' : 'text-white'}`}>
+              {radarData ? urgentDevices : '—'}
+            </Link>
+            {radarData && radarData.meta.critical > 0 && (
+              <p className="text-xs text-red-400 mt-0.5">{radarData.meta.critical} critical</p>
+            )}
+            {radarData && radarData.meta.soon > 0 && urgentDevices === 0 && (
+              <p className="text-xs text-yellow-400 mt-0.5">{radarData.meta.soon} soon</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="pb-2"><CardTitle className="text-xs text-slate-400 flex items-center gap-2"><Zap size={13} /> ROI (30d)</CardTitle></CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-green-400 leading-tight">
+              {fleetValueRand >= 1000
+                ? `R ${(fleetValueRand / 1000).toFixed(0)}k`
+                : fleetActData
+                  ? `R ${Math.round(fleetValueRand).toLocaleString()}`
+                  : '—'}
+            </p>
+            {fleetActData && (
+              <p className="text-xs text-slate-500 mt-0.5">{fleetActData.count ?? 0} actions</p>
+            )}
           </CardContent>
         </Card>
       </div>

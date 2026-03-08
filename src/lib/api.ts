@@ -201,3 +201,23 @@ export async function fetchOpenWorkshopJobs() {
     return res.json();
   } catch { return { data: [], meta: {} }; }
 }
+
+export async function fetchUpgradeRadar() {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/lifecycle/radar`, {
+      headers: headers(), signal: withTimeout(TIMEOUT_MS), next: { revalidate: 300 },
+    });
+    if (!res.ok) return { data: [], meta: { total: 0, critical: 0, overdue: 0, soon: 0 } };
+    return res.json();
+  } catch { return { data: [], meta: { total: 0, critical: 0, overdue: 0, soon: 0 } }; }
+}
+
+export async function fetchFleetInterventionSummary(days = 30) {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/reports/interventions/fleet/recent?days=${days}&limit=5`, {
+      headers: headers(), signal: withTimeout(TIMEOUT_MS), next: { revalidate: 300 },
+    });
+    if (!res.ok) return { count: 0, total_value_protected: 0, interventions: [] };
+    return res.json();
+  } catch { return { count: 0, total_value_protected: 0, interventions: [] }; }
+}
