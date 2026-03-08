@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee, ShieldCheck, Download, Settings, BookOpen, LogOut, TrendingUp, Stethoscope, Copy, FlaskConical } from 'lucide-react';
+import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee, ShieldCheck, Download, Settings, BookOpen, LogOut, TrendingUp, Stethoscope, Copy, FlaskConical, Cpu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GlobalSearch } from './GlobalSearch';
 
@@ -17,6 +17,7 @@ const links = [
   { href: '/shield', label: 'Shield Events', icon: Shield },
   { href: '/intelligence', label: 'App Intelligence', icon: BarChart2 },
   { href: '/analytics', label: 'Interaction Analytics', icon: Activity },
+  { href: '/behavioural-analytics', label: 'Behavioural Analytics', icon: Cpu },
   { href: '/alerts', label: 'Alerts', icon: Bell },
   { href: '/vault', label: 'Vault', icon: Lock },
   { href: '/breach-scanner', label: 'Breach Scanner', icon: Search },
