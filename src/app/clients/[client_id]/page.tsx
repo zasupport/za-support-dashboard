@@ -340,7 +340,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
           Download CyberPulse Report (PDF)
         </a>
         <CreateJobButton clientId={client.client_id} />
-        <PortalLinkButton clientId={client.client_id} />
+        <PortalLinkButton clientId={client.client_id} phone={client.phone} firstName={client.first_name} />
         <ProposalButton clientId={client.client_id} clientName={`${client.first_name} ${client.last_name}`} />
         {lastPortalView && (() => {
           const diff = Date.now() - new Date(lastPortalView).getTime();
