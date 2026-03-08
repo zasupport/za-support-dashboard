@@ -1,444 +1,252 @@
-import { Card, CardContent } from '@/components/ui/card';
-import { AutoRefresh } from '@/components/auto-refresh';
+'use client';
 
-const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
-const API_TOKEN = process.env.ZA_API_TOKEN || '';
+import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+type Cluster = {
+  cluster_id: number;
+  segment: string;
+  client_count: number;
+  avg_risk_score: number | null;
+  avg_device_age: number | null;
+  top_os: string | null;
+  backup_compliance_pct: number | null;
+  clients: { client_id: string; client_name: string; risk_score: number | null }[];
+};
 
-interface Cluster {
-  cluster_id?: string | number;
-  label?: string;
-  client_count?: number;
-  avg_risk_score?: number;
-  avg_backup_pct?: number;
-  avg_roi_ratio?: number;
-  [key: string]: unknown;
+type Pattern = {
+  id: string;
+  pattern_type: string;
+  title: string;
+  description: string;
+  affected_client_count: number;
+  severity: string;
+  recommendation: string | null;
+  detected_at: string;
+  is_active: boolean;
+};
+
+const SEGMENT_COLOURS: Record<string, { bg: string; text: string; border: string }> = {
+  medical_practice: { bg: 'bg-teal-500/10',   text: 'text-teal-300',   border: 'border-teal-500/20' },
+  sme:              { bg: 'bg-blue-500/10',    text: 'text-blue-300',   border: 'border-blue-500/20' },
+  individual:       { bg: 'bg-violet-500/10',  text: 'text-violet-300', border: 'border-violet-500/20' },
+  family:           { bg: 'bg-amber-500/10',   text: 'text-amber-300',  border: 'border-amber-500/20' },
+  unknown:          { bg: 'bg-slate-700/50',   text: 'text-slate-300',  border: 'border-slate-600' },
+};
+
+const SEVERITY_DOT: Record<string, string> = {
+  critical: 'bg-red-500',
+  high:     'bg-orange-500',
+  moderate: 'bg-yellow-500',
+  low:      'bg-emerald-500',
+};
+
+function seg(s: string) {
+  return s?.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) || 'Unknown';
 }
 
-interface Pattern {
-  pattern_id?: string | number;
-  title?: string;
-  description?: string;
-  recommendation?: string;
-  severity?: string;
-  affected_client_count?: number;
-  [key: string]: unknown;
+function riskColour(score: number | null) {
+  if (score === null) return 'text-slate-500';
+  if (score >= 75) return 'text-red-400';
+  if (score >= 50) return 'text-orange-400';
+  if (score >= 25) return 'text-yellow-400';
+  return 'text-emerald-400';
 }
 
-interface ClientProfile {
-  client_id?: string;
-  display_name?: string;
-  first_name?: string;
-  last_name?: string;
-  cluster_label?: string;
-  segment?: string;
-  risk_score?: number;
-  backup_compliance_pct?: number;
-  automated_actions_30d?: number;
-  roi_ratio?: number;
-  [key: string]: unknown;
+function timeAgo(iso: string) {
+  const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (diff < 3600)  return Math.floor(diff / 60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+  return Math.floor(diff / 86400) + 'd ago';
 }
 
-// ─── Data fetchers ─────────────────────────────────────────────────────────────
+export default function AiProfilingPage() {
+  const [clusters,  setClusters]  = useState<Cluster[]>([]);
+  const [patterns,  setPatterns]  = useState<Pattern[]>([]);
+  const [loading,   setLoading]   = useState(true);
+  const [running,   setRunning]   = useState(false);
+  const [runResult, setRunResult] = useState<string | null>(null);
+  const [tab,       setTab]       = useState<'clusters' | 'patterns'>('clusters');
 
-async function fetchClusters(): Promise<Cluster[]> {
-  try {
-    const res = await fetch(`${API_URL}/api/v1/ai-profiling/clusters`, {
-      headers: { Authorization: `Bearer ${API_TOKEN}` },
-      cache: 'no-store',
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return Array.isArray(data) ? data : (data.data ?? []);
-  } catch {
-    return [];
+  const fetchAll = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [cRes, pRes] = await Promise.all([
+        fetch('/api/ai-profiling/clusters'),
+        fetch('/api/ai-profiling/patterns'),
+      ]);
+      const [cJson, pJson] = await Promise.all([cRes.json(), pRes.json()]);
+      setClusters(cJson.data ?? []);
+      setPatterns(pJson.data ?? []);
+    } catch { /* silent */ } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchAll(); }, [fetchAll]);
+
+  async function triggerRun() {
+    setRunning(true);
+    setRunResult(null);
+    try {
+      const res = await fetch('/api/ai-profiling/run', { method: 'POST' });
+      const json = await res.json();
+      if (res.ok) {
+        setRunResult('Profiling complete — ' + (json.clients_profiled ?? 0) + ' clients clustered, ' + (json.patterns_detected ?? 0) + ' patterns detected.');
+        await fetchAll();
+      } else {
+        setRunResult('Run failed — check backend logs.');
+      }
+    } catch {
+      setRunResult('Network error — check API connection.');
+    } finally {
+      setRunning(false);
+    }
   }
-}
 
-async function fetchPatterns(): Promise<Pattern[]> {
-  try {
-    const res = await fetch(`${API_URL}/api/v1/ai-profiling/patterns`, {
-      headers: { Authorization: `Bearer ${API_TOKEN}` },
-      cache: 'no-store',
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return Array.isArray(data) ? data : (data.data ?? []);
-  } catch {
-    return [];
-  }
-}
-
-async function fetchProfiles(): Promise<ClientProfile[]> {
-  try {
-    // Get client list
-    const clientsRes = await fetch(`${API_URL}/api/v1/clients?per_page=100`, {
-      headers: { Authorization: `Bearer ${API_TOKEN}` },
-      cache: 'no-store',
-    });
-    if (!clientsRes.ok) return [];
-    const clientsData = await clientsRes.json();
-    const clients: ClientProfile[] = Array.isArray(clientsData)
-      ? clientsData
-      : (clientsData.data ?? []);
-
-    const limited = clients.slice(0, 20);
-
-    const profiles = await Promise.all(
-      limited.map(async (client) => {
-        const id = client.client_id ?? '';
-        if (!id) return client;
-        try {
-          const profileRes = await fetch(
-            `${API_URL}/api/v1/ai-profiling/clients/${encodeURIComponent(id)}`,
-            {
-              headers: { Authorization: `Bearer ${API_TOKEN}` },
-              cache: 'no-store',
-            }
-          );
-          if (!profileRes.ok) return client;
-          const profile = await profileRes.json();
-          return { ...client, ...profile };
-        } catch {
-          return client;
-        }
-      })
-    );
-
-    return profiles;
-  } catch {
-    return [];
-  }
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function clusterBorderClass(label?: string): string {
-  const l = (label ?? '').toLowerCase();
-  if (l.includes('high risk') || l.includes('high-risk')) return 'border-red-500/60';
-  if (l.includes('moderate')) return 'border-orange-500/60';
-  if (l.includes('healthy') || l.includes('low')) return 'border-green-500/60';
-  return 'border-slate-600';
-}
-
-function severityBorderClass(severity?: string): string {
-  const s = (severity ?? '').toLowerCase();
-  if (s === 'critical') return 'border-l-red-500';
-  if (s === 'high') return 'border-l-orange-500';
-  if (s === 'moderate' || s === 'medium') return 'border-l-yellow-500';
-  return 'border-l-slate-500';
-}
-
-function severityBadgeClass(severity?: string): string {
-  const s = (severity ?? '').toLowerCase();
-  if (s === 'critical') return 'bg-red-500/20 text-red-400 border-red-500/40';
-  if (s === 'high') return 'bg-orange-500/20 text-orange-400 border-orange-500/40';
-  if (s === 'moderate' || s === 'medium') return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/40';
-  return 'bg-slate-700 text-slate-400 border-slate-600';
-}
-
-function riskScoreClass(score?: number): string {
-  if (score == null) return 'text-slate-500';
-  if (score >= 70) return 'text-red-400 font-semibold';
-  if (score >= 40) return 'text-orange-400 font-semibold';
-  return 'text-green-400 font-semibold';
-}
-
-function clientDisplayName(c: ClientProfile): string {
-  if (c.display_name) return c.display_name;
-  const parts = [c.first_name, c.last_name].filter(Boolean);
-  if (parts.length) return parts.join(' ');
-  return c.client_id ?? '—';
-}
-
-function fmtPct(val?: number): string {
-  if (val == null) return '—';
-  return `${Math.round(val)}%`;
-}
-
-function fmtRoi(val?: number): string {
-  if (val == null) return '—';
-  return `${val.toFixed(1)}:1`;
-}
-
-function fmtRisk(val?: number): string {
-  if (val == null) return '—';
-  return `${Math.round(val)}`;
-}
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
-export default async function AiProfilingPage() {
-  const [clusters, patterns, profiles] = await Promise.all([
-    fetchClusters(),
-    fetchPatterns(),
-    fetchProfiles(),
-  ]);
-
-  // Summary metrics
-  const totalProfiled = profiles.length;
-  const clusterCount = clusters.length;
-  const activePatterns = patterns.length;
-  const highRiskClients = profiles.filter(
-    (p) => (p.risk_score ?? 0) >= 70
-  ).length;
-
-  const lastRun = clusters[0]
-    ? (clusters[0].last_run_at as string | undefined) ?? null
-    : null;
-  const lastRunLabel = lastRun
-    ? new Date(lastRun).toLocaleDateString('en-ZA', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      })
-    : 'Not yet run';
-
-  // Sort profiles by risk score descending for the table
-  const sortedProfiles = [...profiles].sort(
-    (a, b) => (b.risk_score ?? 0) - (a.risk_score ?? 0)
-  );
+  const activePatterns   = patterns.filter(p => p.is_active);
+  const criticalPatterns = activePatterns.filter(p => p.severity === 'critical' || p.severity === 'high');
+  const totalClients     = clusters.reduce((s, c) => s + c.client_count, 0);
 
   return (
-    <div className="space-y-6">
-      <AutoRefresh intervalMs={600000} />
-
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-white">AI Client Intelligence</h1>
-        <p className="text-slate-400 text-sm mt-0.5">
-          Cluster analysis updated monthly — last run: {lastRunLabel}
-        </p>
-      </div>
-
-      {/* Summary cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <SummaryCard label="Clients profiled" value={totalProfiled} />
-        <SummaryCard label="Clusters detected" value={clusterCount} />
-        <SummaryCard label="Active patterns" value={activePatterns} />
-        <SummaryCard
-          label="High risk clients"
-          value={highRiskClients}
-          highlight={highRiskClients > 0}
-        />
-      </div>
-
-      {/* Cluster breakdown */}
-      <section>
-        <h2 className="text-base font-semibold text-white mb-3">Cluster Breakdown</h2>
-        {clusters.length === 0 ? (
-          <EmptyState message="No clusters available — profiling has not run yet." />
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {clusters.map((cluster, i) => (
-              <ClusterCard key={cluster.cluster_id ?? i} cluster={cluster} />
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* Cross-client patterns */}
-      <section>
-        <h2 className="text-base font-semibold text-white mb-3">Cross-Client Patterns</h2>
-        {patterns.length === 0 ? (
-          <EmptyState message="No active patterns detected." />
-        ) : (
-          <div className="space-y-3">
-            {patterns.map((pattern, i) => (
-              <PatternCard key={pattern.pattern_id ?? i} pattern={pattern} />
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* Client profile table */}
-      <section>
-        <h2 className="text-base font-semibold text-white mb-3">Client Profiles</h2>
-        {sortedProfiles.length === 0 ? (
-          <EmptyState message="No client profiles available." />
-        ) : (
-          <div className="overflow-x-auto rounded-lg border border-slate-700">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-slate-800 text-slate-400 text-xs uppercase">
-                <tr>
-                  <th className="px-4 py-3">Client</th>
-                  <th className="px-4 py-3">Cluster</th>
-                  <th className="px-4 py-3">Segment</th>
-                  <th className="px-4 py-3 text-right">Risk</th>
-                  <th className="px-4 py-3 text-right">Backup</th>
-                  <th className="px-4 py-3 text-right">Auto 30d</th>
-                  <th className="px-4 py-3 text-right">ROI</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800">
-                {sortedProfiles.map((client, i) => (
-                  <tr
-                    key={client.client_id ?? i}
-                    className="bg-slate-900 hover:bg-slate-800/50 transition-colors"
-                  >
-                    <td className="px-4 py-3 text-white font-medium">
-                      {clientDisplayName(client)}
-                    </td>
-                    <td className="px-4 py-3 text-slate-300">
-                      {client.cluster_label ?? '—'}
-                    </td>
-                    <td className="px-4 py-3">
-                      <SegmentBadge segment={client.segment} />
-                    </td>
-                    <td className={`px-4 py-3 text-right ${riskScoreClass(client.risk_score)}`}>
-                      {fmtRisk(client.risk_score)}
-                    </td>
-                    <td className="px-4 py-3 text-right text-slate-300">
-                      {fmtPct(client.backup_compliance_pct)}
-                    </td>
-                    <td className="px-4 py-3 text-right text-slate-300">
-                      {client.automated_actions_30d ?? '—'}
-                    </td>
-                    <td className="px-4 py-3 text-right text-teal-400 font-medium">
-                      {fmtRoi(client.roi_ratio)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-    </div>
-  );
-}
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-function SummaryCard({
-  label,
-  value,
-  highlight = false,
-}: {
-  label: string;
-  value: number;
-  highlight?: boolean;
-}) {
-  return (
-    <Card className="bg-slate-800 border-slate-700">
-      <CardContent className="pt-4 pb-4">
-        <p className="text-xs text-slate-400 mb-1">{label}</p>
-        <p
-          className={`text-3xl font-bold ${
-            highlight && value > 0 ? 'text-red-400' : 'text-white'
-          }`}
-        >
-          {value}
-        </p>
-      </CardContent>
-    </Card>
-  );
-}
-
-function ClusterCard({ cluster }: { cluster: Cluster }) {
-  const borderClass = clusterBorderClass(cluster.label);
-  return (
-    <Card className={`bg-slate-800 border-2 ${borderClass}`}>
-      <CardContent className="pt-4 pb-4 space-y-3">
-        <div className="flex items-start justify-between gap-2">
-          <p className="text-sm font-semibold text-white leading-tight">
-            {cluster.label ?? `Cluster ${String(cluster.cluster_id ?? '')}`}
+    <div className="p-6 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-white">AI Client Profiling</h1>
+          <p className="text-slate-400 text-sm mt-0.5">
+            Cross-client pattern detection · Segment clustering · Proactive recommendations
           </p>
-          <span className="shrink-0 text-xs text-slate-400 bg-slate-700 px-2 py-0.5 rounded-full">
-            {cluster.client_count ?? 0} client{(cluster.client_count ?? 0) !== 1 ? 's' : ''}
-          </span>
         </div>
-        <div className="grid grid-cols-3 gap-2 text-center">
-          <div>
-            <p className="text-xs text-slate-500 mb-0.5">Avg Risk</p>
-            <p className={`text-sm font-semibold ${riskScoreClass(cluster.avg_risk_score)}`}>
-              {fmtRisk(cluster.avg_risk_score)}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-slate-500 mb-0.5">Avg Backup</p>
-            <p className="text-sm font-semibold text-slate-200">
-              {fmtPct(cluster.avg_backup_pct)}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-slate-500 mb-0.5">Avg ROI</p>
-            <p className="text-sm font-semibold text-teal-400">
-              {fmtRoi(cluster.avg_roi_ratio)}
-            </p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
+        <button
+          onClick={triggerRun}
+          disabled={running}
+          className="px-4 py-2 bg-teal-600 hover:bg-teal-500 disabled:bg-slate-700 disabled:text-slate-500 text-white text-sm font-medium rounded transition-colors"
+        >
+          {running ? 'Running…' : 'Run profiling pass'}
+        </button>
+      </div>
 
-function PatternCard({ pattern }: { pattern: Pattern }) {
-  const borderClass = severityBorderClass(pattern.severity);
-  const badgeClass = severityBadgeClass(pattern.severity);
-  return (
-    <div
-      className={`rounded-lg bg-slate-800 border border-slate-700 border-l-4 ${borderClass} px-4 py-3`}
-    >
-      <div className="flex flex-wrap items-start gap-2 mb-1">
-        <p className="text-sm font-semibold text-white flex-1 min-w-0">
-          {pattern.title ?? 'Untitled pattern'}
-        </p>
-        <div className="flex items-center gap-2 shrink-0">
-          {pattern.severity && (
-            <span
-              className={`text-xs px-2 py-0.5 rounded border font-medium ${badgeClass}`}
-            >
-              {pattern.severity}
-            </span>
-          )}
-          {pattern.affected_client_count != null && (
-            <span className="text-xs text-slate-400">
-              {pattern.affected_client_count} client
-              {pattern.affected_client_count !== 1 ? 's' : ''}
-            </span>
-          )}
+      {runResult && (
+        <div className="mb-4 bg-teal-500/10 border border-teal-500/20 rounded-lg px-4 py-3 text-teal-300 text-sm">
+          {runResult}
+        </div>
+      )}
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
+          <p className="text-slate-400 text-xs uppercase tracking-wide">Clients profiled</p>
+          <p className="text-white text-2xl font-bold mt-1">{totalClients}</p>
+        </div>
+        <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
+          <p className="text-slate-400 text-xs uppercase tracking-wide">Clusters</p>
+          <p className="text-white text-2xl font-bold mt-1">{clusters.length}</p>
+        </div>
+        <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
+          <p className="text-slate-400 text-xs uppercase tracking-wide">Active patterns</p>
+          <p className="text-white text-2xl font-bold mt-1">{activePatterns.length}</p>
+        </div>
+        <div className={(criticalPatterns.length > 0 ? 'bg-red-500/10 border-red-500/20' : 'bg-slate-800 border-slate-700') + ' rounded-lg p-4 border'}>
+          <p className={(criticalPatterns.length > 0 ? 'text-red-400' : 'text-slate-400') + ' text-xs uppercase tracking-wide'}>
+            Critical / High
+          </p>
+          <p className={(criticalPatterns.length > 0 ? 'text-red-300' : 'text-white') + ' text-2xl font-bold mt-1'}>
+            {criticalPatterns.length}
+          </p>
         </div>
       </div>
-      {pattern.description && (
-        <p className="text-xs text-slate-400 mb-1">{pattern.description}</p>
-      )}
-      {pattern.recommendation && (
-        <p className="text-xs text-teal-400 mt-1">
-          <span className="font-medium text-teal-300">Action:</span>{' '}
-          {pattern.recommendation}
-        </p>
-      )}
-    </div>
-  );
-}
 
-function SegmentBadge({ segment }: { segment?: string }) {
-  const s = (segment ?? '').toLowerCase();
-  const cls =
-    s === 'medical_practice'
-      ? 'bg-blue-500/20 text-blue-400 border-blue-500/40'
-      : s === 'sme'
-      ? 'bg-purple-500/20 text-purple-400 border-purple-500/40'
-      : s === 'family'
-      ? 'bg-teal-500/20 text-teal-400 border-teal-500/40'
-      : s === 'individual'
-      ? 'bg-slate-600/60 text-slate-300 border-slate-500'
-      : 'bg-slate-700 text-slate-500 border-slate-600';
-  return segment ? (
-    <span className={`text-xs px-2 py-0.5 rounded border ${cls}`}>
-      {segment.replace('_', ' ')}
-    </span>
-  ) : (
-    <span className="text-slate-600 text-xs">—</span>
-  );
-}
+      <div className="flex gap-2 mb-4">
+        {(['clusters', 'patterns'] as const).map(t => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={(tab === t ? 'bg-teal-600 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600') + ' px-3 py-1.5 rounded text-xs font-medium transition-colors capitalize'}
+          >
+            {t === 'clusters' ? 'Clusters (' + clusters.length + ')' : 'Patterns (' + activePatterns.length + ')'}
+          </button>
+        ))}
+      </div>
 
-function EmptyState({ message }: { message: string }) {
-  return (
-    <div className="rounded-lg bg-slate-800 border border-slate-700 px-6 py-10 text-center">
-      <p className="text-slate-500 text-sm">{message}</p>
+      {loading ? (
+        <div className="bg-slate-800 border border-slate-700 rounded-lg p-12 text-center text-slate-500 text-sm">
+          Loading profiling data…
+        </div>
+      ) : tab === 'clusters' ? (
+        clusters.length === 0 ? (
+          <div className="bg-slate-800 border border-slate-700 rounded-lg p-12 text-center">
+            <p className="text-slate-400 text-sm">No clusters yet.</p>
+            <p className="text-slate-600 text-xs mt-1">Click &ldquo;Run profiling pass&rdquo; to cluster all clients.</p>
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {clusters.map(cluster => {
+              const colours = SEGMENT_COLOURS[cluster.segment] || SEGMENT_COLOURS.unknown;
+              return (
+                <div key={cluster.cluster_id} className={'rounded-lg border p-4 ' + colours.bg + ' ' + colours.border}>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className={'text-sm font-semibold ' + colours.text}>{seg(cluster.segment)}</span>
+                    <span className="text-xs text-slate-500">Cluster #{cluster.cluster_id}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 mb-3 text-xs">
+                    <div><span className="text-slate-500">Clients</span><span className="text-white font-semibold ml-2">{cluster.client_count}</span></div>
+                    <div><span className="text-slate-500">Avg risk</span><span className={'font-semibold ml-2 ' + riskColour(cluster.avg_risk_score)}>{cluster.avg_risk_score != null ? cluster.avg_risk_score.toFixed(0) : '—'}</span></div>
+                    <div><span className="text-slate-500">Avg age</span><span className="text-slate-300 ml-2">{cluster.avg_device_age != null ? cluster.avg_device_age.toFixed(1) + 'y' : '—'}</span></div>
+                    <div><span className="text-slate-500">Backup</span><span className="text-slate-300 ml-2">{cluster.backup_compliance_pct != null ? cluster.backup_compliance_pct.toFixed(0) + '%' : '—'}</span></div>
+                    {cluster.top_os && <div className="col-span-2"><span className="text-slate-500">Top OS</span><span className="text-slate-300 ml-2">{cluster.top_os}</span></div>}
+                  </div>
+                  {cluster.clients?.length > 0 && (
+                    <div className="space-y-1 border-t border-white/5 pt-2">
+                      {cluster.clients.slice(0, 5).map(c => (
+                        <div key={c.client_id} className="flex items-center justify-between">
+                          <Link href={'/clients/' + c.client_id} className="text-xs text-slate-300 hover:text-white transition-colors truncate max-w-[140px]">
+                            {c.client_name || c.client_id}
+                          </Link>
+                          <span className={'text-xs ' + riskColour(c.risk_score)}>{c.risk_score != null ? c.risk_score.toFixed(0) : '—'}</span>
+                        </div>
+                      ))}
+                      {cluster.clients.length > 5 && <p className="text-xs text-slate-600 pt-0.5">+{cluster.clients.length - 5} more</p>}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )
+      ) : (
+        activePatterns.length === 0 ? (
+          <div className="bg-slate-800 border border-slate-700 rounded-lg p-12 text-center">
+            <p className="text-slate-400 text-sm">No active patterns detected.</p>
+            <p className="text-slate-600 text-xs mt-1">Run a profiling pass to detect cross-client patterns.</p>
+          </div>
+        ) : (
+          <div className="bg-slate-800 border border-slate-700 rounded-lg overflow-hidden">
+            <div className="px-4 py-3 border-b border-slate-700">
+              <p className="text-sm font-medium text-white">{activePatterns.length} active pattern{activePatterns.length !== 1 ? 's' : ''}</p>
+            </div>
+            <ul className="divide-y divide-slate-700/50">
+              {activePatterns.map(pattern => (
+                <li key={pattern.id} className="px-4 py-3 hover:bg-slate-700/30 transition-colors">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1.5 flex-shrink-0">
+                      <span className={'block w-2 h-2 rounded-full ' + (SEVERITY_DOT[pattern.severity] || 'bg-slate-500')} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-medium text-white">{pattern.title}</span>
+                        <span className="text-xs text-slate-500 capitalize">{pattern.pattern_type?.replace(/_/g, ' ')}</span>
+                        <span className="text-xs bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded">{pattern.affected_client_count} client{pattern.affected_client_count !== 1 ? 's' : ''}</span>
+                      </div>
+                      <p className="text-sm text-slate-400 mt-0.5 leading-snug">{pattern.description}</p>
+                      {pattern.recommendation && <p className="text-xs text-teal-400 mt-1">→ {pattern.recommendation}</p>}
+                    </div>
+                    <span className="text-xs text-slate-600 flex-shrink-0 mt-0.5">{timeAgo(pattern.detected_at)}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      )}
     </div>
   );
 }
