@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { AddDeviceButton } from './AddDeviceButton';
+import { EditDeviceButton } from './EditDeviceButton';
 import { Trash2 } from 'lucide-react';
 
 interface LifecycleDevice {
@@ -12,6 +13,8 @@ interface LifecycleDevice {
   make: string;
   model: string;
   serial_number?: string;
+  device_serial?: string;
+  purchase_date?: string;
   age_years?: number;
   expected_lifespan?: number;
   lifecycle_pct?: number;
@@ -186,14 +189,24 @@ export function LifecyclePanel({ clientId }: { clientId: string }) {
                       AppleCare {new Date(d.applecare_expires).toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </p>
                   )}
-                  <button
-                    onClick={() => handleDelete(d.id, d.display_name)}
-                    disabled={deleting === d.id}
-                    className="mt-1 text-slate-600 hover:text-red-400 transition-colors disabled:opacity-40"
-                    title="Remove device"
-                  >
-                    <Trash2 size={12} />
-                  </button>
+                  <div className="flex gap-2 justify-end mt-1">
+                    <EditDeviceButton
+                      device={d}
+                      onUpdated={(updated) => {
+                        setDevices(prev => prev.map(x =>
+                          x.id === d.id ? { ...x, ...updated } : x
+                        ));
+                      }}
+                    />
+                    <button
+                      onClick={() => handleDelete(d.id, d.display_name)}
+                      disabled={deleting === d.id}
+                      className="text-slate-600 hover:text-red-400 transition-colors disabled:opacity-40"
+                      title="Remove device"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
