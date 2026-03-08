@@ -44,11 +44,22 @@ interface Recommendation {
   client_id: string;
   client_name?: string;
   product_name: string;
-  reason: string;
-  trigger?: string;
-  estimated_value_rand?: number;
+  roi_description?: string;
+  reason?: string;          // legacy alias
+  trigger_field?: string;
+  trigger?: string;         // legacy alias
+  rand_value?: number;
+  estimated_value_rand?: number;  // legacy alias
   status: string;
   created_at: string;
+}
+
+interface PipelineSummary {
+  pending_count: number;
+  pending_value_rand: number;
+  won_count: number;
+  won_revenue_rand: number;
+  by_category: { category: string; count: number; total_rand: number }[];
 }
 
 interface Client {
@@ -455,7 +466,7 @@ function ClientsTab({ contacts }: { contacts: Contact[] }) {
 
 // ─── Upsell Recommendations Tab ───────────────────────────────────────────────
 
-function UpsellTab({ recs }: { recs: Recommendation[] }) {
+function UpsellTab({ recs, summary }: { recs: Recommendation[]; summary: PipelineSummary | null }) {
   const STATUS_COLOUR: Record<string, string> = {
     pending:  '#F59E0B',
     sent:     '#3B82F6',
@@ -463,12 +474,49 @@ function UpsellTab({ recs }: { recs: Recommendation[] }) {
     rejected: '#CC0000',
   };
 
+  const CATEGORY_COLOUR: Record<string, string> = {
+    repair:       '#F97316',
+    accessory:    '#3B82F6',
+    warranty:     '#8B5CF6',
+    subscription: '#0FEA7A',
+    hardware:     '#EC4899',
+  };
+
   return (
     <div>
+      {/* Pipeline KPIs */}
+      {summary && (
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
+          <SummaryCard label="Pending Recommendations" value={String(summary.pending_count)} colour="#F59E0B" />
+          <SummaryCard label="Pending Pipeline Value" value={fmtRand(summary.pending_value_rand)} colour="#F59E0B"
+            sub="Total upsell opportunity" />
+          <SummaryCard label="Won Revenue" value={fmtRand(summary.won_revenue_rand)} colour="#0FEA7A"
+            sub={`${summary.won_count} closed won`} />
+        </div>
+      )}
+
+      {/* Category breakdown */}
+      {summary && summary.by_category.length > 0 && (
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 20 }}>
+          {summary.by_category.map(cat => (
+            <div key={cat.category} style={{
+              background: '#0d1f1e', border: '1px solid #27504D', borderRadius: 8,
+              padding: '10px 16px', display: 'flex', flexDirection: 'column', gap: 2,
+            }}>
+              <Pill text={cat.category} colour={CATEGORY_COLOUR[cat.category] || '#6B7280'} />
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0FEA7A', marginTop: 4 }}>
+                {fmtRand(cat.total_rand)}
+              </div>
+              <div style={{ fontSize: 11, color: '#666' }}>{cat.count} pending</div>
+            </div>
+          ))}
+        </div>
+      )}
+
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
         <thead>
           <tr style={{ borderBottom: '2px solid #0FEA7A' }}>
-            {['Client', 'Recommendation', 'Product', 'Value', 'Trigger', 'Status'].map(h => (
+            {['Client', 'Product', 'ROI Reason', 'Value', 'Trigger', 'Status'].map(h => (
               <th key={h} style={{
                 textAlign: 'left', padding: '10px 14px',
                 fontSize: 11, color: '#A8D5D1', textTransform: 'uppercase', letterSpacing: 1,
@@ -480,38 +528,40 @@ function UpsellTab({ recs }: { recs: Recommendation[] }) {
           {recs.length === 0 && (
             <tr>
               <td colSpan={6} style={{ padding: '32px 14px', color: '#666', textAlign: 'center' }}>
-                No upsell recommendations yet — upload a diagnostic to generate.
+                No upsell recommendations yet — upload a diagnostic to auto-generate.
               </td>
             </tr>
           )}
-          {recs.map((r, i) => (
-            <tr key={r.id} style={{
-              background: i % 2 === 0 ? 'transparent' : '#27504D11',
-              borderBottom: '1px solid #27504D22',
-            }}>
-              <td style={{ padding: '10px 14px', color: '#E8F4F3', fontWeight: 600 }}>
-                {r.client_name || r.client_id}
-              </td>
-              <td style={{ padding: '10px 14px', color: '#A8D5D1', maxWidth: 200 }}>
-                <div style={{ fontSize: 12 }}>{r.reason}</div>
-              </td>
-              <td style={{ padding: '10px 14px', color: '#E8F4F3', fontWeight: 600 }}>
-                {r.product_name}
-              </td>
-              <td style={{ padding: '10px 14px', color: '#0FEA7A', fontWeight: 700 }}>
-                {fmtRand(r.estimated_value_rand)}
-              </td>
-              <td style={{ padding: '10px 14px', color: '#666', fontSize: 11 }}>
-                {r.trigger || '—'}
-              </td>
-              <td style={{ padding: '10px 14px' }}>
-                <Pill
-                  text={r.status}
-                  colour={STATUS_COLOUR[r.status] || '#6B7280'}
-                />
-              </td>
-            </tr>
-          ))}
+          {recs.map((r, i) => {
+            const roiText = r.roi_description || r.reason || '—';
+            const triggerKey = r.trigger_field || r.trigger || '—';
+            const value = r.rand_value ?? r.estimated_value_rand;
+            return (
+              <tr key={r.id} style={{
+                background: i % 2 === 0 ? 'transparent' : '#27504D11',
+                borderBottom: '1px solid #27504D22',
+              }}>
+                <td style={{ padding: '10px 14px', color: '#E8F4F3', fontWeight: 600 }}>
+                  {r.client_name || r.client_id}
+                </td>
+                <td style={{ padding: '10px 14px', color: '#E8F4F3', fontWeight: 600 }}>
+                  {r.product_name}
+                </td>
+                <td style={{ padding: '10px 14px', color: '#A8D5D1', maxWidth: 280 }}>
+                  <div style={{ fontSize: 11, lineHeight: 1.4 }}>{roiText}</div>
+                </td>
+                <td style={{ padding: '10px 14px', color: '#0FEA7A', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                  {fmtRand(value)}
+                </td>
+                <td style={{ padding: '10px 14px', color: '#666', fontSize: 11 }}>
+                  {triggerKey.replace(/_/g, ' ')}
+                </td>
+                <td style={{ padding: '10px 14px' }}>
+                  <Pill text={r.status} colour={STATUS_COLOUR[r.status] || '#6B7280'} />
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -703,26 +753,30 @@ export default function SalesPage() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [recs, setRecs] = useState<Recommendation[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
+  const [summary, setSummary] = useState<PipelineSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
 
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const [oppsRes, contactsRes, recsRes, clientsRes] = await Promise.all([
+      const [oppsRes, contactsRes, recsRes, clientsRes, summaryRes] = await Promise.all([
         fetch('/api/sales/opportunities'),
         fetch('/api/sales/contacts'),
         fetch('/api/sales/recommendations'),
         fetch('/api/clients?per_page=100'),
+        fetch('/api/sales/pipeline-summary'),
       ]);
       const oppsJson = await oppsRes.json();
       const contactsJson = await contactsRes.json();
       const recsJson = await recsRes.json();
       const clientsJson = await clientsRes.json();
+      const summaryJson = await summaryRes.json();
       setOpps(Array.isArray(oppsJson) ? oppsJson : (oppsJson.data ?? []));
       setContacts(Array.isArray(contactsJson) ? contactsJson : (contactsJson.data ?? []));
       setRecs(Array.isArray(recsJson) ? recsJson : (recsJson.data ?? []));
       setClients(Array.isArray(clientsJson) ? clientsJson : (clientsJson.data ?? []));
+      setSummary(summaryJson ?? null);
     } catch {
       // silently handle — API may be pending
     }
@@ -794,7 +848,7 @@ export default function SalesPage() {
         <ClientsTab contacts={contacts} />
       )}
       {!loading && tab === 'Upsell Recommendations' && (
-        <UpsellTab recs={recs} />
+        <UpsellTab recs={recs} summary={summary} />
       )}
       {!loading && tab === 'Insights' && (
         <InsightsTab opps={opps} contacts={contacts} />
