@@ -1,5 +1,5 @@
 # ZA SUPPORT — GLOBAL CLAUDE CODE STANDARDS
-# Owner: Courtney Bentley | Last Updated: 06/03/2026 (session 4 — INSTRUCTIONS v3.2 sync)
+# Owner: Courtney Bentley | Last Updated: 08/03/2026 (session 7 — INSTRUCTIONS-5.md sync, Sections 23-25, 11 agents)
 # Location: ~/.claude/CLAUDE.md
 # Scope: All development tasks across all ZA Support repositories
 
@@ -352,7 +352,8 @@ app/modules/{module_name}/
 - Tag every client with segment type: medical_practice / sme / individual / family
 - Every report triggers scheduled in-person follow-up — non-negotiable
 - Sales/CRM: track upsell recommendations and outcomes per client profile
-- Investec client scan: daily — flag + outreach within 24 hours
+- Investec client scan: daily — flag + outreach within 24 hours | Branch: 580105 | SWIFT: IVESZAJJ
+- SA bank codes: FNB 250655, Standard 051001, ABSA 632005, Nedbank 198765, Capitec 470010
 - Align all development to be sellable IP (clean APIs, documented, no single-person silos)
 - Write Playwright scripts for repetitive web UI tasks — do not claim it cannot be automated
 
@@ -848,6 +849,14 @@ Triggers: diagnostic processed, assessment completed, monthly due.
 Inputs: diagnostic manifest (component health), model/age, repair history.
 Triggers: diagnostic completed, repair quoted, age milestone.
 
+**Agent 10 — Site Visit Assessment:** On-site data capture orchestration, photo→asset register, voice note transcription, red-team findings compilation, report generation trigger.
+Inputs: photos, voice notes, Scout output, Flipper Zero results, Nmap scan.
+Triggers: site visit initiated, assessment completed.
+
+**Agent 11 — Verification:** Cross-checks all agent outputs against hardware specs and client records. Flags assumptions. Ensures no spec is stated without source.
+Inputs: any agent output. Outputs: verification report, flagged assumptions.
+Triggers: before any client-facing document is generated.
+
 ## Orchestrator Event Routing
 ```
 diagnostic_uploaded    → Scout + Client Intel + Upsell + Report + Marketing
@@ -879,3 +888,77 @@ When generating instructions intended for Claude Code projects: ALWAYS create or
 
 ## When Both Apply
 If a request generates rules relevant to both global preferences AND Claude Code, produce BOTH: the code block for preferences AND the .md file for Claude Code. Do not ask which format — deliver both.
+
+---
+
+# SECTION 23: CHATGPT HISTORY IMPORT (PENDING)
+
+## Context
+Courtney has an extensive ChatGPT history spanning a long period — business decisions, client work, technical research, product development, and strategic thinking predating the Claude migration. This data will be exported (ZIP → conversations.json) and uploaded for analysis.
+
+## Processing Rules (apply when export arrives)
+1. Do NOT summarise and discard. Extract every data point systematically.
+2. Categorise into: client records, technical decisions, product specifications, business strategy, pricing decisions, supplier information, legal matters, learnings/corrections, workflow rules, unfinished projects.
+3. Cross-reference against CLAUDE.md and memory files — identify new data, corrections, status changes. Merge the most complete version.
+4. Flag contradictions — where ChatGPT history disagrees with current records, flag both and present to Courtney. Do not silently overwrite.
+5. Identify unfinished work — projects started in ChatGPT that were never completed. May represent partially-built systems to resume.
+6. Identify client history — clients who appeared in ChatGPT but not in current registry; earlier interactions with existing clients.
+7. Extract pricing decisions — any pricing, margin, or commercial model decisions that may have evolved.
+8. Output: amendment to CLAUDE.md (not replacement) + "ChatGPT Import Log" section documenting what was found, merged, flagged.
+
+## Expected Format
+ZIP containing JSON files (conversations.json). Each conversation has messages with timestamps, roles, content. May be very large. Process systematically — not in one pass.
+
+---
+
+# SECTION 24: CYBERSHIELD HOME — TIER DETAIL
+
+## Protect — R 799/month (R 7,990/year)
+Content filtering (category-based blocking), threat detection (malware domains, phishing URLs), device inventory (all connected devices visible), schedule enforcement (internet access time windows per device group), unlimited devices, no per-device licensing. No reporting at this tier.
+
+## Monitor — R 1,199/month (R 11,990/year)
+Everything in Protect plus: VPN/bypass detection (flags children attempting to circumvent filtering), child activity monitoring (sites visited, apps used, time spent per category), weekly security and activity reports delivered to parent via email, per-device group management.
+
+## Intelligence — R 1,499/month (R 14,990/year) — RECOMMENDED
+Everything in Monitor plus: per-device screen time tracking (individual device usage hours/day), child safety intelligence (trending apps flagged with risk assessment, bypass technique alerts, gaming platform stranger-contact risk assessment), actionable recommendations, monthly trend analysis.
+
+## Document Rules
+- Consumer docs use same ZA Support report template as medical
+- Subtitle: "Real-Time Cyber Protection for Your Family"
+- Tone: written for a parent
+- Key differentiator: network-level — children cannot disable/uninstall/bypass
+- Risk scenarios: VPN bypass, friend's devices on WiFi, phishing, ransomware, stranger contact via gaming, rogue IoT
+- Sample weekly report mandatory in proposals
+- IncidentBlock Flowable: severity-coded accent bars (critical=red, high=orange, medium=yellow)
+- InsightBlock Flowable: teal accent for child safety intelligence items
+
+---
+
+# SECTION 25: SERVICE AUDIT — FIELD SOPs
+
+## Quarantine Procedure (NEVER delete — always quarantine)
+1. Create `_ZA_Quarantine` subfolder inside the source directory (e.g. `/Library/LaunchDaemons/_ZA_Quarantine/`)
+2. `launchctl unload -w` the plist first (stops the service)
+3. `kextunload` any kernel extensions
+4. Move (not copy, not delete) files into `_ZA_Quarantine`
+5. Rebuild kext cache: `sudo kextcache -i /`
+6. Reboot and test
+7. After 7 days stable: quarantine folders can be deleted (with client permission)
+8. If anything breaks: move files back immediately
+
+Always generate cleanup commands in order: unload → quarantine → rebuild cache → reboot notice. Never generate `rm -rf` for system services.
+
+## Analysis Order (every service audit)
+1. Cross-reference against ZA Support installed software list — classify as LEGITIMATE first
+2. Identify Apple/system services — classify as ESSENTIAL
+3. Identify known third-party matching installed apps — classify as LEGITIMATE
+4. Flag remaining as UNNECESSARY or SUSPICIOUS with reasoning
+5. Check for remote access tools (TeamViewer, AnyDesk) — always SUSPICIOUS unless client confirms
+
+## Vendor Reference: Entertainment Partners (Movie Magic)
+- Support: mmsupport@ep.com
+- MMB7 support ended: 31/03/2025 (no updates, no installer downloads, no support)
+- MMS6 updates ended: 31/07/2025 | support ending: 31/12/2025
+- MMB10: ~$42.99/month or $299.88/year (subscription only, no perpetual licence)
+- MMB10 can import .mbd files from MMB7. Direct 6.x import path unconfirmed.
+- Applies to: film/production industry clients. Current: Gillian Pearson.
