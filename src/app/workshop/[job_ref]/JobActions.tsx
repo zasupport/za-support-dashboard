@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CheckCircle, ArrowRight, Loader2, CalendarDays, Clock, User } from 'lucide-react';
+import { CheckCircle, ArrowRight, Loader2, CalendarDays, Clock, User, FileText, Mail } from 'lucide-react';
 
 const STATUS_NEXT: Record<string, string> = {
   open:          'in_progress',
@@ -39,6 +39,8 @@ export function JobActions({
   const [showAssign, setShowAssign]     = useState(false);
   const [assignee, setAssignee]         = useState(assignedTo ?? '');
   const [savingAssign, setSavingAssign] = useState(false);
+  const [emailingInv, setEmailingInv]   = useState(false);
+  const [invMsg, setInvMsg]             = useState<string | null>(null);
 
   async function advance(status: string) {
     setLoading(status);
@@ -99,11 +101,55 @@ export function JobActions({
     }
   }
 
+  async function emailInvoice() {
+    setEmailingInv(true);
+    setInvMsg(null);
+    try {
+      const res = await fetch(`/api/workshop/${jobRef}/invoice?send=true`);
+      if (res.ok) {
+        setInvMsg('Invoice emailed to client');
+      } else {
+        setInvMsg('Email failed — check backend logs');
+      }
+    } catch {
+      setInvMsg('Email failed — network error');
+    } finally {
+      setEmailingInv(false);
+      setTimeout(() => setInvMsg(null), 5000);
+    }
+  }
+
+  const invoiceButtons = (
+    <div className="flex flex-wrap items-center gap-2">
+      <a
+        href={`/api/workshop/${jobRef}/invoice`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-2 text-xs px-3 py-2 rounded-md text-teal-300 hover:text-white bg-teal-900/40 hover:bg-teal-800/60 border border-teal-700 transition-colors"
+      >
+        <FileText size={13} />
+        Download Invoice PDF
+      </a>
+      <button
+        onClick={emailInvoice}
+        disabled={emailingInv}
+        className="flex items-center gap-2 text-xs px-3 py-2 rounded-md text-slate-300 hover:text-white bg-slate-700/60 hover:bg-slate-700 border border-slate-600 transition-colors disabled:opacity-50"
+      >
+        {emailingInv ? <Loader2 size={13} className="animate-spin" /> : <Mail size={13} />}
+        Email Invoice to Client
+      </button>
+      {invMsg && <span className="text-xs text-teal-400">{invMsg}</span>}
+    </div>
+  );
+
   if (currentStatus === 'completed' || currentStatus === 'done' || currentStatus === 'cancelled') {
     return (
-      <div className="flex items-center gap-2 text-green-400 text-sm">
-        <CheckCircle size={16} />
-        {currentStatus === 'cancelled' ? 'Cancelled' : 'Job complete'}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2 text-green-400 text-sm">
+          <CheckCircle size={16} />
+          {currentStatus === 'cancelled' ? 'Cancelled' : 'Job complete'}
+        </div>
+        {currentStatus !== 'cancelled' && invoiceButtons}
       </div>
     );
   }
@@ -227,6 +273,8 @@ export function JobActions({
           <button onClick={() => setShowAssign(false)} className="text-slate-500 hover:text-white text-xs">Cancel</button>
         </div>
       )}
+
+      {invoiceButtons}
     </div>
   );
 }
