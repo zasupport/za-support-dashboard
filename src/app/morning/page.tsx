@@ -211,8 +211,8 @@ export default async function MorningPage() {
                     </td>
                     <td className="px-4 py-3 text-center">
                       {(c.critical_lifecycle_count ?? 0) > 0 ? (
-                        <Link href="/upgrade-radar" className="text-orange-400 hover:text-orange-300 font-semibold">
-                          {c.critical_lifecycle_count}
+                        <Link href={`/clients/${c.client_id}`} className="text-orange-400 hover:text-orange-300 font-semibold" title="Critical/overdue lifecycle devices — click for client page">
+                          ⚠ {c.critical_lifecycle_count}
                         </Link>
                       ) : (
                         <span className="text-slate-700">—</span>
