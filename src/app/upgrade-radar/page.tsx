@@ -109,6 +109,26 @@ function formatDate(iso: string | null) {
   return d.toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
+function whatsappUpgradeUrl(device: Device): string {
+  const age = device.age_years != null ? `${device.age_years.toFixed(1)} years` : 'several years';
+  const lifespan = device.expected_lifespan;
+  const name = device.client_name.split(' ')[0];
+  const msg = [
+    `Hi ${name},`,
+    ``,
+    `I wanted to flag that your ${device.display_name} is now ${age} old — we typically recommend replacement at the ${lifespan}-year mark.`,
+    ``,
+    `When you upgrade through ZA Support, we handle everything: data migration, full setup, and Health Check monitoring active from day one. We include 3 months of complimentary monitoring with every new machine.`,
+    ``,
+    `Worth a quick chat? I can put a comparison together for you.`,
+    ``,
+    `Courtney`,
+    `ZA Support`,
+    `064 529 5863`,
+  ].join('\n');
+  return `https://wa.me/?text=${encodeURIComponent(msg)}`;
+}
+
 type FilterType = 'all' | 'critical' | 'overdue' | 'soon' | 'watch';
 
 export default function UpgradeRadarPage() {
@@ -288,13 +308,25 @@ export default function UpgradeRadarPage() {
                             {formatDate(device.replacement_due)}
                           </td>
                           <td className="px-4 py-3 text-right">
-                            <Link
-                              href={`/clients/${device.client_id}`}
-                              className="text-xs bg-teal-600 hover:bg-teal-500 text-white px-2.5 py-1 rounded transition-colors"
-                              onClick={e => e.stopPropagation()}
-                            >
-                              View client
-                            </Link>
+                            <div className="flex items-center gap-2 justify-end">
+                              <a
+                                href={whatsappUpgradeUrl(device)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs bg-green-700 hover:bg-green-600 text-white px-2.5 py-1 rounded transition-colors"
+                                onClick={e => e.stopPropagation()}
+                                title="Send WhatsApp upgrade pitch"
+                              >
+                                WhatsApp →
+                              </a>
+                              <Link
+                                href={`/clients/${device.client_id}`}
+                                className="text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-2.5 py-1 rounded transition-colors"
+                                onClick={e => e.stopPropagation()}
+                              >
+                                View
+                              </Link>
+                            </div>
                           </td>
                         </tr>
                         {isOpen && (
@@ -378,12 +410,22 @@ export default function UpgradeRadarPage() {
                     {device.replacement_rec && (
                       <p className="text-slate-400 text-xs mt-2 leading-relaxed">{device.replacement_rec}</p>
                     )}
-                    <Link
-                      href={`/clients/${device.client_id}`}
-                      className="inline-block mt-2 text-xs bg-teal-600 hover:bg-teal-500 text-white px-2.5 py-1 rounded transition-colors"
-                    >
-                      Log opportunity →
-                    </Link>
+                    <div className="flex gap-2 mt-2">
+                      <a
+                        href={whatsappUpgradeUrl(device)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs bg-green-700 hover:bg-green-600 text-white px-2.5 py-1 rounded transition-colors"
+                      >
+                        WhatsApp pitch →
+                      </a>
+                      <Link
+                        href={`/clients/${device.client_id}`}
+                        className="text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-2.5 py-1 rounded transition-colors"
+                      >
+                        View client
+                      </Link>
+                    </div>
                   </li>
                 );
               })}
