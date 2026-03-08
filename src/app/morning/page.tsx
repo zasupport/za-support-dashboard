@@ -5,6 +5,7 @@ import { fetchCyberShieldSummary, fetchUpgradeRadar, fetchCheckinStatus } from '
 import { TrendAlerts } from './TrendAlerts';
 import { FleetInterventionsFeed } from '@/components/FleetInterventionsFeed';
 import { ServicesPanel } from '@/components/ServicesPanel';
+import { UpsellLeadActions } from '@/components/UpsellLeadActions';
 
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
 const API_TOKEN = process.env.ZA_API_TOKEN || '';
@@ -275,14 +276,12 @@ export default async function MorningPage() {
                         <p className="text-slate-500 mt-0.5 truncate">{r.roi_description}</p>
                       )}
                     </div>
-                    <a
-                      href={waHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-shrink-0 text-xs px-2.5 py-1 rounded-full bg-green-800/50 hover:bg-green-700/60 text-green-300 hover:text-white border border-green-700/40 transition-colors whitespace-nowrap"
-                    >
-                      Pitch →
-                    </a>
+                    <UpsellLeadActions
+                      recId={r.id}
+                      phone={phone}
+                      waHref={waHref}
+                      initialStatus={r.status}
+                    />
                   </div>
                 );
               })}
