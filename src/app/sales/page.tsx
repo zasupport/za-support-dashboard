@@ -71,7 +71,7 @@ interface Client {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const TABS = ['Pipeline', 'Clients', 'Upsell Recommendations', 'Insights'] as const;
+const TABS = ['Pipeline', 'Proposals', 'Clients', 'Upsell Recommendations', 'Insights'] as const;
 type Tab = typeof TABS[number];
 
 const STAGES = ['lead', 'qualified', 'proposal', 'negotiation', 'won', 'lost'] as const;
@@ -745,6 +745,207 @@ function InsightsTab({ opps, contacts }: { opps: Opportunity[]; contacts: Contac
   );
 }
 
+// ─── Proposals Tab ────────────────────────────────────────────────────────────
+
+interface Proposal {
+  id: string;
+  client_id?: string;
+  client_name: string;
+  client_email?: string;
+  status: string;
+  selected_tier?: string;
+  selected_at?: string;
+  viewed_at?: string;
+  expires_at?: string;
+  created_at: string;
+  proposal_url?: string;
+}
+
+const TIER_VALUE: Record<string, number> = {
+  individual:     4999,
+  sla:            5999 * 12,
+  cybershield_home: 1199 * 12,
+};
+
+const TIER_LABEL: Record<string, string> = {
+  individual:       'Individual (R 4,999/yr)',
+  sla:              'SLA (R 5,999/mo)',
+  cybershield_home: 'CyberShield Home (R 1,199/mo)',
+};
+
+const PROPOSAL_STATUS_COLOUR: Record<string, string> = {
+  pending:  '#6B7280',
+  viewed:   '#3B82F6',
+  selected: '#0FEA7A',
+  expired:  '#CC0000',
+};
+
+function ProposalsTab() {
+  const [proposals, setProposals] = useState<Proposal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState<string | null>(null);
+  const [filter, setFilter] = useState<string>('');
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/proposals');
+      const data = await res.json();
+      setProposals(data.proposals ?? []);
+    } catch { /* ignore */ }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const copyLink = (url: string, id: string) => {
+    navigator.clipboard.writeText(url || `https://app.zasupport.com/proposal/${id}`);
+    setCopied(id);
+    setTimeout(() => setCopied(null), 2000);
+  };
+
+  const filtered = proposals.filter(p => {
+    if (!filter) return true;
+    return p.status === filter;
+  });
+
+  const total = proposals.length;
+  const viewed = proposals.filter(p => ['viewed', 'selected'].includes(p.status)).length;
+  const selected = proposals.filter(p => p.status === 'selected').length;
+  const pipelineValue = proposals
+    .filter(p => p.status === 'selected' && p.selected_tier)
+    .reduce((s, p) => s + (TIER_VALUE[p.selected_tier!] ?? 0), 0);
+
+  if (loading) {
+    return <div style={{ color: '#666', padding: 40, textAlign: 'center' }}>Loading proposals...</div>;
+  }
+
+  return (
+    <div>
+      {/* Summary cards */}
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
+        <SummaryCard label="Proposals Sent" value={String(total)} />
+        <SummaryCard label="Viewed" value={`${viewed}/${total}`}
+          sub={total > 0 ? `${Math.round((viewed / total) * 100)}% open rate` : undefined}
+          colour="#3B82F6" />
+        <SummaryCard label="Tier Selected" value={String(selected)}
+          sub={total > 0 ? `${Math.round((selected / total) * 100)}% conversion` : undefined}
+          colour="#0FEA7A" />
+        <SummaryCard label="Pipeline Value (selected)" value={fmtRand(pipelineValue)} colour="#0FEA7A" />
+      </div>
+
+      {/* Filter + Refresh */}
+      <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
+        {['', 'pending', 'viewed', 'selected', 'expired'].map(s => (
+          <button key={s} onClick={() => setFilter(s)} style={{
+            padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12,
+            fontWeight: 600,
+            background: filter === s ? '#27504D' : '#0d1f1e',
+            color: filter === s ? '#0FEA7A' : '#999',
+          }}>
+            {s === '' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)}
+            {s !== '' && (
+              <span style={{ marginLeft: 6, color: PROPOSAL_STATUS_COLOUR[s] || '#999' }}>
+                ({proposals.filter(p => p.status === s).length})
+              </span>
+            )}
+          </button>
+        ))}
+        <button onClick={load} style={{ ...btnSecStyle, marginLeft: 'auto' }}>↺ Refresh</button>
+      </div>
+
+      {/* Table */}
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+        <thead>
+          <tr style={{ borderBottom: '2px solid #0FEA7A' }}>
+            {['Client', 'Status', 'Tier Selected', 'Value', 'Sent', 'Viewed / Selected', 'Action'].map(h => (
+              <th key={h} style={{
+                textAlign: 'left', padding: '10px 14px',
+                fontSize: 11, color: '#A8D5D1', textTransform: 'uppercase', letterSpacing: 1,
+              }}>{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {filtered.length === 0 && (
+            <tr>
+              <td colSpan={7} style={{ padding: '40px 14px', color: '#666', textAlign: 'center' }}>
+                {proposals.length === 0
+                  ? 'No proposals sent yet — use "Generate Proposal" on a client page to create one.'
+                  : 'No proposals match this filter.'}
+              </td>
+            </tr>
+          )}
+          {filtered.map((p, i) => (
+            <tr key={p.id} style={{
+              background: p.status === 'selected'
+                ? '#0FEA7A08'
+                : i % 2 === 0 ? 'transparent' : '#27504D11',
+              borderBottom: '1px solid #27504D22',
+              borderLeft: p.status === 'selected' ? '3px solid #0FEA7A' : '3px solid transparent',
+            }}>
+              <td style={{ padding: '12px 14px' }}>
+                <div style={{ fontWeight: 600, color: '#E8F4F3' }}>{p.client_name}</div>
+                {p.client_email && (
+                  <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>{p.client_email}</div>
+                )}
+                {p.client_id && (
+                  <a href={`/clients/${p.client_id}`} style={{ fontSize: 11, color: '#0FEA7A', textDecoration: 'none' }}>
+                    View client →
+                  </a>
+                )}
+              </td>
+              <td style={{ padding: '12px 14px' }}>
+                <Pill text={p.status} colour={PROPOSAL_STATUS_COLOUR[p.status] || '#6B7280'} />
+              </td>
+              <td style={{ padding: '12px 14px', color: p.selected_tier ? '#0FEA7A' : '#444', fontSize: 12 }}>
+                {p.selected_tier ? TIER_LABEL[p.selected_tier] || p.selected_tier : '—'}
+              </td>
+              <td style={{ padding: '12px 14px', fontWeight: 700, color: p.selected_tier ? '#0FEA7A' : '#444' }}>
+                {p.selected_tier ? fmtRand(TIER_VALUE[p.selected_tier] ?? 0) : '—'}
+              </td>
+              <td style={{ padding: '12px 14px', color: '#A8D5D1', fontSize: 12, whiteSpace: 'nowrap' }}>
+                {fmtDate(p.created_at)}
+              </td>
+              <td style={{ padding: '12px 14px', fontSize: 12, color: '#A8D5D1', whiteSpace: 'nowrap' }}>
+                {p.selected_at
+                  ? <span style={{ color: '#0FEA7A' }}>Selected {fmtDate(p.selected_at)}</span>
+                  : p.viewed_at
+                    ? <span style={{ color: '#3B82F6' }}>Viewed {fmtDate(p.viewed_at)}</span>
+                    : <span style={{ color: '#444' }}>Not opened</span>}
+              </td>
+              <td style={{ padding: '12px 14px' }}>
+                {p.status === 'selected' ? (
+                  <span style={{ fontSize: 12, color: '#0FEA7A', fontWeight: 700 }}>
+                    Call to close →
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => copyLink(p.proposal_url || '', p.id)}
+                    style={{ ...btnSecStyle, padding: '5px 12px', fontSize: 11 }}
+                  >
+                    {copied === p.id ? 'Copied!' : 'Copy Link'}
+                  </button>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {selected > 0 && (
+        <div style={{
+          marginTop: 20, background: '#0FEA7A11', border: '1px solid #0FEA7A33',
+          borderRadius: 8, padding: '14px 18px', fontSize: 13, color: '#0FEA7A',
+        }}>
+          <strong>{selected} client{selected > 1 ? 's have' : ' has'} selected a tier.</strong>
+          {' '}Call them now to confirm and set up their debit order — same-day activation.
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function SalesPage() {
@@ -843,6 +1044,9 @@ export default function SalesPage() {
       {/* Tab content */}
       {!loading && tab === 'Pipeline' && (
         <PipelineTab opps={opps} onNewOpp={() => setShowModal(true)} />
+      )}
+      {!loading && tab === 'Proposals' && (
+        <ProposalsTab />
       )}
       {!loading && tab === 'Clients' && (
         <ClientsTab contacts={contacts} />
