@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee, ShieldCheck, Download, Settings, BookOpen, LogOut, TrendingUp, Stethoscope, Copy } from 'lucide-react';
+import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee, ShieldCheck, Download, Settings, BookOpen, LogOut, TrendingUp, Stethoscope, Copy, FlaskConical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GlobalSearch } from './GlobalSearch';
 
@@ -10,6 +10,7 @@ const links = [
   { href: '/morning', label: 'Morning Brief', icon: Coffee },
   { href: '/clients', label: 'Clients', icon: Users },
   { href: '/workshop', label: 'Workshop', icon: Wrench },
+  { href: '/job-cards', label: 'Job Cards', icon: FileText },
   { href: '/cybershield', label: 'CyberShield', icon: ShieldCheck },
   { href: '/devices', label: 'Devices', icon: Monitor },
   { href: '/isp', label: 'ISP Status', icon: Wifi },
@@ -24,6 +25,7 @@ const links = [
   { href: '/medical', label: 'Medical', icon: Stethoscope },
   { href: '/dedup', label: 'Deduplication', icon: Copy },
   { href: '/guides', label: 'Guides', icon: BookOpen },
+  { href: '/research', label: 'Research', icon: FlaskConical },
   { href: '/reports', label: 'Reports', icon: FileText },
   { href: '/installer', label: 'Scout Installer', icon: Download },
   { href: '/system', label: 'System Health', icon: Settings },
