@@ -170,6 +170,26 @@ export async function fetchCyberShieldSummary() {
   } catch { return null; }
 }
 
+export async function fetchClientNetwork(client_id: string) {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/network/unifi/live/${encodeURIComponent(client_id)}`, {
+      headers: headers(), signal: withTimeout(TIMEOUT_MS), cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch { return null; }
+}
+
+export async function fetchClientNetworkHistory(client_id: string, hours = 24) {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/network/unifi/history/${encodeURIComponent(client_id)}?hours=${hours}`, {
+      headers: headers(), signal: withTimeout(TIMEOUT_MS), next: { revalidate: 300 },
+    });
+    if (!res.ok) return [];
+    return res.json();
+  } catch { return []; }
+}
+
 export async function fetchOpenWorkshopJobs() {
   try {
     const params = new URLSearchParams({ per_page: '100' });

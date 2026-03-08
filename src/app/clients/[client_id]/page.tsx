@@ -1,4 +1,4 @@
-import { fetchClient, fetchClientTasks, fetchClientCheckins, fetchClientJobs, fetchClientDevices } from '@/lib/api';
+import { fetchClient, fetchClientTasks, fetchClientCheckins, fetchClientJobs, fetchClientDevices, fetchClientNetwork } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TaskChecklist } from './TaskChecklist';
 import { StatusUpdater } from './StatusUpdater';
@@ -45,13 +45,14 @@ async function fetchHealthScore(clientId: string) {
 
 export default async function ClientDetailPage({ params }: { params: Promise<{ client_id: string }> }) {
   const { client_id } = await params;
-  const [client, tasks, checkins, health, jobs, devices] = await Promise.all([
+  const [client, tasks, checkins, health, jobs, devices, network] = await Promise.all([
     fetchClient(client_id),
     fetchClientTasks(client_id),
     fetchClientCheckins(client_id),
     fetchHealthScore(client_id),
     fetchClientJobs(client_id),
     fetchClientDevices(client_id),
+    fetchClientNetwork(client_id),
   ]);
 
   if (!client) notFound();
@@ -190,6 +191,96 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
                 </Link>
               );
             })}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Network Intelligence — UniFi */}
+      {network && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="flex-row items-center justify-between pb-2">
+            <CardTitle className="text-white text-sm">Network Intelligence</CardTitle>
+            <div className="flex items-center gap-2">
+              {network.stale && (
+                <span className="text-xs px-2 py-0.5 rounded border bg-yellow-500/10 text-yellow-400 border-yellow-500/30">Stale data</span>
+              )}
+              <span className={`text-xs px-2 py-0.5 rounded border font-medium ${
+                network.wan_status === 'online'
+                  ? 'bg-green-500/10 text-green-400 border-green-500/30'
+                  : network.wan_status === 'offline'
+                  ? 'bg-red-500/10 text-red-400 border-red-500/30'
+                  : 'bg-slate-600/40 text-slate-400 border-slate-600'
+              }`}>
+                WAN {network.wan_status?.toUpperCase() ?? 'UNKNOWN'}
+              </span>
+              <span className="text-xs text-slate-500 font-mono">{network.source}</span>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {/* WAN stats row */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+              <div className="bg-slate-900/50 rounded-md p-3 text-center">
+                <p className="text-slate-500 text-xs mb-1">WAN IP</p>
+                <p className="text-slate-200 text-xs font-mono">{network.wan_ip ?? '—'}</p>
+              </div>
+              <div className="bg-slate-900/50 rounded-md p-3 text-center">
+                <p className="text-slate-500 text-xs mb-1">Clients</p>
+                <p className="text-white text-lg font-bold">{network.connected_clients ?? '—'}</p>
+                <p className="text-slate-500 text-xs">{network.wireless_clients ?? 0}W + {network.wired_clients ?? 0}E</p>
+              </div>
+              <div className="bg-slate-900/50 rounded-md p-3 text-center">
+                <p className="text-slate-500 text-xs mb-1">Devices</p>
+                <p className="text-white text-lg font-bold">{network.devices_online ?? '—'}<span className="text-slate-500 text-xs font-normal">/{network.devices_total ?? '—'}</span></p>
+                <p className="text-slate-500 text-xs">online</p>
+              </div>
+              <div className="bg-slate-900/50 rounded-md p-3 text-center">
+                <p className="text-slate-500 text-xs mb-1">Uptime</p>
+                <p className="text-slate-200 text-xs font-mono">{network.uptime_hours != null ? `${network.uptime_hours}h` : '—'}</p>
+              </div>
+            </div>
+
+            {/* Throughput */}
+            {(network.wan_rx_mbps != null || network.wan_tx_mbps != null) && (
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="bg-slate-900/50 rounded-md p-3 flex items-center gap-2">
+                  <span className="text-green-400 text-xs font-medium">↓ RX</span>
+                  <span className="text-slate-200 text-xs font-mono">{network.wan_rx_mbps != null ? `${network.wan_rx_mbps.toFixed(2)} Mbps` : '—'}</span>
+                </div>
+                <div className="bg-slate-900/50 rounded-md p-3 flex items-center gap-2">
+                  <span className="text-teal-400 text-xs font-medium">↑ TX</span>
+                  <span className="text-slate-200 text-xs font-mono">{network.wan_tx_mbps != null ? `${network.wan_tx_mbps.toFixed(2)} Mbps` : '—'}</span>
+                </div>
+              </div>
+            )}
+
+            {/* UniFi devices */}
+            {network.devices && network.devices.length > 0 && (
+              <div className="space-y-1">
+                <p className="text-slate-500 text-xs mb-2">Network Devices</p>
+                {(network.devices as any[]).map((d: any) => (
+                  <div key={d.mac} className="flex items-center justify-between py-1.5 border-b border-slate-700/50 last:border-0">
+                    <div className="flex items-center gap-2">
+                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${d.status === 'online' ? 'bg-green-400' : 'bg-red-400'}`} />
+                      <div>
+                        <p className="text-slate-200 text-xs">{d.name || d.model || d.mac}</p>
+                        <p className="text-slate-500 text-xs font-mono">{d.type?.toUpperCase()} · {d.ip ?? d.mac}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 text-right">
+                      {d.firmware_version && (
+                        <span className="text-xs text-slate-500 font-mono">fw {d.firmware_version}</span>
+                      )}
+                      <span className={`text-xs font-medium ${d.status === 'online' ? 'text-green-400' : 'text-red-400'}`}>{d.status}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Last polled */}
+            <p className="text-slate-600 text-xs mt-3">
+              Last polled {network.as_of ? new Date(network.as_of).toLocaleString('en-ZA') : '—'} · Site: {network.site_name ?? 'default'}
+            </p>
           </CardContent>
         </Card>
       )}
