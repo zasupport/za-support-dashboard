@@ -144,6 +144,7 @@ export default async function MorningPage() {
                 <th className="text-center px-4 py-3 font-medium">Devices</th>
                 <th className="text-center px-4 py-3 font-medium">Open Tasks</th>
                 <th className="text-center px-4 py-3 font-medium">Jobs</th>
+                <th className="text-center px-4 py-3 font-medium">Upgrade</th>
                 <th className="text-right px-4 py-3 font-medium">Actions</th>
               </tr>
             </thead>
@@ -207,6 +208,15 @@ export default async function MorningPage() {
                     </td>
                     <td className="px-4 py-3 text-center">
                       <span className={c.open_jobs > 0 ? 'text-blue-400' : 'text-slate-600'}>{c.open_jobs ?? 0}</span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {(c.critical_lifecycle_count ?? 0) > 0 ? (
+                        <Link href="/upgrade-radar" className="text-orange-400 hover:text-orange-300 font-semibold">
+                          {c.critical_lifecycle_count}
+                        </Link>
+                      ) : (
+                        <span className="text-slate-700">—</span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex gap-2 justify-end">
