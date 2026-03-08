@@ -53,9 +53,25 @@ async function fetchHealthScore(clientId: string) {
   }
 }
 
+async function fetchLastPortalView(clientId: string): Promise<string | null> {
+  const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
+  const API_TOKEN = process.env.ZA_API_TOKEN || '';
+  try {
+    const res = await fetch(
+      `${API_URL}/api/v1/clients/portal-views/recent?client_id=${clientId}&days=90&limit=1`,
+      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' },
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.views?.[0]?.viewed_at ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export default async function ClientDetailPage({ params }: { params: Promise<{ client_id: string }> }) {
   const { client_id } = await params;
-  const [client, tasks, checkins, health, jobs, devices, network] = await Promise.all([
+  const [client, tasks, checkins, health, jobs, devices, network, lastPortalView] = await Promise.all([
     fetchClient(client_id),
     fetchClientTasks(client_id),
     fetchClientCheckins(client_id),
@@ -63,6 +79,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
     fetchClientJobs(client_id),
     fetchClientDevices(client_id),
     fetchClientNetwork(client_id),
+    fetchLastPortalView(client_id),
   ]);
 
   if (!client) notFound();
@@ -325,6 +342,16 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
         <CreateJobButton clientId={client.client_id} />
         <PortalLinkButton clientId={client.client_id} />
         <ProposalButton clientId={client.client_id} clientName={`${client.first_name} ${client.last_name}`} />
+        {lastPortalView && (() => {
+          const diff = Date.now() - new Date(lastPortalView).getTime();
+          const mins = Math.floor(diff / 60000);
+          const timeAgo = mins < 1 ? 'just now' : mins < 60 ? `${mins}m ago` : mins < 1440 ? `${Math.floor(mins / 60)}h ago` : `${Math.floor(mins / 1440)}d ago`;
+          return (
+            <span className="text-xs px-3 py-1.5 rounded-md bg-indigo-900/30 border border-indigo-700/40 text-indigo-300">
+              👁 Portal viewed {timeAgo}
+            </span>
+          );
+        })()}
         <span className="text-slate-500 text-xs">Generated from latest Scout diagnostic</span>
       </div>
 
