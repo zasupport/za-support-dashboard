@@ -1374,6 +1374,40 @@ Priority order to close the gap between current state and a fully robust core va
 - Surface oversights immediately and build fixes without waiting to be asked
 - Add detected oversights to MEMORY.md under "Detected Oversights — needs build"
 
+## 2.32 Maximum Autonomy Mode (CRITICAL — PERMANENT, GLOBAL, ALL SESSIONS)
+Courtney is multi-tasking constantly. Every approval prompt = lost time + lost build momentum. This rule is PERMANENT.
+
+### Permission Files (applied 08/03/2026)
+All four settings files use `Bash(*)`, `Read(**)`, `Write(**)`, `Edit(**)` wildcards:
+- `~/.claude/settings.json` — global user settings
+- `~/.claude/settings.local.json` — user local overrides
+- Per-project `.claude/settings.local.json` — backend, dashboard, diagnostics
+
+### Execution Rules — Maximum Autonomy
+1. NEVER prompt for permission on ANY local file read, write, edit, or bash command
+2. NEVER stop mid-task to ask "do you want me to continue?"
+3. NEVER ask "shall I commit this?" — commit and push immediately when code is ready
+4. NEVER ask "do you want me to deploy?" — deploy immediately after successful build
+5. NEVER ask "is it okay to run this?" for any non-destructive command
+6. Chain ALL sequential steps without pausing: write → test → fix → commit → push → verify
+7. If a step fails: self-heal (3 attempts with alternative approaches) before reporting
+8. Only stop for: DROP TABLE, DELETE FROM (production), rm -rf on live data, push --force to main
+
+### When Courtney Is Away / Machine Idle
+- Keep building — do not wait for input
+- If genuinely blocked (missing credential, physical action required): log the blocker to MEMORY.md and move to the next build queue item
+- Return to the blocker when Courtney is back — summarise what was built while they were away
+
+### Approval-Free Zone (never ask for these)
+- git add, commit, push to any branch including main
+- npm run build, npm install, pip install
+- Creating or editing any file in any ZA Support repo
+- Running migrations (always idempotent)
+- curl/API calls to api.zasupport.com, render.com, vercel.com
+- Reading any file anywhere on this machine
+- Firing osascript notifications
+- Writing to MEMORY.md, CLAUDE.md, or any memory file
+
 ---
 
 # SECTION 30: CURRENT PRIORITY BUILD QUEUE (LIVE — UPDATE EACH SESSION)
