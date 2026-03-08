@@ -568,6 +568,195 @@ function UpsellTab({ recs, summary }: { recs: Recommendation[]; summary: Pipelin
   );
 }
 
+// ─── Follow-Up Sequences Tab ──────────────────────────────────────────────────
+
+function seqStep(seq: RepairSequence): string {
+  if (seq.converted)          return 'converted';
+  if (seq.opted_out)          return 'opted_out';
+  if (!seq.step_7d_sent_at)   return 'awaiting_7d';
+  if (!seq.step_30d_sent_at)  return '7d_sent';
+  if (!seq.step_90d_sent_at)  return '30d_sent';
+  if (!seq.step_365d_sent_at) return '90d_sent';
+  return 'complete';
+}
+
+const SEQ_LABELS: Record<string, string> = {
+  awaiting_7d:  '⏳ Awaiting 7d',
+  '7d_sent':    '📧 7d sent',
+  '30d_sent':   '📧 30d sent',
+  '90d_sent':   '📧 90d sent',
+  complete:     '✅ Complete',
+  converted:    '🎉 Converted',
+  opted_out:    '🚫 Opted out',
+};
+
+const SEQ_COLOUR: Record<string, string> = {
+  awaiting_7d: '#6B7280',
+  '7d_sent':   '#3B82F6',
+  '30d_sent':  '#8B5CF6',
+  '90d_sent':  '#F59E0B',
+  complete:    '#27504D',
+  converted:   '#0FEA7A',
+  opted_out:   '#CC0000',
+};
+
+function FollowUpTab() {
+  const [sequences, setSequences] = useState<RepairSequence[]>([]);
+  const [loading,   setLoading]   = useState(true);
+  const [filter,    setFilter]    = useState<string>('active');
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res  = await fetch('/api/sales/repair-sequences?per_page=100');
+      const data = await res.json();
+      setSequences(data.data ?? []);
+    } catch { /* ignore */ }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const daysSince = (d: string) =>
+    Math.floor((Date.now() - new Date(d).getTime()) / 86_400_000);
+
+  const convList  = sequences.filter(s => s.converted);
+  const active    = sequences.filter(s => !s.converted && !s.opted_out);
+  const optedOut  = sequences.filter(s => s.opted_out);
+  const convRate  = sequences.length > 0 ? Math.round((convList.length / sequences.length) * 100) : 0;
+  const convTotal = convList.reduce((s, c) => s + (c.converted_value_rand ?? 0), 0);
+
+  const displayed =
+    filter === 'active'    ? active :
+    filter === 'converted' ? convList :
+    filter === 'opted_out' ? optedOut :
+    sequences;
+
+  if (loading) return (
+    <div style={{ color: '#666', padding: 40, textAlign: 'center' }}>Loading sequences…</div>
+  );
+
+  return (
+    <div>
+      {/* KPIs */}
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
+        <SummaryCard label="Active Sequences" value={String(active.length)}
+          sub="in 7d→30d→90d pipeline" colour="#3B82F6" />
+        <SummaryCard label="Converted" value={String(convList.length)}
+          sub={`${convRate}% conversion`} colour="#0FEA7A" />
+        <SummaryCard label="Converted Revenue" value={fmtRand(convTotal)} colour="#0FEA7A" />
+        <SummaryCard label="Opted Out" value={String(optedOut.length)} colour="#CC0000" />
+      </div>
+
+      {/* Step pills */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
+        {(Object.keys(SEQ_LABELS) as (keyof typeof SEQ_LABELS)[]).map(step => {
+          const count = sequences.filter(s => seqStep(s) === step).length;
+          if (!count) return null;
+          return (
+            <div key={step} style={{
+              background: '#0d1f1e',
+              border: `1px solid ${SEQ_COLOUR[step]}44`,
+              borderRadius: 8, padding: '6px 12px', fontSize: 12,
+            }}>
+              <span style={{ color: SEQ_COLOUR[step], fontWeight: 700 }}>{count}</span>
+              <span style={{ color: '#999', marginLeft: 6 }}>{SEQ_LABELS[step]}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Filter row */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+        {([['active', 'Active'], ['converted', 'Converted'], ['opted_out', 'Opted Out'], ['', 'All']] as [string, string][]).map(([v, l]) => (
+          <button key={v} onClick={() => setFilter(v)} style={{
+            padding: '6px 14px', borderRadius: 6, border: '1px solid #27504D',
+            cursor: 'pointer', fontSize: 12,
+            background: filter === v ? '#27504D' : 'transparent',
+            color:      filter === v ? '#0FEA7A' : '#999',
+          }}>{l}</button>
+        ))}
+        <button onClick={load} style={{
+          padding: '6px 12px', borderRadius: 6, border: '1px solid #27504D33',
+          background: 'transparent', color: '#666', cursor: 'pointer', fontSize: 12, marginLeft: 'auto',
+        }}>↻ Refresh</button>
+      </div>
+
+      {/* Table */}
+      {displayed.length === 0 ? (
+        <div style={{ color: '#666', textAlign: 'center', padding: '32px 0', fontSize: 13 }}>
+          {sequences.length === 0
+            ? 'No sequences yet — created automatically when workshop jobs are marked done.'
+            : 'No sequences in this filter.'}
+        </div>
+      ) : (
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+            <thead>
+              <tr style={{ borderBottom: '2px solid #0FEA7A' }}>
+                {['Client', 'Job', 'Age', 'Step', '7d', '30d', '90d', 'Note'].map(h => (
+                  <th key={h} style={{
+                    textAlign: 'left', padding: '8px 10px',
+                    fontSize: 10, color: '#A8D5D1', textTransform: 'uppercase', letterSpacing: 1,
+                  }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {displayed.map((seq, i) => {
+                const step    = seqStep(seq);
+                const daysAgo = daysSince(seq.completed_at);
+                return (
+                  <tr key={seq.id} style={{
+                    background: i % 2 === 0 ? 'transparent' : '#27504D11',
+                    borderBottom: '1px solid #27504D22',
+                  }}>
+                    <td style={{ padding: '8px 10px' }}>
+                      <div style={{ color: '#E8F4F3', fontWeight: 600 }}>{seq.client_name || seq.client_id}</div>
+                      <div style={{ color: '#666', fontSize: 11 }}>{seq.client_email}</div>
+                    </td>
+                    <td style={{ padding: '8px 10px' }}>
+                      <div style={{ color: '#A8D5D1', fontWeight: 600 }}>{seq.job_ref}</div>
+                      <div style={{ color: '#666', fontSize: 11 }}>{seq.job_title}</div>
+                    </td>
+                    <td style={{ padding: '8px 10px', color: '#999' }}>{daysAgo}d ago</td>
+                    <td style={{ padding: '8px 10px' }}>
+                      <span style={{
+                        background: `${SEQ_COLOUR[step]}22`, color: SEQ_COLOUR[step],
+                        padding: '3px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600,
+                        border: `1px solid ${SEQ_COLOUR[step]}44`,
+                      }}>{SEQ_LABELS[step]}</span>
+                    </td>
+                    {(['step_7d_sent_at', 'step_30d_sent_at', 'step_90d_sent_at'] as const).map(f => (
+                      <td key={f} style={{
+                        padding: '8px 10px',
+                        color: seq[f] ? '#0FEA7A' : '#444',
+                        fontSize: 15,
+                      }}>{seq[f] ? '✓' : '–'}</td>
+                    ))}
+                    <td style={{ padding: '8px 10px' }}>
+                      {seq.converted ? (
+                        <span style={{ color: '#0FEA7A', fontSize: 11 }}>
+                          {seq.converted_product} — {fmtRand(seq.converted_value_rand ?? 0)}
+                        </span>
+                      ) : step === 'awaiting_7d' && daysAgo >= 5 ? (
+                        <span style={{ color: '#F59E0B', fontSize: 11, fontWeight: 600 }}>📞 Call soon</span>
+                      ) : step === '7d_sent' && daysAgo >= 28 ? (
+                        <span style={{ color: '#F59E0B', fontSize: 11, fontWeight: 600 }}>📞 30d due</span>
+                      ) : null}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 // ─── Insights Tab ─────────────────────────────────────────────────────────────
 
 function InsightsTab({ opps, contacts }: { opps: Opportunity[]; contacts: Contact[] }) {
@@ -1226,6 +1415,9 @@ export default function SalesPage() {
       )}
       {!loading && tab === 'Proposals' && (
         <ProposalsTab />
+      )}
+      {!loading && tab === 'Follow-Up Sequences' && (
+        <FollowUpTab />
       )}
       {!loading && tab === 'Follow-Up Sequences' && (
         <FollowUpSequencesTab />
