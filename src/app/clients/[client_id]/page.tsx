@@ -94,6 +94,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
         <div>
           <Link href="/clients" className="text-slate-400 text-xs hover:text-white mb-1 block">← All Clients</Link>
           <Link href={`/clients/${client.client_id}/brief`} className="text-teal-400 text-xs hover:text-teal-300 mb-1 block">Site Visit Brief →</Link>
+          <Link href={`/clients/${client.client_id}/meeting`} className="text-green-400 text-xs hover:text-green-300 mb-1 block">Meeting View →</Link>
           <h1 className="text-2xl font-bold text-white">{client.first_name} {client.last_name}</h1>
           <p className="text-slate-400 text-sm font-mono mt-0.5">{client.client_id}</p>
         </div>
