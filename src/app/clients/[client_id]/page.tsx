@@ -8,6 +8,7 @@ import { EditClientButton } from './EditClientButton';
 import { PortalLinkButton } from './PortalLinkButton';
 import { RoiWidget } from '@/components/RoiWidget';
 import { RoiTrendChart } from '@/components/RoiTrendChart';
+import { InterventionsFeed } from '@/components/InterventionsFeed';
 import Link from 'next/link';
 import { AutoRefresh } from '@/components/auto-refresh';
 import { notFound } from 'next/navigation';
@@ -146,6 +147,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
       {/* ROI Widget + Trend Chart */}
       <RoiWidget clientId={client.client_id} clientName={`${client.first_name} ${client.last_name}`} />
       <RoiTrendChart clientId={client.client_id} />
+      <InterventionsFeed clientId={client.client_id} />
 
       {/* Business section (if applicable) */}
       {client.has_business && (
