@@ -18,8 +18,18 @@ type PortalDevice = {
   applecare_expires: string | null;
 };
 
+type PortalIntervention = {
+  action_type: string;
+  label: string;
+  description: string;
+  alert_label: string | null;
+  value_rand: number | null;
+  date: string | null;
+};
+
 type PortalData = {
   client: { first_name: string; business_name: string | null; status: string };
+  recent_interventions?: PortalIntervention[];
   latest_scan: {
     scan_date: string;
     risk_level: string;
@@ -86,7 +96,7 @@ export default async function PortalPage({ params }: { params: Promise<{ token: 
 
   if (!data) return notFound();
 
-  const { client, latest_scan, open_jobs, roi_summary, cybershield, za_support, devices = [] } = data;
+  const { client, latest_scan, open_jobs, roi_summary, cybershield, za_support, devices = [], recent_interventions = [] } = data;
   const scanDate = latest_scan?.scan_date
     ? new Date(latest_scan.scan_date).toLocaleDateString('en-ZA', {
         day: 'numeric', month: 'long', year: 'numeric',
@@ -211,6 +221,44 @@ export default async function PortalPage({ params }: { params: Promise<{ token: 
                 </p>
                 <p className="text-xs text-slate-500 mt-1">Value<br />protected</p>
               </div>
+            </div>
+          </section>
+        )}
+
+        {/* Recent Automated Actions */}
+        {recent_interventions.length > 0 && (
+          <section className="bg-white rounded-xl shadow-sm p-5">
+            <h2 className="font-semibold text-slate-800 mb-1 text-base">
+              What ZA Support Did For You
+            </h2>
+            <p className="text-xs text-slate-500 mb-4">
+              These actions happened automatically — you didn't need to do anything.
+            </p>
+            <div className="space-y-0">
+              {recent_interventions.map((item, i) => (
+                <div key={i} className="flex items-start gap-3 py-3 border-b border-slate-100 last:border-0">
+                  <div className="w-2 h-2 rounded-full bg-[#27504D] mt-1.5 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-medium text-slate-800">{item.label}</span>
+                      {item.alert_label && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                          {item.alert_label}
+                        </span>
+                      )}
+                      {item.value_rand && (
+                        <span className="text-xs font-semibold text-[#27504D]">
+                          R {item.value_rand >= 1000
+                            ? `${(item.value_rand / 1000).toFixed(0)}k`
+                            : Math.round(item.value_rand)} protected
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{item.description}</p>
+                  </div>
+                  <span className="text-xs text-slate-400 flex-shrink-0 mt-0.5">{item.date}</span>
+                </div>
+              ))}
             </div>
           </section>
         )}
