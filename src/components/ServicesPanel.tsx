@@ -19,7 +19,6 @@ interface ServicesData {
 }
 
 const SERVICE_ORDER = [
-  'ntfy',
   'email',
   'whatsapp',
   'slack',
