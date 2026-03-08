@@ -5,12 +5,11 @@ import { useState, useEffect } from 'react';
 type Recommendation = {
   id: string;
   product_name: string;
-  product_category: string;
-  trigger_description: string;
-  recommended_price_rand: number;
+  product_category?: string;
+  trigger_value?: string;
+  rand_value: number;
   roi_description: string | null;
   status: string;
-  priority: number;
   created_at: string;
 };
 
@@ -37,7 +36,7 @@ export function UpsellPanel({ clientId }: { clientId: string }) {
   useEffect(() => {
     fetch(`/api/sales/recommendations?client_id=${clientId}`)
       .then(r => r.json())
-      .then(d => setRecs(d.recommendations || d.data || []))
+      .then(d => setRecs(Array.isArray(d) ? d : (d.recommendations || d.data || [])))
       .catch(() => setRecs([]))
       .finally(() => setLoading(false));
   }, [clientId]);
@@ -65,7 +64,7 @@ export function UpsellPanel({ clientId }: { clientId: string }) {
   if (loading) return null;
   if (recs.length === 0) return null;
 
-  const totalValue = active.reduce((s, r) => s + r.recommended_price_rand, 0);
+  const totalValue = active.reduce((s, r) => s + (r.rand_value || 0), 0);
 
   return (
     <div className="bg-slate-800 rounded-lg border border-slate-700 p-4">
@@ -88,26 +87,25 @@ export function UpsellPanel({ clientId }: { clientId: string }) {
       <div className="space-y-2">
         {active.map(rec => {
           const cfg = STATUS_CONFIG[rec.status] ?? STATUS_CONFIG.pending;
-          const catColor = CATEGORY_COLORS[rec.product_category] ?? 'bg-slate-500/20 text-slate-400 border-slate-500/30';
+          const catColor = CATEGORY_COLORS[rec.product_category ?? ''] ?? 'bg-slate-500/20 text-slate-400 border-slate-500/30';
           return (
             <div key={rec.id} className="bg-slate-700/40 rounded-lg p-3 border border-slate-600/40">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
                     <span className="text-sm font-medium text-white">{rec.product_name}</span>
-                    <span className={`text-xs px-1.5 py-0.5 rounded border ${catColor} capitalize`}>
-                      {rec.product_category}
-                    </span>
                     <span className={`text-xs ${cfg.color}`}>{cfg.label}</span>
                   </div>
-                  <p className="text-xs text-slate-400 leading-snug">{rec.trigger_description}</p>
+                  {rec.trigger_value && (
+                    <p className="text-xs text-slate-400 leading-snug">{rec.trigger_value}</p>
+                  )}
                   {rec.roi_description && (
                     <p className="text-xs text-teal-400 mt-1">{rec.roi_description}</p>
                   )}
                 </div>
                 <div className="text-right shrink-0">
                   <p className="text-sm font-semibold text-white">
-                    R {rec.recommended_price_rand.toLocaleString('en-ZA')}
+                    R {(rec.rand_value || 0).toLocaleString('en-ZA')}
                   </p>
                   {cfg.next && (
                     <button
@@ -141,7 +139,7 @@ export function UpsellPanel({ clientId }: { clientId: string }) {
               {declined.map(rec => (
                 <div key={rec.id} className="flex items-center justify-between px-3 py-2 rounded bg-slate-700/20 opacity-50">
                   <span className="text-xs text-slate-500">{rec.product_name}</span>
-                  <span className="text-xs text-slate-600">R {rec.recommended_price_rand.toLocaleString('en-ZA')}</span>
+                  <span className="text-xs text-slate-600">R {(rec.rand_value || 0).toLocaleString('en-ZA')}</span>
                 </div>
               ))}
             </div>
