@@ -100,6 +100,71 @@ export default async function DeviceDetailPage({ params }: { params: Promise<{ s
         </Card>
       )}
 
+      {/* Phase 23 — App Intelligence */}
+      {snap?.app_intelligence_grade && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader><CardTitle className="text-white text-base">App Intelligence — Phase 23</CardTitle></CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+              {[
+                { label: 'App Health Grade', value: snap.app_intelligence_grade },
+                { label: 'Score (0–100)', value: snap.app_intelligence_score ?? '—' },
+                { label: 'Crashes / 7d', value: snap.app_crash_count_7d ?? '—' },
+                { label: 'Unsigned Apps', value: snap.app_unsigned_count ?? '—' },
+                { label: 'Stale Apps (365d)', value: snap.app_stale_count_365d ?? '—' },
+                { label: 'Total Installed', value: snap.app_total_installed ?? '—' },
+                { label: 'Network Active', value: snap.app_network_active_count ?? '—' },
+                { label: 'LaunchAgents', value: snap.app_launchagents_count ?? '—' },
+              ].map(({ label, value }) => (
+                <div key={label}>
+                  <p className="text-xs text-slate-400 mb-1">{label}</p>
+                  <p className={`text-sm font-medium ${label === 'App Health Grade' ? (
+                    value === 'A' ? 'text-green-400' :
+                    value === 'B' ? 'text-teal-400' :
+                    value === 'C' ? 'text-yellow-400' :
+                    value === 'D' ? 'text-orange-400' : 'text-red-400'
+                  ) : 'text-white'}`}>{value ?? '—'}</p>
+                </div>
+              ))}
+            </div>
+
+            {snap.app_medical_detected && snap.app_medical_detected !== 'none' && snap.app_medical_detected !== '' && (
+              <div className="mt-2 rounded-md bg-teal-500/10 border border-teal-500/30 px-3 py-2 text-xs text-teal-300">
+                Medical software detected: {snap.app_medical_detected}
+              </div>
+            )}
+
+            {snap.app_cpu_top10 && Array.isArray(snap.app_cpu_top10) && snap.app_cpu_top10.length > 0 && (
+              <div className="mt-4">
+                <p className="text-xs text-slate-400 uppercase tracking-wide mb-2">Top CPU Consumers</p>
+                <div className="space-y-1">
+                  {snap.app_cpu_top10.slice(0, 5).map((app: any, i: number) => (
+                    <div key={i} className="flex justify-between text-xs">
+                      <span className="text-slate-300 font-mono">{app.name || app.comm || app}</span>
+                      {app.cpu && <span className="text-orange-400">{app.cpu}% CPU</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {snap.app_ram_top10 && Array.isArray(snap.app_ram_top10) && snap.app_ram_top10.length > 0 && (
+              <div className="mt-4">
+                <p className="text-xs text-slate-400 uppercase tracking-wide mb-2">Top RAM Consumers</p>
+                <div className="space-y-1">
+                  {snap.app_ram_top10.slice(0, 5).map((app: any, i: number) => (
+                    <div key={i} className="flex justify-between text-xs">
+                      <span className="text-slate-300 font-mono">{app.name || app.comm || app}</span>
+                      {app.rss_mb && <span className="text-purple-400">{app.rss_mb} MB</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Trend charts */}
       <div>
         <h2 className="text-base font-semibold text-white mb-3">Historical Trends</h2>
