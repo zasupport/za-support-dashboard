@@ -68,6 +68,28 @@ export default async function MorningPage() {
   const urgent = clients.filter((c: any) => c.urgency_level?.toLowerCase().startsWith('urgent'));
   const overdue = clients.filter((c: any) => (c.days_since_scan ?? 999) > 30);
 
+  // Build per-client alert map from today's alerts
+  const ALERT_TYPE_SHORT: Record<string, string> = {
+    'backup.missing': 'No Backup',
+    'backup.stale':   'Stale Backup',
+    'security.posture_gap': 'Sec Gap',
+    'remote_access':  'Remote Access',
+    'high_risk_score': 'High Risk',
+  };
+  const clientAlertMap: Record<string, string[]> = {};
+  if (todayAlerts?.interventions) {
+    for (const a of todayAlerts.interventions as any[]) {
+      if (!a.client_id) continue;
+      if (!clientAlertMap[a.client_id]) clientAlertMap[a.client_id] = [];
+      const label = a.metadata?.alert_type
+        ? ALERT_TYPE_SHORT[a.metadata.alert_type] ?? a.metadata.alert_type
+        : 'Alert';
+      if (!clientAlertMap[a.client_id].includes(label)) {
+        clientAlertMap[a.client_id].push(label);
+      }
+    }
+  }
+
   return (
     <div className="space-y-6">
       <AutoRefresh intervalMs={300000} />
@@ -248,6 +270,11 @@ export default async function MorningPage() {
                           {Number(c.roi_ratio).toFixed(1)}:1
                         </span>
                       )}
+                      {clientAlertMap[c.client_id]?.map((label: string) => (
+                        <span key={label} className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-teal-900/50 text-teal-300 border border-teal-700/50">
+                          ✉ {label}
+                        </span>
+                      ))}
                     </td>
                     <td className="px-4 py-3">
                       <span className={`capitalize ${c.status === 'new' ? 'text-blue-400' : c.status === 'sla' ? 'text-purple-400' : 'text-green-400'}`}>
