@@ -99,6 +99,7 @@ export default async function MorningPage() {
                 <th className="text-left px-4 py-3 font-medium">Status</th>
                 <th className="text-left px-4 py-3 font-medium">Risk</th>
                 <th className="text-center px-4 py-3 font-medium">Grade</th>
+                <th className="text-center px-4 py-3 font-medium">App</th>
                 <th className="text-left px-4 py-3 font-medium">Last Scan</th>
                 <th className="text-center px-4 py-3 font-medium">Devices</th>
                 <th className="text-center px-4 py-3 font-medium">Open Tasks</th>
@@ -137,6 +138,21 @@ export default async function MorningPage() {
                     </td>
                     <td className="px-4 py-3 text-center">
                       <GradeBadge riskScore={c.risk_score} riskLevel={c.risk_level} daysSinceScan={c.days_since_scan} />
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {c.worst_app_grade ? (
+                        <div className="flex flex-col items-center gap-0.5">
+                          <span className={`text-xs font-bold ${
+                            c.worst_app_grade === 'A' ? 'text-green-400' :
+                            c.worst_app_grade === 'B' ? 'text-teal-400' :
+                            c.worst_app_grade === 'C' ? 'text-yellow-400' :
+                            c.worst_app_grade === 'D' ? 'text-orange-400' : 'text-red-400'
+                          }`}>{c.worst_app_grade}</span>
+                          {(c.fleet_crashes_7d ?? 0) > 0 && (
+                            <span className="text-[10px] text-orange-400">{c.fleet_crashes_7d}cr</span>
+                          )}
+                        </div>
+                      ) : <span className="text-slate-600 text-xs">—</span>}
                     </td>
                     <td className="px-4 py-3">
                       <span className={isOverdue ? 'text-orange-400' : 'text-slate-400'}>
