@@ -371,7 +371,7 @@ export default function JobCardsPage() {
               <div style={chartTitle}>Job Status Breakdown</div>
               <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
-                  <Pie data={statusBreakdown} dataKey="count" nameKey="name" cx="50%" cy="50%" outerRadius={70} label={({ name, count }) => `${name}: ${count}`} labelLine={false}>
+                  <Pie data={statusBreakdown} dataKey="count" nameKey="name" cx="50%" cy="50%" outerRadius={70} label={({ name, value }) => `${name}: ${value}`} labelLine={false}>
                     {statusBreakdown.map((_, i) => <Cell key={i} fill={PIE_COLOURS[i % PIE_COLOURS.length]} />)}
                   </Pie>
                   <Tooltip contentStyle={{ background: '#0d1f1e', border: '1px solid #27504D', color: '#E8F4F3' }} />
@@ -387,7 +387,7 @@ export default function JobCardsPage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#27504D44" />
                   <XAxis dataKey="name" tick={{ fill: '#999', fontSize: 11 }} />
                   <YAxis tick={{ fill: '#999', fontSize: 11 }} tickFormatter={v => `R${(v / 1000).toFixed(0)}k`} />
-                  <Tooltip contentStyle={{ background: '#0d1f1e', border: '1px solid #27504D', color: '#E8F4F3' }} formatter={(v: number) => fmtRand(v)} />
+                  <Tooltip contentStyle={{ background: '#0d1f1e', border: '1px solid #27504D', color: '#E8F4F3' }} formatter={(v: number | undefined) => v != null ? fmtRand(v) : ''} />
                   <Bar dataKey="amount" fill="#0FEA7A" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -398,7 +398,7 @@ export default function JobCardsPage() {
               <div style={chartTitle}>Priority Distribution</div>
               <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
-                  <Pie data={priorityBreakdown} dataKey="count" nameKey="name" cx="50%" cy="50%" outerRadius={70} label={({ name, count }) => `${name}: ${count}`} labelLine={false}>
+                  <Pie data={priorityBreakdown} dataKey="count" nameKey="name" cx="50%" cy="50%" outerRadius={70} label={({ name, value }) => `${name}: ${value}`} labelLine={false}>
                     {priorityBreakdown.map((e) => <Cell key={e.name} fill={PRIORITY_COLOUR[e.name] || '#6B7280'} />)}
                   </Pie>
                   <Tooltip contentStyle={{ background: '#0d1f1e', border: '1px solid #27504D', color: '#E8F4F3' }} />
@@ -566,7 +566,7 @@ export default function JobCardsPage() {
                       <CartesianGrid strokeDasharray="3 3" stroke="#27504D44" />
                       <XAxis type="number" tick={{ fill: '#999', fontSize: 10 }} tickFormatter={v => `R${(v / 1000).toFixed(0)}k`} />
                       <YAxis dataKey="name" type="category" tick={{ fill: '#999', fontSize: 10 }} width={100} />
-                      <Tooltip contentStyle={{ background: '#0d1f1e', border: '1px solid #27504D', color: '#E8F4F3' }} formatter={(v: number) => fmtRand(v)} />
+                      <Tooltip contentStyle={{ background: '#0d1f1e', border: '1px solid #27504D', color: '#E8F4F3' }} formatter={(v: number | undefined) => v != null ? fmtRand(v) : ''} />
                       <Bar dataKey="amount" fill="#0FEA7A" radius={[0, 4, 4, 0]} />
                     </BarChart>
                   </ResponsiveContainer>

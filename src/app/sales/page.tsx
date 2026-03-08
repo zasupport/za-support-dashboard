@@ -538,7 +538,7 @@ function InsightsTab({ opps, contacts }: { opps: Opportunity[]; contacts: Contac
   const funnelStages = STAGES.filter(s => s !== 'lost');
   const funnelData = funnelStages.map((stage, i) => {
     const stageOpps = opps.filter(o => o.stage === stage);
-    const prevCount = i === 0 ? opps.length : opps.filter(o => funnelStages.slice(0, i).includes(o.stage as typeof STAGES[number])).length;
+    const prevCount = i === 0 ? opps.length : opps.filter(o => (funnelStages.slice(0, i) as string[]).includes(o.stage)).length;
     const convPct = prevCount > 0 ? Math.round((stageOpps.length / (i === 0 ? opps.length || 1 : prevCount || 1)) * 100) : 0;
     return {
       stage: stage.charAt(0).toUpperCase() + stage.slice(1),
@@ -571,7 +571,7 @@ function InsightsTab({ opps, contacts }: { opps: Opportunity[]; contacts: Contac
                 <YAxis tick={{ fill: '#999', fontSize: 11 }} tickFormatter={v => `R${(v / 1000).toFixed(0)}k`} />
                 <Tooltip
                   contentStyle={{ background: '#0d1f1e', border: '1px solid #27504D', color: '#E8F4F3' }}
-                  formatter={(v: number) => fmtRand(v)}
+                  formatter={(v: number | undefined) => v != null ? fmtRand(v) : ''}
                 />
                 <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                   {segmentRevenue.map((_, i) => (
@@ -597,7 +597,7 @@ function InsightsTab({ opps, contacts }: { opps: Opportunity[]; contacts: Contac
                   nameKey="name"
                   cx="50%" cy="50%"
                   outerRadius={70}
-                  label={({ name, count }: { name: string; count: number }) => `${name}: ${count}`}
+                  label={({ name, value }) => `${name}: ${value}`}
                   labelLine={false}
                 >
                   {stageDist.map((entry) => (
