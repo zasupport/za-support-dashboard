@@ -5,6 +5,7 @@ import { StatusUpdater } from './StatusUpdater';
 import { ClientNotes } from './ClientNotes';
 import { CreateJobButton } from './CreateJobButton';
 import { EditClientButton } from './EditClientButton';
+import { PortalLinkButton } from './PortalLinkButton';
 import { RoiWidget } from '@/components/RoiWidget';
 import Link from 'next/link';
 import { AutoRefresh } from '@/components/auto-refresh';
@@ -300,6 +301,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
           Download CyberPulse Report (PDF)
         </a>
         <CreateJobButton clientId={client.client_id} />
+        <PortalLinkButton clientId={client.client_id} />
         <span className="text-slate-500 text-xs">Generated from latest Scout diagnostic</span>
       </div>
 
