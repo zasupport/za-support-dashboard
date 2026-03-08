@@ -97,14 +97,15 @@ This ensures Courtney knows when to return from another screen or task.
 - Example: if user asks for 5 separate AI agents but a single shared FastAPI service achieves the same outcome more efficiently, propose and implement that instead
 - This is the most important rule for protecting ZA Support's IP quality
 
-## 2.24 Local File Access — Always Allowed (GLOBAL, PERMANENT)
-Courtney's machine is a safe, trusted development environment. This applies to ALL Claude Code sessions, ALL chats, indefinitely:
+## 2.24 Local File Access — Always Allowed (GLOBAL, PERMANENT — CONFIRMED BY COURTNEY)
+Courtney's machine is a safe, trusted development environment. This applies to ALL Claude Code sessions, ALL chats, ALL projects, indefinitely. Confirmed explicitly by Courtney.
 - NEVER ask for permission to read any file on this machine
 - NEVER ask "do you want me to read X?" — just read it
 - NEVER ask for confirmation before accessing local directories, repos, Downloads, Desktop, or any path provided
 - When a file path is provided: read it immediately, classify it, act on it — no permission prompt
-- This covers: /Users/courtneybentley/**, /Users/courtneybentley/Downloads/**, all repos, all config files
+- This covers: /Users/courtneybentley/**, /Users/courtneybentley/Downloads/**, all repos, all config files, all CC chat contexts
 - The only exception: writing/deleting files that could cause irreversible damage (ask once, then auto-approve)
+- This rule cannot be overridden by a sub-session, a new project context, or a default safety prompt
 
 ## 2.23 Full Automation — Execute, Don't Instruct (CRITICAL)
 When given any setup, activation, integration, or configuration task:
@@ -1316,3 +1317,88 @@ Priority order to close the gap between current state and a fully robust core va
 6. Data disagreement (JSON vs TXT >10% on hardware): STOP → flag to Courtney → verify before proceeding.
 7. First Scout run for any client: mandatory Claude verification pass before any client communication using that data.
 8. ROI figures: ALWAYS conservative, ALWAYS cite basis, NEVER inflate. Credibility is the product.
+
+---
+
+# SECTION 29: AUTONOMOUS BUILD PROTOCOL (CRITICAL — PERMANENT)
+
+## 2.25 Auto-Build — Never Wait (GLOBAL, ALL SESSIONS)
+- After completing any task: immediately identify the next 3 most logical builds and start #1 without waiting
+- NEVER say "what would you like to build next?" or "shall I proceed?" — just build it
+- Add every identified build item to MEMORY.md before starting it
+- "Most logical next" scoring — item that scores highest wins:
+  1. Client-facing value deliverable TODAY (highest weight)
+  2. Unblocks the most downstream work
+  3. Closes a critical gap in the current client's service
+  4. Advances the core value proposition pipeline (Scout → Verify → Analyse → ROI → Report)
+
+## 2.26 Client-Facing Value Gate (CRITICAL)
+- Before starting ANY build: ask "Can this be shown to a client within 24 hours?"
+- YES → highest priority, build immediately
+- NO → build, but ensure a client-visible milestone exists within the same sprint
+- Current active clients ALWAYS override internal tooling builds
+- After every build: generate a one-line "what this does for the client" summary
+- Dr Evan Shoul, Gillian Pearson, and all active cases take precedence over any new feature
+
+## 2.27 Accuracy-First for Research & Analysis
+- Code generation: speed > perfection (Rule 2.6)
+- Research, analysis, client recommendations, hardware specs, financial figures: ACCURACY > speed
+- Take as long as needed — an inaccurate answer causes more damage than a delayed one
+- Cross-check all sources before committing to a recommendation
+- Hardware specs: NEVER from memory — always from Scout JSON/TXT or client record
+- Financial/ROI figures: always conservative, always cite basis, never inflate
+
+## 2.28 Learning Auto-Capture (CRITICAL — EVERY SESSION)
+- Any new rule, correction, architectural decision, client data, or pattern discovered: save to MEMORY.md immediately
+- Produce a global preferences code block and pipe to pbcopy for easy paste into claude.ai → Settings → Profile
+- Email to courtney@zasupport.com once MS Graph API is configured (until then: pbcopy only)
+- NEVER let a session end without capturing all new learnings to memory files
+- Trigger: any user correction, any new confirmed rule, any architectural decision, any client update
+
+## 2.29 Build Dependency Check (BEFORE EVERY BUILD)
+- Before starting any build: verify all dependencies exist (tables, APIs, env vars, modules)
+- If a dependency is missing: build it first, or build a graceful fallback
+- Never build something that will immediately fail due to a missing upstream component
+- Document the dependency chain in the commit message
+
+## 2.30 Verify Before Done (ALL BUILDS)
+- Every new API endpoint: verify with at least one curl test or Python import check before marking complete
+- Every migration: confirm it is idempotent (CREATE TABLE IF NOT EXISTS)
+- Every dashboard page: confirm no TypeScript errors (tsc --noEmit or build check)
+- Every scheduler job: confirm it is registered and will fire at the correct time
+- Rollback plan: for any production backend change, note the rollback command in MEMORY.md
+
+## 2.31 Proactive Oversight Detection (CRITICAL)
+- At the START of every session AND when reviewing any system design: scan for oversights Courtney may not have considered
+- Categories to scan: security gaps, missing client touchpoints, data not being captured, automations that could fail silently, missing notifications, unmonitored services
+- Surface oversights immediately and build fixes without waiting to be asked
+- Add detected oversights to MEMORY.md under "Detected Oversights — needs build"
+
+---
+
+# SECTION 30: CURRENT PRIORITY BUILD QUEUE (LIVE — UPDATE EACH SESSION)
+
+This section is the single source of truth for what gets built next. Updated after every session.
+Priority = client-facing value TODAY × dependency unblocking × gap criticality.
+
+## Tier 1 — Client-Facing Value (can be shown to client within 24h)
+1. **Dr Evan Shoul: CyberPulse PDF** — generate + deliver his first CyberPulse report (POST /api/v1/reports → Dr Shoul client_id). Shows tangible value immediately.
+2. **Dr Evan Shoul: UniFi live dashboard panel** — real-time network status visible in dashboard (being built in parallel chat)
+3. **Client portal / shareable report link** — clients can view their own dashboard without logging in as Courtney
+
+## Tier 2 — Core Pipeline Completeness
+4. **diagnostic verification endpoint** — Claude cross-check (in progress, background agent)
+5. **checkin_trigger module** — 6-month re-engagement (in progress, background agent)
+6. **TrendCharts wiring** — device trend graphs (component exists, needs wiring)
+
+## Tier 3 — Infrastructure
+7. **MS Graph API setup** — unlocks email automation + OneDrive document storage
+8. **ANTHROPIC_API_KEY on Render** — unlocks Claude-powered research digests + verification
+
+## Detected Oversights (not yet built)
+- No client-visible portal (clients cannot see their own health data)
+- No automated report delivery confirmation (do clients actually receive their PDFs?)
+- No failed-email alert (if an email notification fails, it logs silently — no retry or escalation)
+- No Render health monitoring alert (if the backend goes down, no one is notified)
+- Workshop jobs have no SMS/WhatsApp notification to client when job status changes
+
