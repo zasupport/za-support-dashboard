@@ -12,7 +12,6 @@ interface LifecycleDevice {
   device_type: string;
   make: string;
   model: string;
-  serial_number?: string;
   device_serial?: string;
   purchase_date?: string;
   age_years?: number;
@@ -156,7 +155,7 @@ export function LifecyclePanel({ clientId }: { clientId: string }) {
                     </span>
                   </div>
                   <p className="text-xs text-slate-500 mt-0.5 ml-3.5">
-                    {d.make} {d.model}{d.serial_number ? ` · ${d.serial_number}` : ''}
+                    {d.make} {d.model}{d.device_serial ? ` · ${d.device_serial}` : ''}
                   </p>
                   {d.lifecycle_pct != null && (
                     <div className="ml-3.5 mt-1 max-w-xs">
