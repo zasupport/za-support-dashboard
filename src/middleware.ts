@@ -10,6 +10,9 @@ export function middleware(request: NextRequest) {
   if (pathname === '/login') return NextResponse.next();
   if (pathname.startsWith('/api/auth/')) return NextResponse.next();
 
+  // Allow public client portal (shareable read-only links — no auth required)
+  if (pathname.startsWith('/portal/')) return NextResponse.next();
+
   // Allow internal Next.js routes
   if (pathname.startsWith('/_next') || pathname.startsWith('/favicon')) return NextResponse.next();
 
