@@ -28,6 +28,17 @@ async function fetchTodayAlerts() {
   } catch { return null; }
 }
 
+async function fetchRecentPortalViews() {
+  try {
+    const res = await fetch(
+      `${API_URL}/api/v1/clients/portal-views/recent?days=7&limit=20`,
+      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' },
+    );
+    if (!res.ok) return null;
+    return res.json();
+  } catch { return null; }
+}
+
 function RiskBadge({ level, score }: { level?: string; score?: number }) {
   if (!level) return <span className="text-slate-600 text-xs">No scan</span>;
   const l = level.toLowerCase();
@@ -62,8 +73,8 @@ function GradeBadge({ riskScore, riskLevel, daysSinceScan }: {
 }
 
 export default async function MorningPage() {
-  const [clients, shield, radar, checkins, todayAlerts] = await Promise.all([
-    fetchMorning(), fetchCyberShieldSummary(), fetchUpgradeRadar(), fetchCheckinStatus(), fetchTodayAlerts(),
+  const [clients, shield, radar, checkins, todayAlerts, portalViews] = await Promise.all([
+    fetchMorning(), fetchCyberShieldSummary(), fetchUpgradeRadar(), fetchCheckinStatus(), fetchTodayAlerts(), fetchRecentPortalViews(),
   ]);
   const urgent = clients.filter((c: any) => c.urgency_level?.toLowerCase().startsWith('urgent'));
   const overdue = clients.filter((c: any) => (c.days_since_scan ?? 999) > 30);
@@ -145,6 +156,45 @@ export default async function MorningPage() {
             )}
             <span className="text-slate-500">— No action needed, handled automatically</span>
             <Link href="/interventions" className="ml-auto text-teal-400 hover:text-teal-300 shrink-0">View →</Link>
+          </div>
+        );
+      })()}
+
+      {/* Portal Activity — clients who viewed their portal recently (hot lead signal) */}
+      {portalViews && portalViews.count > 0 && (() => {
+        const views: any[] = portalViews.views ?? [];
+        // Deduplicate by client_id, keep only latest view
+        const seen = new Set<string>();
+        const unique = views.filter((v: any) => {
+          if (seen.has(v.client_id)) return false;
+          seen.add(v.client_id);
+          return true;
+        });
+        const timeAgo = (iso: string) => {
+          const diff = Date.now() - new Date(iso).getTime();
+          const mins = Math.floor(diff / 60000);
+          if (mins < 1) return 'just now';
+          if (mins < 60) return `${mins}m ago`;
+          const hrs = Math.floor(mins / 60);
+          if (hrs < 24) return `${hrs}h ago`;
+          return `${Math.floor(hrs / 24)}d ago`;
+        };
+        return (
+          <div className="px-4 py-3 rounded-md bg-indigo-900/20 border border-indigo-700/40 text-xs">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-indigo-300 font-semibold">Portal Activity — Last 7 Days</span>
+              <span className="text-slate-500">{unique.length} client{unique.length !== 1 ? 's' : ''} viewed</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {unique.map((v: any) => (
+                <span key={v.client_id} className="flex items-center gap-1.5 bg-slate-800/60 border border-indigo-700/30 rounded-full px-3 py-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 flex-shrink-0" />
+                  <span className="text-slate-200 font-medium">{v.client_name}</span>
+                  <span className="text-slate-500">{timeAgo(v.viewed_at)}</span>
+                </span>
+              ))}
+            </div>
+            <p className="text-slate-500 mt-2">These clients are engaged — good time to follow up.</p>
           </div>
         );
       })()}
