@@ -40,6 +40,17 @@ async function fetchRecentPortalViews() {
   } catch { return null; }
 }
 
+async function fetchRecentUpsells() {
+  try {
+    const res = await fetch(
+      `${API_URL}/api/v1/sales/recommendations/recent?days=7&limit=15`,
+      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' },
+    );
+    if (!res.ok) return null;
+    return res.json();
+  } catch { return null; }
+}
+
 function RiskBadge({ level, score }: { level?: string; score?: number }) {
   if (!level) return <span className="text-slate-600 text-xs">No scan</span>;
   const l = level.toLowerCase();
@@ -74,8 +85,8 @@ function GradeBadge({ riskScore, riskLevel, daysSinceScan }: {
 }
 
 export default async function MorningPage() {
-  const [clients, shield, radar, checkins, todayAlerts, portalViews] = await Promise.all([
-    fetchMorning(), fetchCyberShieldSummary(), fetchUpgradeRadar(), fetchCheckinStatus(), fetchTodayAlerts(), fetchRecentPortalViews(),
+  const [clients, shield, radar, checkins, todayAlerts, portalViews, upsells] = await Promise.all([
+    fetchMorning(), fetchCyberShieldSummary(), fetchUpgradeRadar(), fetchCheckinStatus(), fetchTodayAlerts(), fetchRecentPortalViews(), fetchRecentUpsells(),
   ]);
   const urgent = clients.filter((c: any) => c.urgency_level?.toLowerCase().startsWith('urgent'));
   const overdue = clients.filter((c: any) => (c.days_since_scan ?? 999) > 30);
@@ -217,6 +228,66 @@ export default async function MorningPage() {
               })}
             </div>
             <p className="text-slate-500 mt-2 text-xs">These clients are engaged — tap WhatsApp to follow up instantly.</p>
+          </div>
+        );
+      })()}
+
+      {/* Sales Leads — upsell recommendations generated in the last 7 days */}
+      {upsells && upsells.count > 0 && (() => {
+        const recs: any[] = upsells.recommendations ?? [];
+        const totalValue: number = upsells.total_pipeline_value ?? 0;
+        return (
+          <div className="px-4 py-3 rounded-md bg-emerald-900/20 border border-emerald-700/40 text-xs">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-3">
+                <span className="text-emerald-300 font-semibold">Sales Leads — Last 7 Days</span>
+                <span className="text-slate-400">{upsells.count} recommendation{upsells.count !== 1 ? 's' : ''}</span>
+                {totalValue > 0 && (
+                  <span className="text-emerald-400 font-medium">
+                    R {totalValue >= 1000 ? `${(totalValue / 1000).toFixed(0)}k` : Math.round(totalValue)} pipeline
+                  </span>
+                )}
+              </div>
+              <Link href="/sales" className="text-emerald-400 hover:text-emerald-300 shrink-0">Pipeline →</Link>
+            </div>
+            <div className="space-y-1.5">
+              {recs.slice(0, 6).map((r: any) => {
+                const phone = (r.phone || '').replace(/\D/g, '').replace(/^0/, '27');
+                const waMsg = encodeURIComponent(
+                  `Hi ${r.first_name || 'there'}, following our recent health check I have a recommendation that could make a real difference for your setup.\n\n${r.product_name}: ${r.roi_description}\n\nWorth roughly R ${Math.round(r.rand_value || 0).toLocaleString()} in value. Happy to chat this week if you have 10 minutes?\n\nKind regards,\nCourtney Bentley\nZA Support\n064 529 5863`
+                );
+                const waHref = phone ? `https://wa.me/${phone}?text=${waMsg}` : `https://wa.me/?text=${waMsg}`;
+                return (
+                  <div key={r.id} className="flex items-start justify-between gap-3 bg-slate-800/60 border border-emerald-700/30 rounded-lg px-3 py-2">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Link href={`/clients/${r.client_id}`} className="text-slate-200 font-medium hover:text-white">
+                          {r.client_name}
+                        </Link>
+                        <span className="text-emerald-300">{r.product_name}</span>
+                        {r.rand_value > 0 && (
+                          <span className="text-emerald-400 font-semibold">
+                            R {Math.round(r.rand_value).toLocaleString()}
+                          </span>
+                        )}
+                      </div>
+                      {r.roi_description && (
+                        <p className="text-slate-500 mt-0.5 truncate">{r.roi_description}</p>
+                      )}
+                    </div>
+                    <a
+                      href={waHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-shrink-0 text-xs px-2.5 py-1 rounded-full bg-green-800/50 hover:bg-green-700/60 text-green-300 hover:text-white border border-green-700/40 transition-colors whitespace-nowrap"
+                    >
+                      Pitch →
+                    </a>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="text-slate-500 mt-2 text-xs">Scout-generated from diagnostic findings — tap Pitch to open WhatsApp with pre-composed message.</p>
           </div>
         );
       })()}
