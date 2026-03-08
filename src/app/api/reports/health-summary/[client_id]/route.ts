@@ -5,11 +5,12 @@ const API_TOKEN = process.env.ZA_API_TOKEN || '';
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { client_id: string } },
+  { params }: { params: Promise<{ client_id: string }> },
 ) {
+  const { client_id } = await params;
   try {
     const res = await fetch(
-      `${API_URL}/api/v1/reports/health-summary/${encodeURIComponent(params.client_id)}`,
+      `${API_URL}/api/v1/reports/health-summary/${encodeURIComponent(client_id)}`,
       { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' },
     );
     if (!res.ok) return NextResponse.json({ error: 'Backend error' }, { status: res.status });
