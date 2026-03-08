@@ -110,9 +110,24 @@ export function ClientsClient() {
                   <span>Email</span>
                   <span className="text-slate-200 truncate ml-2 max-w-[180px]">{client.email}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span>Phone</span>
-                  <span className="text-slate-200">{client.phone}</span>
+                  {client.phone ? (
+                    <div className="flex items-center gap-2 ml-2">
+                      <a href={`tel:${client.phone}`} className="text-slate-200 hover:text-white">{client.phone}</a>
+                      <a
+                        href={`https://wa.me/${client.phone.replace(/\D/g, '').replace(/^0/, '27')}?text=${encodeURIComponent(`Hi ${client.first_name}, `)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-green-500 hover:text-green-400 text-xs font-semibold"
+                        title="Open WhatsApp"
+                      >
+                        WA
+                      </a>
+                    </div>
+                  ) : (
+                    <span className="text-slate-500">—</span>
+                  )}
                 </div>
                 {client.urgency_level && (
                   <div className="flex justify-between">

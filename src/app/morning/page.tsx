@@ -4,6 +4,7 @@ import { AutoRefresh } from '@/components/auto-refresh';
 import { fetchCyberShieldSummary, fetchUpgradeRadar, fetchCheckinStatus } from '@/lib/api';
 import { TrendAlerts } from './TrendAlerts';
 import { FleetInterventionsFeed } from '@/components/FleetInterventionsFeed';
+import { ServicesPanel } from '@/components/ServicesPanel';
 
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
 const API_TOKEN = process.env.ZA_API_TOKEN || '';
@@ -425,6 +426,9 @@ export default async function MorningPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Service activation status — shows which communication channels need env vars */}
+      <ServicesPanel />
 
       {/* Fleet automated interventions — what the system did across all clients */}
       <FleetInterventionsFeed />
