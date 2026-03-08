@@ -2,6 +2,22 @@ import { notFound } from 'next/navigation';
 
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
 
+type PortalDevice = {
+  id: string;
+  display_name: string;
+  device_type: string;
+  make: string;
+  model: string;
+  age_years: number | null;
+  expected_lifespan: number | null;
+  lifecycle_pct: number | null;
+  replacement_urgency: string;
+  replacement_rec: string | null;
+  replacement_due: string | null;
+  warranty_expires: string | null;
+  applecare_expires: string | null;
+};
+
 type PortalData = {
   client: { first_name: string; business_name: string | null; status: string };
   latest_scan: {
@@ -23,6 +39,7 @@ type PortalData = {
   };
   cybershield: { active: boolean; tier: string | null };
   za_support: { email: string; phone: string; website: string };
+  devices: PortalDevice[];
 };
 
 async function getPortalData(token: string): Promise<PortalData | null> {
@@ -69,7 +86,7 @@ export default async function PortalPage({ params }: { params: Promise<{ token: 
 
   if (!data) return notFound();
 
-  const { client, latest_scan, open_jobs, roi_summary, cybershield, za_support } = data;
+  const { client, latest_scan, open_jobs, roi_summary, cybershield, za_support, devices = [] } = data;
   const scanDate = latest_scan?.scan_date
     ? new Date(latest_scan.scan_date).toLocaleDateString('en-ZA', {
         day: 'numeric', month: 'long', year: 'numeric',
@@ -248,6 +265,112 @@ export default async function PortalPage({ params }: { params: Promise<{ token: 
             </div>
           )}
         </section>
+
+        {/* Device Health */}
+        {devices.length > 0 && (() => {
+          const urgentDevices = devices.filter(d =>
+            d.replacement_urgency === 'critical' || d.replacement_urgency === 'overdue'
+          );
+          const URGENCY_LABEL: Record<string, string> = {
+            critical: 'CRITICAL', overdue: 'OVERDUE', soon: 'SOON', watch: 'WATCH', none: 'OK',
+          };
+          const URGENCY_BADGE: Record<string, string> = {
+            critical: 'bg-red-100 text-red-800 border border-red-200',
+            overdue:  'bg-orange-100 text-orange-800 border border-orange-200',
+            soon:     'bg-yellow-100 text-yellow-800 border border-yellow-200',
+            watch:    'bg-blue-100 text-blue-800 border border-blue-200',
+            none:     'bg-green-100 text-green-800 border border-green-200',
+          };
+          const URGENCY_DOT: Record<string, string> = {
+            critical: 'bg-red-500', overdue: 'bg-orange-500', soon: 'bg-yellow-500',
+            watch: 'bg-blue-500', none: 'bg-green-500',
+          };
+          return (
+            <section className="bg-white rounded-xl shadow-sm p-5">
+              <h2 className="font-semibold text-slate-800 mb-1 text-base">Your Devices</h2>
+              <p className="text-xs text-slate-500 mb-4">
+                {devices.length} device{devices.length !== 1 ? 's' : ''} tracked by ZA Support
+              </p>
+
+              {urgentDevices.length > 0 && (
+                <div className="mb-4 rounded-lg border border-orange-200 bg-orange-50 px-4 py-3">
+                  <p className="text-orange-800 font-semibold text-sm mb-1">
+                    Ready for an Upgrade?
+                  </p>
+                  <p className="text-orange-700 text-xs leading-relaxed">
+                    {urgentDevices.length} of your device{urgentDevices.length !== 1 ? 's are' : ' is'} past the recommended replacement window. When you upgrade through ZA Support, we handle everything — data migration, full setup, and Health Check monitoring active from day one.
+                  </p>
+                  <p className="text-orange-600 text-xs mt-2 font-medium">
+                    Contact us: {za_support.phone} · {za_support.email}
+                  </p>
+                </div>
+              )}
+
+              <div className="space-y-0">
+                {devices.map((d) => {
+                  const urgency = d.replacement_urgency in URGENCY_LABEL ? d.replacement_urgency : 'none';
+                  const pct = d.lifecycle_pct ?? 0;
+                  const barColor = pct >= 120 ? 'bg-red-500' : pct >= 100 ? 'bg-orange-500' : pct >= 80 ? 'bg-yellow-500' : 'bg-emerald-500';
+                  return (
+                    <div key={d.id} className="py-3 border-b border-slate-100 last:border-0">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className={`w-2 h-2 rounded-full shrink-0 ${URGENCY_DOT[urgency]}`} />
+                            <span className="text-sm font-medium text-slate-800 truncate">{d.display_name}</span>
+                            <span className={`text-xs px-1.5 py-0.5 rounded font-semibold ${URGENCY_BADGE[urgency]}`}>
+                              {URGENCY_LABEL[urgency]}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-500 mt-0.5 ml-4">{d.make} {d.model}</p>
+                          {d.lifecycle_pct != null && (
+                            <div className="ml-4 mt-1.5 max-w-xs">
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                                  <div
+                                    className={`h-1.5 rounded-full ${barColor}`}
+                                    style={{ width: `${Math.min(d.lifecycle_pct, 100)}%` }}
+                                  />
+                                </div>
+                                <span className="text-xs text-slate-500 w-10 text-right">
+                                  {Math.round(d.lifecycle_pct)}%
+                                </span>
+                              </div>
+                              <p className="text-[10px] text-slate-400 mt-0.5">
+                                of expected lifespan used
+                              </p>
+                            </div>
+                          )}
+                          {d.replacement_rec && (
+                            <p className="text-xs text-slate-500 mt-1 ml-4 italic">{d.replacement_rec}</p>
+                          )}
+                        </div>
+                        <div className="text-right shrink-0 space-y-0.5">
+                          {d.age_years != null && (
+                            <p className="text-xs text-slate-600">
+                              {d.age_years.toFixed(1)}y old
+                              {d.expected_lifespan ? ` / ${d.expected_lifespan}y life` : ''}
+                            </p>
+                          )}
+                          {d.replacement_due && (
+                            <p className="text-xs text-slate-400">
+                              Due {new Date(d.replacement_due).toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' })}
+                            </p>
+                          )}
+                          {d.applecare_expires && (
+                            <p className="text-xs text-slate-400">
+                              AppleCare {new Date(d.applecare_expires).toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' })}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          );
+        })()}
 
         {/* Footer */}
         <footer className="text-center text-xs text-slate-400 pb-4 space-y-1">
