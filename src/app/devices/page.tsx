@@ -22,6 +22,23 @@ function DaysAgo({ lastSeen }: { lastSeen?: string }) {
   return <span className={`text-xs ${cls}`}>{days === 0 ? 'Today' : `${days}d ago`}</span>;
 }
 
+function AppHealthBadge({ grade, crashes, unsigned }: { grade?: string; crashes?: number; unsigned?: number }) {
+  if (!grade) return <span className="text-slate-600 text-xs">—</span>;
+  const g = grade.toUpperCase();
+  const gradeColor = g === 'A' ? 'text-green-400 bg-green-500/10 border-green-500/30'
+    : g === 'B' ? 'text-teal-400 bg-teal-500/10 border-teal-500/30'
+    : g === 'C' ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30'
+    : g === 'D' ? 'text-orange-400 bg-orange-500/10 border-orange-500/30'
+    : 'text-red-400 bg-red-500/10 border-red-500/30';
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className={`text-xs px-1.5 py-0.5 rounded border font-bold w-fit ${gradeColor}`}>{g}</span>
+      {(crashes ?? 0) > 0 && <span className="text-xs text-orange-400">{crashes} crash{crashes === 1 ? '' : 'es'}/7d</span>}
+      {(unsigned ?? 0) > 0 && <span className="text-xs text-yellow-500">{unsigned} unsigned</span>}
+    </div>
+  );
+}
+
 export default async function DevicesPage() {
   const devices = await fetchDevices();
   const list = Array.isArray(devices) ? devices : [];
@@ -59,13 +76,14 @@ export default async function DevicesPage() {
                   <th className="text-left px-4 py-3 font-medium">macOS</th>
                   <th className="text-left px-4 py-3 font-medium">Risk</th>
                   <th className="text-left px-4 py-3 font-medium">Score</th>
+                  <th className="text-left px-4 py-3 font-medium">App Health</th>
                   <th className="text-left px-4 py-3 font-medium">Last Scan</th>
                   <th className="text-left px-4 py-3 font-medium">Last Seen</th>
                 </tr>
               </thead>
               <tbody>
                 {list.length === 0 && (
-                  <tr><td colSpan={8} className="px-4 py-8 text-slate-500 text-center">No devices found</td></tr>
+                  <tr><td colSpan={9} className="px-4 py-8 text-slate-500 text-center">No devices found</td></tr>
                 )}
                 {list.map((d: any) => {
                   const snap = d.latest_snapshot;
@@ -88,6 +106,13 @@ export default async function DevicesPage() {
                       <td className="px-4 py-3 text-slate-400">{d.macos_version || '—'}</td>
                       <td className="px-4 py-3"><RiskBadge level={snap?.risk_level} /></td>
                       <td className="px-4 py-3 text-slate-300">{snap?.risk_score ?? '—'}</td>
+                      <td className="px-4 py-3">
+                        <AppHealthBadge
+                          grade={snap?.app_intelligence_grade}
+                          crashes={snap?.app_crash_count_7d}
+                          unsigned={snap?.app_unsigned_count}
+                        />
+                      </td>
                       <td className="px-4 py-3">
                         {snap?.scan_date
                           ? <span className="text-slate-400">{new Date(snap.scan_date).toLocaleDateString('en-ZA')}</span>
