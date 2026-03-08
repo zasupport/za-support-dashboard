@@ -27,9 +27,16 @@ type PortalIntervention = {
   date: string | null;
 };
 
+type Recommendation = {
+  name: string;
+  description: string;
+  price_rand: number | null;
+};
+
 type PortalData = {
   client: { first_name: string; business_name: string | null; status: string };
   recent_interventions?: PortalIntervention[];
+  recommendations?: Recommendation[];
   latest_scan: {
     scan_date: string;
     risk_level: string;
@@ -96,7 +103,7 @@ export default async function PortalPage({ params }: { params: Promise<{ token: 
 
   if (!data) return notFound();
 
-  const { client, latest_scan, open_jobs, roi_summary, cybershield, za_support, devices = [], recent_interventions = [] } = data;
+  const { client, latest_scan, open_jobs, roi_summary, cybershield, za_support, devices = [], recent_interventions = [], recommendations = [] } = data;
   const scanDate = latest_scan?.scan_date
     ? new Date(latest_scan.scan_date).toLocaleDateString('en-ZA', {
         day: 'numeric', month: 'long', year: 'numeric',
@@ -313,6 +320,38 @@ export default async function PortalPage({ params }: { params: Promise<{ token: 
             </div>
           )}
         </section>
+
+        {/* Recommendations from last scan */}
+        {recommendations.length > 0 && (
+          <section className="bg-white rounded-xl shadow-sm p-5">
+            <h2 className="font-semibold text-slate-800 mb-1 text-base">
+              Recommendations From Your Last Scan
+            </h2>
+            <p className="text-xs text-slate-500 mb-4">
+              Based on what we found — tailored to your setup.
+            </p>
+            <div className="space-y-3">
+              {recommendations.map((rec, i) => (
+                <div key={i} className="rounded-lg border border-[#27504D]/20 bg-[#27504D]/5 px-4 py-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-[#27504D]">{rec.name}</p>
+                      <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">{rec.description}</p>
+                    </div>
+                    {rec.price_rand !== null && (
+                      <span className="text-sm font-bold text-[#27504D] shrink-0">
+                        R {rec.price_rand.toLocaleString('en-ZA', { minimumFractionDigits: 0 })}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-slate-400 mt-3">
+              Reply via WhatsApp or call 064 529 5863 to discuss any of these.
+            </p>
+          </section>
+        )}
 
         {/* Device Health */}
         {devices.length > 0 && (() => {
