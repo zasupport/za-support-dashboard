@@ -154,6 +154,26 @@ export function ServicesPanel() {
       </CardHeader>
       <CardContent className="space-y-1">
 
+        {/* ntfy.sh — zero-credential mobile push, already working */}
+        <div className="mb-3 p-2.5 rounded-md bg-violet-500/10 border border-violet-500/30">
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-xs text-violet-300 font-medium">iPhone push — ready now (no credentials needed)</p>
+            <span className="text-xs bg-violet-500/20 text-violet-400 px-1.5 py-0.5 rounded">Active</span>
+          </div>
+          <p className="text-xs text-slate-400 mb-2">ntfy.sh fires on every alert. Install the free app and subscribe once.</p>
+          <div className="flex gap-2 flex-wrap">
+            <a
+              href="https://apps.apple.com/app/ntfy/id1625396347"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs bg-violet-600 hover:bg-violet-500 text-white px-2.5 py-1 rounded font-medium transition-colors"
+            >
+              Install ntfy on iPhone →
+            </a>
+            <span className="text-xs text-slate-500 self-center">Subscribe to: <code className="text-violet-300 font-mono">zasupport-courtney-alerts</code></span>
+          </div>
+        </div>
+
         {/* Quick-win banner when email is not configured */}
         {emailMissing && (
           <div className="mb-3 p-2.5 rounded-md bg-teal-500/10 border border-teal-500/30">
