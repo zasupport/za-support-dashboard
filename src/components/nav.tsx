@@ -1,13 +1,14 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee, ShieldCheck, Download, Settings, BookOpen, LogOut, TrendingUp, Stethoscope, Copy, FlaskConical, Cpu } from 'lucide-react';
+import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee, ShieldCheck, Download, Settings, BookOpen, LogOut, TrendingUp, Stethoscope, Copy, FlaskConical, Cpu, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GlobalSearch } from './GlobalSearch';
 
 const links = [
   { href: '/', label: 'Dashboard', icon: Monitor },
   { href: '/morning', label: 'Morning Brief', icon: Coffee },
+  { href: '/interventions', label: 'Automations', icon: Zap },
   { href: '/clients', label: 'Clients', icon: Users },
   { href: '/workshop', label: 'Workshop', icon: Wrench },
   { href: '/job-cards', label: 'Job Cards', icon: FileText },
@@ -36,6 +37,7 @@ const links = [
 const mobileLinks = [
   { href: '/', label: 'Home', icon: Monitor },
   { href: '/morning', label: 'Brief', icon: Coffee },
+  { href: '/interventions', label: 'Actions', icon: Zap },
   { href: '/clients', label: 'Clients', icon: Users },
   { href: '/workshop', label: 'Workshop', icon: Wrench },
   { href: '/cybershield', label: 'Shield', icon: ShieldCheck },
