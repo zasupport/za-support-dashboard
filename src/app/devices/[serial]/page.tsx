@@ -100,6 +100,67 @@ export default async function DeviceDetailPage({ params }: { params: Promise<{ s
         </Card>
       )}
 
+      {/* Phase 20 — Environment Intelligence */}
+      {(snap?.time_machine_status || snap?.ccc_installed || snap?.remote_access_tools) && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader><CardTitle className="text-white text-base">Environment — Phase 20</CardTitle></CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+              {[
+                {
+                  label: 'Time Machine',
+                  value: snap.time_machine_status,
+                  highlight: snap.time_machine_status?.toLowerCase() === 'enabled' ? 'green'
+                    : snap.time_machine_status?.toLowerCase() === 'disabled' ? 'red' : undefined
+                },
+                { label: 'TM Backup Dest', value: snap.time_machine_dest },
+                { label: 'TM Last Backup', value: snap.time_machine_last },
+                {
+                  label: 'TM Days Ago',
+                  value: snap.time_machine_days_ago != null ? `${snap.time_machine_days_ago}d` : null,
+                  highlight: snap.time_machine_days_ago != null
+                    ? (snap.time_machine_days_ago > 7 ? 'red' : snap.time_machine_days_ago > 3 ? 'yellow' : 'green')
+                    : undefined
+                },
+                {
+                  label: 'CCC Installed',
+                  value: snap.ccc_installed,
+                  highlight: snap.ccc_installed?.toLowerCase() === 'yes' ? 'green' : undefined
+                },
+                { label: 'CCC Last Backup', value: snap.ccc_last_backup },
+                {
+                  label: 'CCC Status',
+                  value: snap.ccc_backup_status,
+                  highlight: snap.ccc_backup_status?.toLowerCase() === 'ok' ? 'green'
+                    : snap.ccc_backup_status && snap.ccc_backup_status.toLowerCase() !== 'ok' ? 'red' : undefined
+                },
+                { label: 'Cloud Sync Running', value: snap.cloud_sync_running },
+              ].filter(f => f.value).map(({ label, value, highlight }: any) => (
+                <div key={label}>
+                  <p className="text-xs text-slate-400 mb-1">{label}</p>
+                  <p className={`text-sm font-medium ${
+                    highlight === 'green' ? 'text-green-400'
+                    : highlight === 'red' ? 'text-red-400'
+                    : highlight === 'yellow' ? 'text-yellow-400'
+                    : 'text-white'
+                  }`}>{value}</p>
+                </div>
+              ))}
+            </div>
+            {snap.remote_access_tools && snap.remote_access_tools !== 'NONE' && snap.remote_access_tools !== '' && (
+              <div className="mt-2 rounded-md bg-orange-500/10 border border-orange-500/30 px-3 py-2 text-xs text-orange-300">
+                Remote access tools detected: {snap.remote_access_tools}
+              </div>
+            )}
+            {snap.subscription_apps && snap.subscription_apps !== 'NONE' && snap.subscription_apps !== '' && (
+              <div className="mt-2 rounded-md bg-slate-700/50 border border-slate-600 px-3 py-2 text-xs text-slate-300">
+                Subscription apps: {snap.subscription_apps}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Phase 23 — App Intelligence */}
       {snap?.app_intelligence_grade && (
         <Card className="bg-slate-800 border-slate-700">
