@@ -13,6 +13,7 @@ import { RoiTrendChart } from '@/components/RoiTrendChart';
 import { InterventionsFeed } from '@/components/InterventionsFeed';
 import { SimilarInsights } from './SimilarInsights';
 import { UpsellPanel } from './UpsellPanel';
+import { UpsellFunnel } from './UpsellFunnel';
 import { LifecyclePanel } from './LifecyclePanel';
 import { PhysicalAssessmentPanel } from './PhysicalAssessmentPanel';
 import Link from 'next/link';
@@ -177,6 +178,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
       <InterventionsFeed clientId={client.client_id} />
 
       {/* Upsell opportunities */}
+      <UpsellFunnel clientId={client.client_id} />
       <UpsellPanel clientId={client.client_id} />
 
       {/* Device Lifecycle — upgrade radar per client */}
