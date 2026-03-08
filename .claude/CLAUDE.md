@@ -1415,24 +1415,23 @@ All four settings files use `Bash(*)`, `Read(**)`, `Write(**)`, `Edit(**)` wildc
 This section is the single source of truth for what gets built next. Updated after every session.
 Priority = client-facing value TODAY × dependency unblocking × gap criticality.
 
-## Tier 1 — Client-Facing Value (can be shown to client within 24h)
-1. **Dr Evan Shoul: CyberPulse PDF** — generate + deliver his first CyberPulse report (POST /api/v1/reports → Dr Shoul client_id). Shows tangible value immediately.
-2. **Dr Evan Shoul: UniFi live dashboard panel** — real-time network status visible in dashboard (being built in parallel chat)
-3. **Client portal / shareable report link** — clients can view their own dashboard without logging in as Courtney
+## ALL PREVIOUSLY QUEUED ITEMS — SHIPPED (as of 08/03/2026 session 12)
+✓ Client portal /portal/[token] | ✓ Shareable report links | ✓ Demo PDF (no Scout needed)
+✓ TrendCharts wired | ✓ ROI widget on client page | ✓ diagnostic verification endpoint
+✓ checkin_trigger module | ✓ Sales CRM dashboard | ✓ Medical Practice dashboard
+✓ report_delivery silent failure fixed | ✓ Render health monitor (launchd, every 5 min)
 
-## Tier 2 — Core Pipeline Completeness
-4. **diagnostic verification endpoint** — Claude cross-check (in progress, background agent)
-5. **checkin_trigger module** — 6-month re-engagement (in progress, background agent)
-6. **TrendCharts wiring** — device trend graphs (component exists, needs wiring)
+## Tier 1 — Client-Facing Value (next sprint)
+1. **Dr Evan Shoul: Generate & send Demo CyberPulse PDF** — use Reports page → Generate Demo PDF for evan-shoul → copy share link → send to Dr Shoul via WhatsApp/email. Manual step by Courtney (30 seconds). Commit d35a053 + af5ad7e deliver this.
+2. **ROI trends chart on dashboard** — 12-month cumulative value protected chart per client (Recharts, calls /api/reports/roi/history/{client_id})
+3. **Workshop job client notification** — email/WhatsApp to client when job status → in_progress or done
 
-## Tier 3 — Infrastructure
-7. **MS Graph API setup** — unlocks email automation + OneDrive document storage
-8. **ANTHROPIC_API_KEY on Render** — unlocks Claude-powered research digests + verification
+## Tier 2 — Infrastructure (require credentials from Courtney)
+4. **MS Graph API setup** — MS_TENANT_ID, MS_CLIENT_ID, MS_CLIENT_SECRET on Render → unlocks email automation + OneDrive
+5. **ANTHROPIC_API_KEY on Render** — unlocks Claude-powered verification pass + research digest
 
-## Detected Oversights (not yet built)
-- No client-visible portal (clients cannot see their own health data)
-- No automated report delivery confirmation (do clients actually receive their PDFs?)
-- No failed-email alert (if an email notification fails, it logs silently — no retry or escalation)
-- No Render health monitoring alert (if the backend goes down, no one is notified)
-- Workshop jobs have no SMS/WhatsApp notification to client when job status changes
+## Detected Oversights (remaining)
+- Workshop jobs have no client notification when status changes (in_progress / done)
+- No ROI trends chart (12-month view) — data exists, UI missing
+- Dr Evan Shoul Demo PDF not yet sent to him (action: open dashboard → Reports → Generate Demo → send link)
 

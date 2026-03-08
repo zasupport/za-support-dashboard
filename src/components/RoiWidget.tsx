@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+} from 'recharts';
 
 type RoiPeriod = {
   period_start: string;
@@ -187,6 +190,47 @@ export function RoiWidget({ clientId, clientName }: { clientId: string; clientNa
                 </div>
               </div>
             )}
+
+            {/* Value trend chart — shown when 2+ historical periods exist */}
+            {data.periods.length >= 2 && (() => {
+              const chartData = [...data.periods]
+                .sort((a, b) => a.period_start.localeCompare(b.period_start))
+                .map(p => ({
+                  label: new Date(p.period_start).toLocaleDateString('en-ZA', { month: 'short', year: '2-digit' }),
+                  value: p.total_value_delivered,
+                  exposure: p.total_exposure_identified,
+                }));
+              return (
+                <div>
+                  <p className="text-slate-500 text-xs mb-2">Value delivered over time (R)</p>
+                  <div className="h-28">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+                        <defs>
+                          <linearGradient id="roiGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#0FEA7A" stopOpacity={0.25} />
+                            <stop offset="95%" stopColor="#0FEA7A" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                        <XAxis dataKey="label" tick={{ fill: '#64748b', fontSize: 9 }} />
+                        <YAxis tick={{ fill: '#64748b', fontSize: 9 }} tickFormatter={v => `R${(v/1000).toFixed(0)}k`} />
+                        <Tooltip
+                          contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 6 }}
+                          labelStyle={{ color: '#94a3b8', fontSize: 10 }}
+                          itemStyle={{ color: '#e2e8f0', fontSize: 10 }}
+                          formatter={(v: number | undefined) => v != null ? formatRand(v) : ''}
+                        />
+                        <Area
+                          type="monotone" dataKey="value" name="Value delivered"
+                          stroke="#0FEA7A" fill="url(#roiGrad)" strokeWidth={2} dot={false}
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         )}
       </div>
