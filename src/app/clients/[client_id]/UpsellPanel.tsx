@@ -29,9 +29,10 @@ const STATUS_CONFIG: Record<string, { label: string; next: string; nextLabel: st
 };
 
 export function UpsellPanel({ clientId }: { clientId: string }) {
-  const [recs, setRecs]       = useState<Recommendation[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState<string | null>(null);
+  const [recs, setRecs]             = useState<Recommendation[]>([]);
+  const [loading, setLoading]       = useState(true);
+  const [updating, setUpdating]     = useState<string | null>(null);
+  const [convertedToast, setConvertedToast] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`/api/sales/recommendations?client_id=${clientId}`)
@@ -43,6 +44,7 @@ export function UpsellPanel({ clientId }: { clientId: string }) {
 
   const updateStatus = async (recId: string, status: string) => {
     setUpdating(recId);
+    const rec = recs.find(r => r.id === recId);
     try {
       const res = await fetch('/api/sales/recommendations', {
         method: 'PATCH',
@@ -51,6 +53,10 @@ export function UpsellPanel({ clientId }: { clientId: string }) {
       });
       if (res.ok) {
         setRecs(prev => prev.map(r => r.id === recId ? { ...r, status } : r));
+        if (status === 'converted' && rec) {
+          setConvertedToast(`R ${(rec.rand_value || 0).toLocaleString('en-ZA')} converted — workshop job created automatically`);
+          setTimeout(() => setConvertedToast(null), 6000);
+        }
       }
     } finally {
       setUpdating(null);
@@ -68,6 +74,12 @@ export function UpsellPanel({ clientId }: { clientId: string }) {
 
   return (
     <div className="bg-slate-800 rounded-lg border border-slate-700 p-4">
+      {convertedToast && (
+        <div className="mb-3 px-3 py-2 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-xs text-emerald-300 flex items-center gap-2">
+          <span className="shrink-0">✓</span>
+          {convertedToast}
+        </div>
+      )}
       <div className="flex items-center justify-between mb-3">
         <div>
           <p className="text-sm font-medium text-white">Upsell Opportunities</p>
