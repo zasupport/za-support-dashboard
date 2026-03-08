@@ -881,7 +881,7 @@ upsell_decision        → Upsell (log outcome) + Client Intel (update record)
 # SECTION 22: OUTPUT FORMAT RULES (CRITICAL — ALWAYS APPLY)
 
 ## Global Preferences Output
-When Courtney requests preferences, instructions, or rules intended for the global user preferences file (Settings > Profile): ALWAYS output as a complete ready-to-paste code block. Never describe what should change — produce the actual block.
+When Courtney requests preferences, instructions, or rules intended for the global user preferences file (Settings > Profile): ALWAYS output as a complete ready-to-paste code block AND pipe it to the macOS clipboard using `pbcopy` so it is ready to paste immediately. Never describe what should change — produce the actual block and run the pbcopy command.
 
 ## Claude Code Instructions Output
 When generating instructions intended for Claude Code projects: ALWAYS create or amend a .md file (typically INSTRUCTIONS.md in `.claude/`). Never describe changes in chat — produce the actual file using Write or Edit tools. Then present it.
@@ -1011,3 +1011,70 @@ Is this for a medical practice or doctor?
 
 ## File Location (document generation code)
 All logo files: `/mnt/project/` on server. Reference from there in ReportLab code.
+
+---
+
+# SECTION 27: REAL-TIME MONITORING, ALERTS & AUTO-FIX (CRITICAL — GLOBAL, PERMANENT)
+
+## Core Rule
+ALL ZA Support services are treated as production systems. Every Claude Code session operates on a real-time basis. The moment an error, failure, or broken service is detected — alert Courtney and fix it immediately. Never observe a problem and move on.
+
+## Detection Triggers (ALWAYS monitor these)
+- Any HTTP error from api.zasupport.com (non-2xx on /health)
+- Any FastAPI startup failure, import error, or migration failure in Render logs
+- Any Vercel build failure or deployment error
+- Any GitHub push rejection or remote sync failure
+- Any Python exception in scheduled jobs (automation_scheduler, isp_scheduler)
+- Any database connection failure (PostgreSQL, Redis)
+- Any Render service showing `update_failed`, `build_failed`, or `crashed`
+- Any launchd backup failure (errors in ~/.za-backup.log)
+- Any Scout LaunchAgent failure (no output in expected window)
+
+## Alert Protocol — Immediate Action (no delay, no deferral)
+When a broken service or error is detected:
+1. **macOS notification** — fire immediately:
+   ```bash
+   osascript -e 'display notification "SERVICE BROKEN: [name] — fixing now" with title "ZA Support ALERT" sound name "Basso"'
+   afplay /System/Library/Sounds/Basso.aiff
+   ```
+2. **Identify root cause** — read logs, check error messages, trace the failure path
+3. **Fix automatically** — apply the fix without asking for confirmation:
+   - Python import errors → fix the import, redeploy
+   - Migration failures → fix the SQL, re-run via migrate.py
+   - Render build failures → read the build log, fix the code, push
+   - DNS/network failures on backup → retry once; if still failing, log and skip
+   - Missing env vars → read from ~/.za-keys-pending.env, apply via Render API
+4. **Verify the fix** — confirm the service is healthy (HTTP 200, logs clean)
+5. **Report to Courtney** — one-line summary: what broke, what was fixed, current status
+
+## Auto-Fix Scope
+Auto-fix WITHOUT asking:
+- Code bugs (syntax errors, import errors, type errors, missing attributes)
+- Migration failures (idempotent SQL — safe to re-run)
+- Missing Python packages (add to requirements.txt, commit, push)
+- Router/service wiring issues (missing include_router, wrong prefix)
+- Env vars resolvable from ~/.za-keys-pending.env
+- Render deploy retries (push trivial commit to trigger redeploy)
+- LaunchAgent reload after plist changes
+
+Ask ONCE before acting:
+- Render env var changes requiring values not in any known config file
+- DB schema changes that are NOT idempotent (DROP, destructive ALTER)
+- Actions that affect live client-facing data in unexpected ways
+
+## Service Health Check — Run at Session Start
+At the start of every session, silently verify:
+```bash
+curl -s https://api.zasupport.com/health | python3 -c "import sys,json; d=json.load(sys.stdin); print('BACKEND:', d.get('status','unknown'))"
+```
+If not healthy: alert + fix before starting any other work.
+
+## Nightly Backup — Schedule Changed to 09:00
+Backup launchd plist updated to run at 09:00 (from 02:00) — machine is active at this time.
+If DNS fails: log, skip, retry at next scheduled run. No failure email for single DNS miss.
+
+## Session-End Health Check
+At the end of every multi-step session:
+1. Run the health check above
+2. If any service is degraded: fix before closing
+3. Emit task completion notification only when all services are healthy
