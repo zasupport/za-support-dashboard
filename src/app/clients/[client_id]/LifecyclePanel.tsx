@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { AddDeviceButton } from './AddDeviceButton';
+import { Trash2 } from 'lucide-react';
 
 interface LifecycleDevice {
   id: string;
@@ -77,13 +78,27 @@ function LifecycleBar({ pct }: { pct: number }) {
 export function LifecyclePanel({ clientId }: { clientId: string }) {
   const [devices, setDevices] = useState<LifecycleDevice[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
-  useEffect(() => {
+  function load() {
     fetch(`/api/lifecycle/client/${encodeURIComponent(clientId)}`)
       .then(r => r.json())
       .then(j => { setDevices(j?.data ?? []); setLoading(false); })
       .catch(() => setLoading(false));
-  }, [clientId]);
+  }
+
+  useEffect(() => { load(); }, [clientId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function handleDelete(deviceId: string, name: string) {
+    if (!confirm(`Remove "${name}" from lifecycle tracking? This cannot be undone.`)) return;
+    setDeleting(deviceId);
+    try {
+      await fetch(`/api/lifecycle/device/${deviceId}`, { method: 'DELETE' });
+      setDevices(prev => prev.filter(d => d.id !== deviceId));
+    } finally {
+      setDeleting(null);
+    }
+  }
 
   if (loading) return null;
 
@@ -171,6 +186,14 @@ export function LifecyclePanel({ clientId }: { clientId: string }) {
                       AppleCare {new Date(d.applecare_expires).toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </p>
                   )}
+                  <button
+                    onClick={() => handleDelete(d.id, d.display_name)}
+                    disabled={deleting === d.id}
+                    className="mt-1 text-slate-600 hover:text-red-400 transition-colors disabled:opacity-40"
+                    title="Remove device"
+                  >
+                    <Trash2 size={12} />
+                  </button>
                 </div>
               </div>
             </div>
