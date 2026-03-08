@@ -5,6 +5,7 @@ import { StatusUpdater } from './StatusUpdater';
 import { ClientNotes } from './ClientNotes';
 import { CreateJobButton } from './CreateJobButton';
 import { EditClientButton } from './EditClientButton';
+import { RoiWidget } from '@/components/RoiWidget';
 import Link from 'next/link';
 import { AutoRefresh } from '@/components/auto-refresh';
 import { notFound } from 'next/navigation';
@@ -139,6 +140,9 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
           </CardContent>
         </Card>
       </div>
+
+      {/* ROI Widget */}
+      <RoiWidget clientId={client.client_id} clientName={`${client.first_name} ${client.last_name}`} />
 
       {/* Business section (if applicable) */}
       {client.has_business && (

@@ -120,6 +120,11 @@ export default async function MorningPage() {
                       </Link>
                       {isUrgent && <span className="ml-2 text-red-400 font-bold">URGENT</span>}
                       {c.has_business && <span className="ml-1 text-purple-400">Biz</span>}
+                      {c.roi_ratio != null && c.roi_ratio > 0 && (
+                        <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-500/15 text-green-400 border border-green-500/25">
+                          {Number(c.roi_ratio).toFixed(1)}:1
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <span className={`capitalize ${c.status === 'new' ? 'text-blue-400' : c.status === 'sla' ? 'text-purple-400' : 'text-green-400'}`}>
