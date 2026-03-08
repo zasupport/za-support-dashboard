@@ -9,30 +9,12 @@ export async function GET(req: NextRequest) {
   const params   = new URLSearchParams({ page, per_page });
   try {
     const res = await fetch(
-      `${API_URL}/api/v1/medical/practices?${params}`,
+      `${API_URL}/api/v1/medical/compliance?${params}`,
       { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' }
     );
     if (!res.ok) return NextResponse.json({ data: [], meta: {} });
     return NextResponse.json(await res.json());
   } catch {
     return NextResponse.json({ data: [], meta: {} });
-  }
-}
-
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
-    const res = await fetch(`${API_URL}/api/v1/medical/practices`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${API_TOKEN}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
-    const data = await res.json().catch(() => ({}));
-    return NextResponse.json(data, { status: res.status });
-  } catch {
-    return NextResponse.json({ detail: 'Server error' }, { status: 500 });
   }
 }
