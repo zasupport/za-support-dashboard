@@ -866,3 +866,16 @@ upsell_decision        → Upsell (log outcome) + Client Intel (update record)
 `agent_events` — event_id, event_type, source_agent, payload JSONB, client_id, status, created_at
 `agent_tasks` — task_id, event_id, agent, task_type, input_data JSONB, output_data JSONB, status, priority
 `agent_logs` — log_id, agent, task_id, level, message, metadata JSONB
+
+---
+
+# SECTION 22: OUTPUT FORMAT RULES (CRITICAL — ALWAYS APPLY)
+
+## Global Preferences Output
+When Courtney requests preferences, instructions, or rules intended for the global user preferences file (Settings > Profile): ALWAYS output as a complete ready-to-paste code block. Never describe what should change — produce the actual block.
+
+## Claude Code Instructions Output
+When generating instructions intended for Claude Code projects: ALWAYS create or amend a .md file (typically INSTRUCTIONS.md in `.claude/`). Never describe changes in chat — produce the actual file using Write or Edit tools. Then present it.
+
+## When Both Apply
+If a request generates rules relevant to both global preferences AND Claude Code, produce BOTH: the code block for preferences AND the .md file for Claude Code. Do not ask which format — deliver both.
