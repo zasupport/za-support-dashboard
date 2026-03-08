@@ -94,5 +94,11 @@ ZA_API_TOKEN=<agent bearer token>
 
 ## What is pending
 
-- [ ] DASHBOARD_PASSWORD env var not set on Vercel → session guard inactive (set in Vercel dashboard)
-- [ ] Charts — Recharts resource trend graphs on devices page (TrendCharts.tsx exists, needs wiring)
+- [x] DASHBOARD_PASSWORD set on Vercel (confirmed 08/03/2026)
+- [x] TrendCharts wired on device serial page
+- [x] ROI widget + trend chart on client page
+- [x] UpsellPanel on client page — surfaces sales recommendations with status cycling
+- [x] /api/lifecycle/radar proxy route (feeds Upgrade Radar page)
+- [x] Automated Interventions page (/interventions) with 24h/7d/30d filter
+- [ ] Lifecycle records need seeding from Scout diagnostic uploads (happens automatically on next Scout run per client)
+- [ ] Sales recommendations need generating from diagnostic findings (backend ROI engine feeds this)
