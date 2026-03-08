@@ -12,6 +12,7 @@ import { InterventionsFeed } from '@/components/InterventionsFeed';
 import { SimilarInsights } from './SimilarInsights';
 import { UpsellPanel } from './UpsellPanel';
 import { LifecyclePanel } from './LifecyclePanel';
+import { PhysicalAssessmentPanel } from './PhysicalAssessmentPanel';
 import Link from 'next/link';
 import { AutoRefresh } from '@/components/auto-refresh';
 import { notFound } from 'next/navigation';
@@ -157,6 +158,9 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
 
       {/* Device Lifecycle — upgrade radar per client */}
       <LifecyclePanel clientId={client.client_id} />
+
+      {/* Physical Assessment — last site visit findings */}
+      <PhysicalAssessmentPanel clientId={client.client_id} />
 
       {/* Business section (if applicable) */}
       {client.has_business && (
