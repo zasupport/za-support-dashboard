@@ -17,6 +17,17 @@ async function fetchMorning() {
   return res.json();
 }
 
+async function fetchTodayAlerts() {
+  try {
+    const res = await fetch(
+      `${API_URL}/api/v1/reports/interventions/fleet/recent?days=1&limit=50&action_type=alert_sent`,
+      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' },
+    );
+    if (!res.ok) return null;
+    return res.json();
+  } catch { return null; }
+}
+
 function RiskBadge({ level, score }: { level?: string; score?: number }) {
   if (!level) return <span className="text-slate-600 text-xs">No scan</span>;
   const l = level.toLowerCase();
@@ -51,8 +62,8 @@ function GradeBadge({ riskScore, riskLevel, daysSinceScan }: {
 }
 
 export default async function MorningPage() {
-  const [clients, shield, radar, checkins] = await Promise.all([
-    fetchMorning(), fetchCyberShieldSummary(), fetchUpgradeRadar(), fetchCheckinStatus(),
+  const [clients, shield, radar, checkins, todayAlerts] = await Promise.all([
+    fetchMorning(), fetchCyberShieldSummary(), fetchUpgradeRadar(), fetchCheckinStatus(), fetchTodayAlerts(),
   ]);
   const urgent = clients.filter((c: any) => c.urgency_level?.toLowerCase().startsWith('urgent'));
   const overdue = clients.filter((c: any) => (c.days_since_scan ?? 999) > 30);
@@ -75,6 +86,46 @@ export default async function MorningPage() {
           URGENT clients: {urgent.map((c: any) => `${c.first_name} ${c.last_name}`).join(', ')} — action today.
         </div>
       )}
+
+      {/* Client Alerts Sent Today */}
+      {todayAlerts && todayAlerts.count > 0 && (() => {
+        const alertItems: any[] = todayAlerts.interventions ?? [];
+        const uniqueClients = [...new Set(alertItems.map((a: any) => a.client_name).filter(Boolean))];
+        const totalValue = todayAlerts.total_value_protected ?? 0;
+        const ALERT_TYPE_SHORT: Record<string, string> = {
+          'backup.missing': 'No Backup',
+          'backup.stale':   'Stale Backup',
+          'security.posture_gap': 'Security Gap',
+          'remote_access':  'Remote Access',
+          'high_risk_score': 'High Risk',
+        };
+        const alertTypes = [...new Set(alertItems
+          .map((a: any) => a.metadata?.alert_type)
+          .filter(Boolean)
+          .map((t: string) => ALERT_TYPE_SHORT[t] || t)
+        )];
+        return (
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 rounded-md bg-teal-900/20 border border-teal-700/40 text-xs text-slate-300">
+            <span className="text-teal-300 font-semibold">Client Alerts Sent Today</span>
+            <span>
+              <span className="text-white font-bold">{todayAlerts.count}</span> alert{todayAlerts.count !== 1 ? 's' : ''} to{' '}
+              <span className="text-teal-300 font-medium">{uniqueClients.join(', ')}</span>
+            </span>
+            {alertTypes.length > 0 && (
+              <span className="text-slate-400">
+                re: {alertTypes.join(', ')}
+              </span>
+            )}
+            {totalValue > 0 && (
+              <span className="text-emerald-400 font-medium">
+                R {totalValue >= 1000 ? `${(totalValue / 1000).toFixed(0)}k` : Math.round(totalValue)} risk addressed
+              </span>
+            )}
+            <span className="text-slate-500">— No action needed, handled automatically</span>
+            <Link href="/interventions" className="ml-auto text-teal-400 hover:text-teal-300 shrink-0">View →</Link>
+          </div>
+        );
+      })()}
 
       {/* CyberShield status strip */}
       {shield && (
