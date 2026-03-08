@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { UpsellLeadActions } from '@/components/UpsellLeadActions';
 
 type Contact = {
   id: string;
@@ -26,9 +26,12 @@ type Opportunity = {
 type Recommendation = {
   id: string;
   client_id: string;
+  client_name: string;
+  first_name: string;
+  phone: string;
   product_name: string;
-  reason: string;
-  estimated_value_rand?: number;
+  roi_description: string;
+  rand_value: number;
   status: string;
   created_at: string;
 };
@@ -67,12 +70,12 @@ export function SalesClient() {
     Promise.all([
       fetch(`${base}/contacts`).then(r => r.ok ? r.json() : []),
       fetch(`${base}/opportunities`).then(r => r.ok ? r.json() : []),
-      fetch(`${base}/recommendations`).then(r => r.ok ? r.json() : []),
+      fetch(`${base}/recommendations/recent?days=365&limit=100`).then(r => r.ok ? r.json() : { recommendations: [] }),
     ])
       .then(([c, o, r]) => {
         setContacts(Array.isArray(c) ? c : c.data ?? []);
         setOpps(Array.isArray(o) ? o : o.data ?? []);
-        setRecs(Array.isArray(r) ? r : r.data ?? []);
+        setRecs(r.recommendations ?? []);
       })
       .catch(() => setError('Sales CRM API not reachable — deploy may be pending'))
       .finally(() => setLoading(false));
@@ -84,6 +87,7 @@ export function SalesClient() {
   const investecContacts = contacts.filter(c => c.investec_client);
   const openOpps = opps.filter(o => !['closed_won','closed_lost'].includes(o.stage));
   const pipelineValue = openOpps.reduce((s, o) => s + (o.value_rand ?? 0), 0);
+  const upsellValue = recs.reduce((s, r) => s + (r.rand_value ?? 0), 0);
 
   return (
     <div className="space-y-6">
@@ -103,8 +107,9 @@ export function SalesClient() {
         </Card>
         <Card className="bg-slate-800 border-slate-700">
           <CardContent className="p-4">
-            <p className="text-xs text-slate-400 mb-1">Upsell Recs</p>
-            <p className="text-2xl font-bold text-white">{recs.length}</p>
+            <p className="text-xs text-slate-400 mb-1">Upsell Pipeline</p>
+            <p className="text-2xl font-bold text-emerald-400">{fmt(upsellValue)}</p>
+            <p className="text-xs text-slate-500 mt-0.5">{recs.length} lead{recs.length !== 1 ? 's' : ''}</p>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/40 border-amber-700">
@@ -179,24 +184,38 @@ export function SalesClient() {
       {/* Upsell recommendations */}
       {tab === 'upsell' && (
         <div className="space-y-2">
-          {recs.length === 0 && <p className="text-slate-500 text-sm">No upsell recommendations yet — run a diagnostic to generate.</p>}
-          {recs.map(r => (
-            <Card key={r.id} className="bg-slate-800 border-slate-700">
-              <CardContent className="p-4 flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-white text-sm font-medium">{r.product_name}</p>
-                  <p className="text-slate-400 text-xs mt-0.5">{r.reason}</p>
-                  <p className="text-slate-500 text-xs mt-1">Client: {r.client_id}</p>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="text-teal-400 text-sm font-semibold">{fmt(r.estimated_value_rand)}</p>
-                  <span className={`text-xs px-1.5 py-0.5 rounded mt-1 inline-block ${r.status === 'accepted' ? 'bg-green-800 text-green-200' : r.status === 'rejected' ? 'bg-red-900 text-red-200' : 'bg-slate-600 text-slate-300'}`}>
-                    {r.status}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+          {recs.length === 0 && (
+            <p className="text-slate-500 text-sm">No upsell leads yet — Scout diagnostics generate these automatically.</p>
+          )}
+          {recs.map(r => {
+            const phone = (r.phone || '').replace(/\D/g, '').replace(/^0/, '27');
+            const waMsg = encodeURIComponent(
+              `Hi ${r.first_name || 'there'}, following our recent health check I have a recommendation that could make a real difference for your setup.\n\n${r.product_name}: ${r.roi_description}\n\nWorth roughly R ${Math.round(r.rand_value || 0).toLocaleString()} in value. Happy to chat this week if you have 10 minutes?\n\nKind regards,\nCourtney Bentley\nZA Support\n064 529 5863`
+            );
+            const waHref = phone ? `https://wa.me/${phone}?text=${waMsg}` : `https://wa.me/?text=${waMsg}`;
+            return (
+              <Card key={r.id} className="bg-slate-800 border-slate-700">
+                <CardContent className="p-4 flex items-start justify-between gap-4">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                      <span className="text-white text-sm font-medium">{r.client_name}</span>
+                      <span className="text-emerald-300 text-sm">{r.product_name}</span>
+                      {r.rand_value > 0 && (
+                        <span className="text-emerald-400 font-semibold text-sm">{fmt(r.rand_value)}</span>
+                      )}
+                    </div>
+                    <p className="text-slate-400 text-xs">{r.roi_description}</p>
+                  </div>
+                  <UpsellLeadActions
+                    recId={r.id}
+                    phone={phone}
+                    waHref={waHref}
+                    initialStatus={r.status}
+                  />
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>
