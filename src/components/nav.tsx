@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee, ShieldCheck, Download, Settings, BookOpen, LogOut, TrendingUp, Stethoscope, Copy, FlaskConical, Cpu, Zap, Radar, Brain } from 'lucide-react';
+import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee, ShieldCheck, Download, Settings, BookOpen, LogOut, TrendingUp, Stethoscope, Copy, FlaskConical, Cpu, Zap, Radar, Brain, ClipboardList } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GlobalSearch } from './GlobalSearch';
 
@@ -15,6 +15,7 @@ const links = [
   { href: '/job-cards', label: 'Job Cards', icon: FileText },
   { href: '/cybershield', label: 'CyberShield', icon: ShieldCheck },
   { href: '/upgrade-radar', label: 'Upgrade Radar', icon: Radar },
+  { href: '/physical-assessment', label: 'Site Assessments', icon: ClipboardList },
   { href: '/devices', label: 'Devices', icon: Monitor },
   { href: '/isp', label: 'ISP Status', icon: Wifi },
   { href: '/shield', label: 'Shield Events', icon: Shield },
