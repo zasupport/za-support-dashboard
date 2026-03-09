@@ -340,7 +340,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
           rel="noopener noreferrer"
           className="text-xs px-4 py-2 rounded-md bg-teal-700 hover:bg-teal-600 text-white font-medium transition-colors"
         >
-          Download CyberPulse Report (PDF)
+          Download Health Check Report (PDF)
         </a>
         <CreateJobButton clientId={client.client_id} />
         <PortalLinkButton clientId={client.client_id} phone={client.phone} firstName={client.first_name} />

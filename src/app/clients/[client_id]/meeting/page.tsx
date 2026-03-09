@@ -318,7 +318,7 @@ export default function MeetingPage() {
               rel="noopener noreferrer"
               className="block text-center text-xs text-teal-400 hover:text-teal-300 mt-1"
             >
-              View latest CyberPulse PDF →
+              View latest Health Check PDF →
             </a>
           )}
         </div>

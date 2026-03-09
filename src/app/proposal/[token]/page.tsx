@@ -229,7 +229,7 @@ export default function ProposalPage() {
               <div className="grid sm:grid-cols-3 gap-6">
                 {[
                   { n: '1', t: 'Courtney calls within the hour', d: 'She confirms your selection, answers any questions, and arranges your debit order mandate.' },
-                  { n: '2', t: 'Same-day activation', d: 'Health Check Scout is deployed to your Mac. Your first CyberPulse report is scheduled immediately.' },
+                  { n: '2', t: 'Same-day activation', d: 'Health Check Scout is deployed to your Mac. Your first Health Check report is scheduled immediately.' },
                   { n: '3', t: 'You stop worrying about IT', d: 'Monthly health reports. Automatic alerts. 24/7 monitoring. You know before something goes wrong.' },
                 ].map(s => (
                   <div key={s.n} className="flex gap-4">

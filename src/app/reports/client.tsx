@@ -93,7 +93,7 @@ export function ReportsClient() {
       const blob = await res.blob();
       const cd = res.headers.get('Content-Disposition') || '';
       const match = cd.match(/filename="([^"]+)"/);
-      const filename = match ? match[1] : `CyberPulse_${clientId}.pdf`;
+      const filename = match ? match[1] : `Health Check_${clientId}.pdf`;
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url; a.download = filename; a.click();
@@ -126,7 +126,7 @@ export function ReportsClient() {
       const blob = await res.blob();
       const cd = res.headers.get('Content-Disposition') || '';
       const match = cd.match(/filename="([^"]+)"/);
-      const filename = match ? match[1] : `CyberPulse_Preliminary_${clientId}.pdf`;
+      const filename = match ? match[1] : `Health Check_Preliminary_${clientId}.pdf`;
       const shareUrl = res.headers.get('X-Share-URL') || '';
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -185,7 +185,7 @@ export function ReportsClient() {
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm text-white flex items-center gap-2">
-            <FileText size={14} /> Generate CyberPulse Assessment
+            <FileText size={14} /> Generate Health Check Diagnostic
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">

@@ -27,7 +27,7 @@ export function PortalLinkButton({
       const pUrl: string = pd.portal_url;
       setPortalUrl(pUrl);
 
-      // 2. Generate CyberPulse PDF share link (X-Share-URL header)
+      // 2. Generate Health Check PDF share link (X-Share-URL header)
       let sUrl = '';
       try {
         const sr = await fetch(`/api/reports/demo`, {
@@ -58,7 +58,7 @@ export function PortalLinkButton({
       portalUrl,
     ];
     if (shareUrl) {
-      lines.push('', 'Your CyberPulse Assessment report (PDF):', '', shareUrl);
+      lines.push('', 'Your Health Check Diagnostic report (PDF):', '', shareUrl);
     }
     lines.push(
       '',

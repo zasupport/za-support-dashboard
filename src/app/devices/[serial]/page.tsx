@@ -304,7 +304,7 @@ export default async function DeviceDetailPage({ params }: { params: Promise<{ s
             rel="noopener noreferrer"
             className="text-xs px-4 py-2 rounded-md bg-teal-700 hover:bg-teal-600 text-white font-medium transition-colors"
           >
-            Download CyberPulse Report (PDF)
+            Download Health Check Report (PDF)
           </a>
           <CreateJobButton clientId={diag.client_id} serial={serial} />
         </div>

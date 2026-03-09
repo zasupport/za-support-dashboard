@@ -222,7 +222,7 @@ export default async function SiteVisitBriefPage({ params }: { params: Promise<{
           rel="noopener noreferrer"
           className="text-xs px-4 py-2 rounded-md bg-teal-700 hover:bg-teal-600 text-white font-medium transition-colors print:hidden"
         >
-          Download CyberPulse Report
+          Download Health Check Report
         </a>
         <Link
           href={`/clients/${client.client_id}`}

@@ -156,7 +156,7 @@ This rule applies to ALL chats, ALL sessions, indefinitely — no exceptions.
 Order of priority for ALL development work:
 1. Current clients — anything that directly improves service delivery NOW
 2. Health Check Scout (diagnostic engine) — core value proposition
-3. CyberPulse Dashboard — client-facing visibility
+3. Health Check Dashboard — client-facing visibility
 4. Health Check AI v11 backend — data engine
 5. New modules and features (planned backlog)
 NEVER let new features delay fixes or improvements for active clients.
@@ -382,7 +382,7 @@ app/modules/{module_name}/
 - Results captured in: `physical_assessment` module
 - What to capture: RFID/NFC vulnerabilities, sub-GHz signal analysis, IR device inventory, BadUSB exposure, Bluetooth device enumeration
 - Every physical assessment report must include a "Physical Security" section with Flipper findings
-- Risk rating: use same Critical/High/Moderate/Low scale as CyberPulse
+- Risk rating: use same Critical/High/Moderate/Low scale as Health Check
 
 ## Photo-to-Asset-Register Pipeline
 - During site visits: photos taken of all devices (printers, switches, routers, cameras, UPS, servers, cabling)
@@ -573,6 +573,14 @@ For repetitive web tasks (Render env var updates, Vercel config, etc.):
 
 ## Rule — ALWAYS APPLY
 Whenever ANY third-party software is encountered on a client machine (during audit, diagnostic, repair, or assessment), analyse it for features, data collection methods, and capabilities that ZA Support products should incorporate or compete against.
+
+## Auto-Research Rule (PERMANENT — ALL SESSIONS)
+When any UNFAMILIAR application, process name, or tool is observed on a client machine (screenshots, diagnostic output, process lists, file listings):
+- ALWAYS research it immediately via WebSearch — never ask Courtney what it is
+- Determine: legitimate / piracy / malware-adjacent / system risk / ZA Support installed
+- Factor the finding into the diagnosis without prompting
+- If competitive product: run the full Section 15 competitive intelligence analysis
+See also: Rule 2.33 in Section 29.
 
 **Origin:** ESET audit on Gillian Pearson's machine (06/03/2026) revealed 12 data collection gaps in Scout — process ancestry, outbound network connections, DNS queries, crash telemetry, code signing verification, firmware status. This produced Phase 19 and enhancements to Phases 13 and 18.
 
@@ -1213,7 +1221,7 @@ without anyone having to ask. Every automated action MUST be logged in real-time
 ### What Counts as an Automated Action
 - Scout detected a backup failure → Workshop job created automatically
 - Health Check detected new threat pattern → alert email sent
-- Monthly CyberPulse report generated and delivered without request
+- Monthly Health Check report generated and delivered without request
 - Patch monitor detected OS update available → client notification sent
 - ISP outage detected → client alerted before they experienced it
 - UniFi event processed → escalation created automatically
@@ -1235,7 +1243,7 @@ AUTOMATED THIS MONTH — Zero intervention required from you
 
   15/02/2026  Backup failure detected → job logged + alert sent       R 2,500 risk addressed
   18/02/2026  macOS update alert delivered automatically               R 45,000 exposure flagged
-  01/03/2026  Monthly CyberPulse report generated + delivered          R 899 manual work saved
+  01/03/2026  Monthly Health Check report generated + delivered          R 899 manual work saved
   01/03/2026  CyberShield: 3 threats blocked, 1 phishing site blocked  R 35,000 exposure prevented
 
   Automated actions this month:  4
@@ -1433,7 +1441,7 @@ Priority = client-facing value TODAY × dependency unblocking × gap criticality
 ✓ report_delivery silent failure fixed | ✓ Render health monitor (launchd, every 5 min)
 
 ## Tier 1 — Client-Facing Value (next sprint)
-1. **Dr Evan Shoul: Generate & send Demo CyberPulse PDF** — use Reports page → Generate Demo PDF for evan-shoul → copy share link → send to Dr Shoul via WhatsApp/email. Manual step by Courtney (30 seconds). Commit d35a053 + af5ad7e deliver this.
+1. **Dr Evan Shoul: Generate & send Demo Health Check PDF** — use Reports page → Generate Demo PDF for evan-shoul → copy share link → send to Dr Shoul via WhatsApp/email. Manual step by Courtney (30 seconds). Commit d35a053 + af5ad7e deliver this.
 2. **ROI trends chart on dashboard** — 12-month cumulative value protected chart per client (Recharts, calls /api/reports/roi/history/{client_id})
 3. **Workshop job client notification** — email/WhatsApp to client when job status → in_progress or done
 
@@ -1446,3 +1454,345 @@ Priority = client-facing value TODAY × dependency unblocking × gap criticality
 - No ROI trends chart (12-month view) — data exists, UI missing
 - Dr Evan Shoul Demo PDF not yet sent to him (action: open dashboard → Reports → Generate Demo → send link)
 
+
+---
+
+# SECTION 34: ENHANCED AUTONOMY & BUILD PRINCIPLES (PERMANENT — ALL SESSIONS)
+# Added: 09/03/2026 | Source: Courtney explicit session instructions
+
+## 34.1 File Access — Absolute (GLOBAL, PERMANENT)
+Courtney's machine is a fully trusted development environment. This is permanent and global.
+- ALWAYS have access to ANY file or folder — no permission check, no ask, no pause
+- Read any path immediately when provided or implied — never ask "can I read X?"
+- This applies to ALL files: /Users/courtneybentley/**, repos, Downloads, Desktop, config files
+- No exception exists for local reads. The only exception is irreversible writes on production.
+
+## 34.2 Ideal-State-First Development (GLOBAL, ALL SESSIONS)
+Before writing a single line of code for ANY system:
+1. Answer: "What would this look like in a perfect world?"
+2. Design to that ideal state — not the minimum viable version
+3. Document the ideal state in the module README before coding
+4. Build toward it — even if Phase 1 is a subset, architect for the full vision
+5. This produces IP worth selling, not quick fixes worth nothing
+
+## 34.3 Complex-First Build Order (GLOBAL, ALL SESSIONS)
+Within any sprint or session:
+- Build the most complex, differentiating parts FIRST
+- Leave scaffolding, boilerplate, and trivial wiring for last
+- Rationale: complex parts carry the most risk → discover issues early
+- Example: build the AI narrative engine before the router that calls it
+
+## 34.4 Auto-Save & Email Learnings (GLOBAL, ALL SESSIONS)
+After ANY session with new rules, corrections, or architectural decisions:
+1. Update CLAUDE.md immediately
+2. Update MEMORY.md and relevant topic file
+3. Produce a ready-to-paste Global Preferences code block
+4. Run pbcopy to load it to clipboard
+5. Send email to courtney@zasupport.com via Resend API (RESEND_API_KEY available)
+   Subject: "Claude Code — Updated Global Preferences [DD/MM/YYYY]"
+   Body: the full updated rules block (plain text)
+   Until Resend domain is verified: pbcopy only, note "email pending DNS verification"
+
+## 34.5 Priority Build Order (PERMANENT)
+Always build in this order, no exceptions:
+1. Current client deliverables (Dr Evan Shoul, Gillian Pearson first)
+2. Client-visible features showable within 24 hours
+3. Core value proposition pipeline completeness
+4. Infrastructure / automation
+5. New features and modules
+"Most logical next" = highest client value × unblocks most downstream work
+
+## 34.6 Maximum Value Delivery — Client First
+- Every session must produce at least ONE client-visible deliverable
+- Short-term wins are critical — show value fast
+- The most robust architecture must always be chosen over the fastest hack
+- If two approaches exist: always pick the one that would impress a client most
+
+## 34.7 Duplicate Content Check (EVERY 15 MINUTES — ALL SESSIONS)
+Every 15 minutes of active build work:
+1. Scan current file being edited for duplicate functions, duplicate routes, duplicate logic
+2. If found: output the word DUPLICATED in a code block, identify the duplicate, remove it
+3. Scan MEMORY.md for duplicate entries — merge if found
+4. This prevents bloat, reduces build errors, and keeps the codebase clean
+
+## 34.8 File Compression Check (EVERY 15 MINUTES — ALL SESSIONS)
+Every 15 minutes:
+1. Check if any file being worked on exceeds 500 lines — if so, split into logical submodules
+2. Check if MEMORY.md exceeds 200 lines — if so, move older sessions to topic files
+3. Do NOT compress if the content complexity requires the full length (e.g. complex AI pipeline)
+4. Rule: compress when it saves tokens WITHOUT losing quality or build capability
+
+## 34.9 API Key Naming Convention (ALWAYS USE)
+When creating or referencing any new API key, use this naming standard:
+- Format: `ZA_[SERVICE]_[PURPOSE]` for internal keys
+- Format: `[SERVICE]_API_KEY` for third-party service keys (standard)
+- Always include a description comment next to the key in .env.example
+- Always add to ~/.za-keys-pending.env AND api-keys.md immediately on receipt
+
+## 34.10 Full-Auto Command Set (PERMANENT — ALL SESSIONS)
+These commands execute immediately without confirmation:
+| Command | Action |
+|---|---|
+| /full-auto | Work through ALL pending Section 30 items until done or blocked |
+| /build | Build #1 item from Section 30 build queue |
+| /status | One-line: built, next, blockers |
+| /ship | git commit + push + verify deploy |
+| /sync | Update CLAUDE.md + MEMORY.md + produce GP code block + pbcopy |
+| go / next / yes / proceed / do it | Execute item #1 from last presented queue |
+| A number (1, 2, 3) | Execute that numbered item from most recent list |
+
+## 34.11 Uploaded Software — Instant Intelligence Extraction (GLOBAL, ALL SESSIONS)
+When ANY software, source code, app, binary, script, or tool is uploaded or path-provided:
+1. Immediately read and analyse: sensor methods, data points, UI patterns, algorithms
+2. Cross-reference against Scout phases (1–26), dashboard, and backend modules
+3. Build ALL missing data points as ADDITIONS to relevant modules — never replace
+4. If new module needed: create it with full router/service/migration structure
+5. Update CLAUDE.md Section 17 with new Scout capabilities
+6. Commit: "feat: Scout additions from [software] analysis"
+This applies even if the software upload is not explicitly mentioned as an instruction source.
+
+## 34.12 Build-Then-Execute (No Instruction Lists)
+NEVER output a list of commands for Courtney to run manually.
+ALWAYS execute those commands directly via Bash tool.
+This includes: curl, git, npm, pip, migrations, API calls, deployments.
+The only exception: irreversible destructive operations (state intent once, then run).
+# SECTION 35: FOUNDATIONAL DATA & FILE RULES (FROM INSTRUCTIONS-5.md — PERMANENT)
+
+## Rule 1: Data Permanence
+NEVER delete data because it appears "closed", "legacy", "completed", or "old". All data is valuable. Completed client records, past repair cases, historical decisions, resolved issues — all contain patterns, relationships, referral potential, and intelligence. When data appears outdated: amend it with current status. Never remove it.
+
+## Rule 2: File Permanence
+NEVER delete files. Only amend. INSTRUCTIONS.md and any other .md reference files must only be amended with new information, corrections, or status updates. Previous content is never removed unless factually incorrect (in which case: correct it and note the correction with date). Applies across all Claude Code projects and all Claude.ai project chats.
+
+## Rule 3: Constraint Workarounds
+When a feature has a hard limit (e.g., 30 memory entries), the value of the data doesn't change — find alternative storage. INSTRUCTIONS.md / CLAUDE.md has no size limit and serves as the primary data store. Memory entries are supplementary quick-reference. Never accept "memory is full" as a reason not to capture critical data.
+
+## Rule 4: Completeness Over Brevity
+When scanning for information: scan ALL available sources — past chats, memory, project files, uploaded documents. Never exclude data because it seems irrelevant. Missing data causes inaccurate outputs. Excessive data does not.
+
+---
+
+# SECTION 36: STANDARDS EXTENSIONS (FROM INSTRUCTIONS-5.md)
+
+## Company Details (Extended)
+- Maps: https://maps.app.goo.gl/E1agQ3ZZ6va73ano9
+- Email: admin@zasupport.com | courtney@zasupport.com | mary@zasupport.com
+- Owner ID: 9004175217085 (required in all debt correspondence)
+- Paper size: A4
+
+## Language & Tone
+- UK English: colour, authorisation, centre, analyse, organisation, programme
+- Tone: Measured, factual. NEVER use: "enterprise-grade", "best-in-class", "cutting-edge", "game-changer", "revolutionary", "world-class"
+- Terminal format: code blocks with "Copy only this line:" prefix when instructing clients
+
+## Document Colour Palette (ALL reports)
+- TEAL: #27504D | GREEN: #0FEA7A | DARK_TEXT: #333333
+- MID_TEXT: #4A4D4E | LIGHT_BG: #F5F5F5 | ROW_ALT: #E8F4F3
+
+## Client Report Rules (CRITICAL)
+- NO brand names, NO tool names, NO technical methods in client-facing documents
+- Apple product names are OK (macOS, MacBook, iCloud)
+- NEVER mention: OCLP, Crucial, ddrescue, Autopsy, specific vendor names
+- When corrections requested: immediately regenerate the entire document. NEVER ask "would you like me to update?" — just do it.
+- Sample report appendix mandatory in all proposals
+
+## Password Vault Rule
+- ZA Support sets passwords ONLY for: work systems, IT infrastructure, software subscriptions
+- NEVER set, store, or handle: banking passwords, financial passwords, personal email passwords
+- If client asks us to set a bank password: decline, explain the boundary
+
+---
+
+# SECTION 37: TECHNICAL LEARNINGS (FROM INSTRUCTIONS-5.md)
+
+## OCLP Critical Rules
+- Background macOS updates strip OCLP patches — ALWAYS disable auto-update + corresponding LaunchDaemon after OCLP install
+- Create new admin user BEFORE running Migration Assistant on OCLP machines
+- Ventura preferred over Sonoma for legacy hardware (better driver compatibility)
+- MacBookPro11,4 = single GPU (Intel Iris Pro ONLY) — NOT 11,5 (which has dual GPU). Critical for OCLP decision.
+- After OCLP install: verify SIP status, verify patches applied, test sleep/wake before handing back
+
+## Hardware Notes
+- MacBook Pro A1278: keyboard and trackpad are RIVETED to the top case — cannot replace independently
+- T2 and Apple Silicon machines: hardware write blockers are useless for forensics — encryption is chip-level (software-only recovery)
+- APFS with zeroed data = unrecoverable — do not attempt if drive was zeroed
+- `createinstallmedia` syntax: no `--applicationpath` flag on modern macOS. Volume name = `MyVolume`
+
+## Post-Migration Storage Bloat
+"Other Users & Shared" folder bloat is common after macOS upgrades and Migration Assistant.
+- Check: /Users/Shared/Relocated Items/ — legacy app support files moved here automatically
+- Check: orphaned user profiles (in /Users/ but account deleted from System Preferences)
+- Verify: `dscl . -list /Users` vs actual /Users/ directories — mismatch = orphaned profile
+- Do NOT run cleanup scripts without confirming target path — clients have run scripts against wrong location (Yuanita Buitendag case, 06/03/2026)
+
+## Thermal & Performance
+- ESET (and similar AV) is a top thermal contributor on older Intel Macs — quantify per-process power draw in every diagnostic
+- After AV removal: always measure temperature delta and include in report (demonstrates value)
+
+## Forensic Hardware
+- WiebeTech USB WriteBlocker via Cyanre (~R4,500–5,500 landed) — required for court-admissible evidence
+- Tier 2: Tableau T35u SATA bridge (~R4,000)
+- 2018+ Mac internal drives: software-only (T2/AS encryption defeats hardware blockers)
+- Certifications to pursue: CFCE/EnCE (months 3–6 of forensic practice)
+
+---
+
+# SECTION 38: SECURITY SOFTWARE BENCHMARKS
+
+## ESET Reference Profile (from Gillian Pearson audit, 06/03/2026)
+Machine: MacBook Pro 13" Mid 2012, 16 GB RAM
+- RAM usage: 446 MB (2.7% of 16 GB)
+- CPU: ~2% continuous
+- Processes: 9 active
+- Kernel extensions: 2 kexts loaded
+- Crash dumps: 6 (in /Library/Logs/DiagnosticReports)
+
+## AV Resource Benchmark Table
+| Product | RAM | CPU | Notes |
+|---|---|---|---|
+| ESET | 400–500 MB | 1–3% | High kext count |
+| Norton | 300–600 MB | 1–4% | Variable |
+| McAfee | 400–700 MB | 2–5% | Heaviest |
+| Malwarebytes | 100–200 MB | <1% | Lightest commercial |
+| macOS built-in (XProtect) | <10 MB | <0.1% | Recommended baseline |
+| CyberShield | 0 MB | 0% | Network-level, no agent |
+
+Upsell trigger: Any AV using >200 MB RAM or >1% sustained CPU → CyberShield upsell conversation
+
+---
+
+# SECTION 39: EXTENDED CLIENT REGISTRY
+
+## Active Cases
+
+**Neil Brandt** — MacBook Pro 16" 2019. macOS Tahoe beta installed. Battery: 1,310 cycles, 74.7% health (requiring service). Spotlight causing CPU/thermal issues. FileVault DISABLED — security risk. Dual accounts (Admin + Neil Brandt) causing iCloud/Google Drive sync conflicts. Diagnostic v2.3 console feedback requested. Status: monitoring.
+
+**Roger Naidoo** — MacBook Pro 16" 2019. Serial: C02ZPLLHMD6P. 2.6 GHz i7, 16 GB DDR4, Intel UHD 630, Sequoia 15.7.4. Forensic case: Marcella Cave — 90 GB Outlook database deleted by third-party IT. APFS snapshots found pre-deletion. Automated forensic imaging script created. Recovery path identified. Status: in progress.
+
+**Kim Ayoub** — 21" iMac. RAM upgrade attempt — screen opened (RAM on back of logic board). Machine stopped after opening. Rogue Ware SSD via SATA-USB adapter (taped inside). Replacement logic board available. Full diagnostics pending. RAM photo TBC. Status: awaiting machine return.
+
+**Steve Pillinger** — 27" iMac. Health Check enrolled (R1,500/year). Previously upgraded (max RAM + large SSD). Slowness returned. Model/year and diagnostic output still needed. Status: model confirmation required before deployment.
+
+**Richard Meade** — MacBook Pro 15" Mid 2015. MacBookPro11,4 (SINGLE GPU — Intel Iris Pro ONLY, NOT 11,5). A1398, EMC 2909, Serial C02T41M2G8WL. Black screen after background update stripped OCLP patches during sleep. Reinstalling on Ventura. Status: repair in progress.
+
+**Dr Anton Meyberg** — Practice: "Dr's Pieterse, Hunt, Meyberg, Laher & Associates", Johannesburg. UniFi network. CyberShield prospect. Status: active monitoring.
+
+**Charles Chemel** — NTT Data ISP. UniFi Site Manager. Status: monitored.
+
+**Zoë Jewell** — Consumer/family client. Full UniFi network. CyberShield Home prospect. Gryphon parental router identified — likely causing double NAT. Proposed: Gryphon to bridge/AP mode, UX7 as sole router. "Gryphon protects the children. CyberShield protects the household." Gryphon model confirmation needed. Status: awaiting model.
+
+**Kiara Pettersson** — Dead logic board (256 GB/8 GB machine). Model still needed for repair-vs-replace cost analysis. Logic board replacement estimated R7,000. Apple Experts letterhead (not a doctor). Status: model confirmation needed.
+
+**Stephen Laufer** — TWO machines:
+(1) MacBook Pro 13" Late 2011, Serial C02H3QKFDV13, Sonoma via OCLP, 16 GB DDR3, Intel HD 3000. Recurring crashes (WindowServer SIGSEGV — HD 3000 lacks native Sonoma driver). Three-option recommendation delivered: revert Ventura / continue Sonoma / replace.
+(2) MacBook Air 13" Early 2015 — retained as primary (smoother for streaming/email/photos). MacBook Pro 9,1 as secondary. 8,2 model disposed.
+Also: needed Office 2019 for Mac download. Boot hang resolved via clean Ventura install. Status: monitoring 2015 Air.
+
+## Completed Cases (Retained per Section 35 Rule 1)
+
+**Hilton Gilfillan** — Mac persistent WiFi issues. Standard troubleshooting failed (config deletion, new locations, DHCP). Advanced 10-step guide delivered: SMC reset, NVRAM, DNS flush, manual DNS, Safe Mode, Apple Diagnostics, router config, test account, macOS reinstall. Apple Experts letterhead. PDF + DOCX.
+
+**Linda Forrest** — MacBook Air 15" M3 2024. Time/date preferences guide + Console data export guide. Chrome Remote Desktop privacy gates guide. Apple Experts letterhead.
+
+**Yuanita Buitendag** — Monterey → Sonoma upgrade. 66 GB "Other Users & Shared" post-migration bloat. Cleanup script run against WRONG location by client (/Library/Updates instead of /Users/). Bootstrap daemon error after cleanup (SIP-protected, self-recovered on reboot). Recovery + storage diagnosis PDF delivered. KEY LEARNING: always confirm exact target path before client runs cleanup scripts.
+
+**Marlene Defries** — 27" iMac (iMac19,1). OCLP Sequoia install, 10 hours, 50% discount. Spotlight indexing repair = 75% of time. KEY LEARNING: never mention OCLP, Crucial, or technical method names in client docs. Multiple regenerations required to remove prohibited content.
+
+**Marcus Kerigan** — 27" iMac Late 2015. Storage full ("No space left"). OCLP Sonoma upgrade planned. KEY LEARNING: on storage-full + old macOS, skip troubleshooting current install, go straight to clean install with OCLP. Mary workshop guide created with scenario-based procedures.
+
+**Jason Raw** — MacBook Pro 13" M1 2020, Serial FVFGP0UPQ5D (corrected from initial A2338). Keyboard malfunction, liquid damage right side. Logic board clean. Top case replacement R11,999 excl VAT. Repair borderline (73–93% of machine value). Full repair guide + liquid damage assessment.
+
+**Tom Walzel** — MacBook Air 13" Mid 2017, A1466, EMC 3178, Serial FVHV7LGM1JWK. Battery replacement + suspected liquid damage. No-power condition (no battery or adapter response). 11-phase diagnostic script + PDF. Component mapping: J6800 battery, J4800 keyboard ZIF, U5310 SMC, J4900 trackpad ZIF, F7040 fuse. Fuse continuity test is priority step.
+
+**CJ Chinelle** — MacBook Air. OCLP Sequoia upgrade. Thermal shutdowns + rapid battery drain (76% → 8%). SMC controller corruption suspected. Comparative diagnostic between failing and working machines. Single-command automated diagnostic established as standard (60-second capture + background monitoring).
+
+**Atlas Maharaj** — MacBook Pro 14" 2024 (A3112, M4 Base, Space Black). Top case replacement R17,999 excl VAT (approved, parts received). 8 hours labour. RAM/storage soldered M4 — cannot determine from photos (serial needed for spec lookup). Apple Self Service Repair manual project transfer initiated.
+
+**Kirsten Dörmann** — MacBook Pro Mid 2010 (MacBookPro7,1). Core 2 Duo, 8 GB RAM, Snow Leopard original. 256 GB storage full, swollen battery affecting trackpad + flex cable. Upgrade ceiling: Mojave 10.14.6 via OCLP. Recommended: 500 GB SSD + battery/trackpad/flex + Mojave. Total R8,286 incl VAT. KEY LEARNING: WhatsApp formatting established here (numbered lists, blank lines between items).
+
+**Dr Rohan Ramjee** — iPad date/time issue. Old iPad → new WiFi-only iPad transfer broke automatic date/time. Cause: Location Services for Time Zone disabled during transfer. "Reset All Settings" as cleanest fix. IT Specialist + Medical IT Specialist branding (doctor client).
+
+**Lizbé Murray** — MacBook Pro 14" 2023, A2779. Display diagnostic — screen vs logic board. Display connector disconnect test guide. 28-step ZA Support branded technical guide. Closed-clamshell mode for external display testing.
+
+**Ingrid Kast** — Gmail sync discrepancy. 41 missing sent emails, 4 missing inbox. Diagnostic: recent-first comparison, date-range search operators.
+
+**Erin Conway** — Referenced in Apple Repair Guide project. Specific case details in Workshop PKG project.
+
+## Forensic Practice
+- **Active case:** Marcella Cave (via Roger Naidoo) — 90 GB Outlook database deleted. APFS snapshots found pre-deletion (recovery path exists).
+- **Referral partner:** Cyanre / Marius: marius@cyanre.co.za | +27 82 468 2352
+- **Forensic supplier:** TCG / Craig: craig@tcgforensics.co.za | 010 110 0904
+- **Software:** ddrescue, foremost, scalpel, Autopsy, FTK Imager (free). Year 2: AXIOM R45–65K/yr
+- **Supplier comms protocol:** (1) email admin@zasupport.com (2) WhatsApp to cell (3) info checklist. Always request BOTH manager AND executor cell numbers. Get ZAR price, lead time, Mac compatibility, quote reference.
+
+## Forensic Pricing
+- Acquisition only: R3,500–R5,500
+- File recovery: R6,500–R9,500
+- Email recovery: R8,500–R14,000
+- Litigation support: R12,000–R18,500
+- Expert witness report: R8,000–R15,000
+
+---
+
+# SECTION 40: PENDING DATA ITEMS (BLOCKS SPECIFIC ACTIONS)
+
+| Client | Missing Item | What It Blocks | Action Required |
+|---|---|---|---|
+| Steve Pillinger | iMac model/year | Health Check AI v11 deployment | Run system_profiler or About This Mac screenshot |
+| Kiara Pettersson | Machine model | Repair-vs-replace cost analysis | Confirm from serial or physical inspection |
+| Kim Ayoub | RAM chip photo | Logic board diagnosis | Take photo when machine opened |
+| Zoë Jewell | Gryphon model | Bridge mode recommendation + CyberShield proposal | Check Gryphon app or model label |
+| Dr Evan Shoul | Full network topology | Complete UniFi site documentation | Capture IP scheme, VLANs, SSIDs on next visit |
+| Gillian Pearson | ESET licence status | Complete cleanup (remove or keep) | Ask client directly |
+| Gillian Pearson | TeamViewer confirmation | Security assessment completion | Confirm if client installed/uses it |
+| Gillian Pearson | Macs Fan Control | Audit classification | Confirm if ZA Support installed |
+| Neil Brandt | Diagnostic v2.3 console output | Root cause analysis for freezing/sync | Machine must stay powered on for background check |
+| Norman (Gillian's husband) | Introduction | SME lead follow-up | Initial contact after Gillian's job completes |
+
+---
+
+# SECTION 41: LEGAL MATTERS (REFERENCE — RETAINED PER RULE 1)
+
+## Matter 1: FNB Fusion — Personal (PRIMARY ACTIVE)
+Case: 2026-019864. Firm: Brooks & Luyt Inc., 10 Philips St, Ferndale, Randburg, 2194. Tel 011 543 9737.
+Key contacts: Kellyn Chetty (Candidate Attorney), Shahista Carrim (SCarrim@brooksluyt.co.za). General: attorney@brooksluyt.co.za.
+Combined Summons served: 03/02/2026. Defence: in propria persona. Notice of Intention to Defend filed: 11/02/2026.
+Court: Ms Magidela Euginia, Florence FMaphutha, Mokoala Julia (all @justice.gov.za).
+Assessment: aggressive, fishing tactics.
+
+## Matter 2: FNB — ZASUPPORT CC Business (REFERENCE)
+Case: 4559/2025, Ref 12186508. Same firm (Brooks & Luyt). Payment framework: Cheque R5,000/mo, Credit Card R1,500/mo. Feb status: full payments confirmed.
+
+## Matter 3: Toyota — HP Attorneys
+Email: hpattorneys@hpd.co.za. Reply contact: Xitshembiso Nobunga (GugulethuM@hpd.co.za). Tel 010 592 1873, WhatsApp 066 335 3996. Ref [MID:HP9791120:] [LFID:731:] [CPNID:10461:]. Position: payment arrangement in place and honoured.
+
+## Matter 4: Discovery Bank
+Automated R100 reminder. Payment already made, confirmation sent. Monitor for further correspondence.
+
+## Legal Communication Rules (ALL DEBT CORRESPONDENCE)
+- Header: WITHOUT PREJUDICE AND RESERVING ALL RIGHTS
+- Position as accepted fact (no response windows, no exits given to the other side)
+- No admission of liability. Payments = good faith only, not acknowledgment of debt
+- DEFENSIVE posture only — never "we will sue" or offensive language
+- Email only (creates paper trail)
+- Include ID number 9004175217085 in all debt correspondence
+- Salutation: "Dear Sirs."
+
+---
+
+# SECTION 42: RELATED PROJECTS & PLANNED SAAS
+
+## Apple Repair Guide With Images
+Separate Claude project. Purpose: archive Apple Self Service Repair manuals with images for Workshop PKG. Covers MacBook Pro M4, expansion planned to all current models. Key clients referenced: Stephen Laufer, Erin Conway, Marlene Defries, Marcus Kerigan, Yuanita Buitendag. Status: ongoing.
+
+## Forensic Software Project
+Separate Claude project. Contains: chain-of-custody generator, case intake form, procurement templates, WiebeTech order tracking. Integrates with Health Check AI v11 forensic module.
+
+## Workshop PKG — Global SaaS Vision
+Repair management system for ZA Support internal use, with planned expansion as global SaaS platform for independent repair shops. Features: job tracking, parts inventory, client communication, automated repair workflow (assessment → quote → authorisation → repair → collection). Standardised diagnostic procedures = billable IP that differentiates from generic repair shops. Target: licence to other Apple repair businesses globally.
+
+## Extended Warranty Bundle Pricing
+- Bundle 1 (Basic — keyboard + trackpad): R999
+- Bundle 2 (Standard — keyboard + trackpad + screen + MagSafe): R1,999
+- Bundle 3 (Comprehensive — all GREEN + YELLOW components): R3,499
+Exclude: Battery, cables, Butterfly keyboard (RED — never warranty)

@@ -14,7 +14,7 @@ export async function GET(
     const res = await fetch(url, { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' });
     if (!res.ok) return NextResponse.json({ error: await res.text() }, { status: res.status });
     const pdf = await res.arrayBuffer();
-    const disposition = res.headers.get('content-disposition') || 'inline; filename="CyberPulse_Report.pdf"';
+    const disposition = res.headers.get('content-disposition') || 'inline; filename="Health Check_Report.pdf"';
     return new NextResponse(pdf, {
       status: 200,
       headers: { 'Content-Type': 'application/pdf', 'Content-Disposition': disposition },
