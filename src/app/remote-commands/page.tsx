@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -249,7 +249,7 @@ function QueueModal({
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 
-export default function RemoteCommandsPage() {
+function RemoteCommandsContent() {
   const searchParams = useSearchParams();
   const initialClientId = searchParams.get('client_id') ?? '';
 
@@ -522,5 +522,13 @@ export default function RemoteCommandsPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function RemoteCommandsPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-slate-400">Loading...</div>}>
+      <RemoteCommandsContent />
+    </Suspense>
   );
 }
