@@ -1,0 +1,51 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual deploy'
+        required: false
+        default: 'Manual trigger'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript check
+        run: npx tsc --noEmit
+
+      - name: Deploy to Vercel
+        run: |
+          npx vercel --token=${{ secrets.VERCEL_TOKEN }} \
+            --prod \
+            --yes \
+            -e ZA_API_URL=${{ secrets.ZA_API_URL }} \
+            -e ZA_API_TOKEN=${{ secrets.ZA_API_TOKEN }} \
+            -e DASHBOARD_PASSWORD=${{ secrets.DASHBOARD_PASSWORD }}
+
+      - name: Notify via ntfy
+        if: always()
+        run: |
+          JOB_STATUS="${{ job.status }}"
+          if [ "$JOB_STATUS" = "success" ]; then
+            MSG="✅ Dashboard deployed — zasupport.com/dashboard"
+          else
+            MSG="❌ Dashboard deploy FAILED — check GitHub Actions"
+          fi
+          curl -s -d "$MSG" "https://ntfy.sh/zasupport-courtney-alerts" \
+            -H "Title: ZA Support Deploy" \
+            -H "Priority: high" || true
