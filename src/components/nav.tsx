@@ -1,9 +1,10 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee, ShieldCheck, Download, Settings, BookOpen, LogOut, TrendingUp, Stethoscope, Copy, FlaskConical, Cpu, Zap, Radar, Brain, ClipboardList, MessageCircle, KeyRound, Terminal } from 'lucide-react';
+import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee, ShieldCheck, Download, Settings, BookOpen, LogOut, TrendingUp, Stethoscope, Copy, FlaskConical, Cpu, Zap, Radar, Brain, ClipboardList, MessageCircle, KeyRound, Terminal, Inbox } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GlobalSearch } from './GlobalSearch';
+import { useEffect, useState } from 'react';
 
 const links = [
   { href: '/', label: 'Dashboard', icon: Monitor },
@@ -18,6 +19,7 @@ const links = [
   { href: '/upgrade-radar', label: 'Upgrade Radar', icon: Radar },
   { href: '/physical-assessment', label: 'Site Assessments', icon: ClipboardList },
   { href: '/remote-commands', label: 'Remote Commands', icon: Terminal },
+  { href: '/unassigned-machines', label: 'Unassigned', icon: Inbox },
   { href: '/devices', label: 'Devices', icon: Monitor },
   { href: '/isp', label: 'ISP Status', icon: Wifi },
   { href: '/shield', label: 'Shield Events', icon: Shield },
@@ -39,7 +41,7 @@ const links = [
   { href: '/system', label: 'System Health', icon: Settings },
 ];
 
-// Top 5 links shown in mobile bottom nav
+// Top links shown in mobile bottom nav
 const mobileLinks = [
   { href: '/', label: 'Home', icon: Monitor },
   { href: '/morning', label: 'Brief', icon: Coffee },
@@ -51,6 +53,25 @@ const mobileLinks = [
 
 export function Nav() {
   const pathname = usePathname();
+  const [unassignedCount, setUnassignedCount] = useState(0);
+
+  useEffect(() => {
+    async function fetchUnassignedCount() {
+      try {
+        const res = await fetch('/api/commands/summary', { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+        setUnassignedCount(data.unassigned_machines_count ?? 0);
+      } catch {
+        // non-fatal — badge just won't show
+      }
+    }
+    fetchUnassignedCount();
+    // Refresh count every 5 minutes
+    const interval = setInterval(fetchUnassignedCount, 300000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <>
       {/* Desktop sidebar */}
@@ -60,21 +81,30 @@ export function Nav() {
           <GlobalSearch />
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          {links.map(({ href, label, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors',
-                pathname === href
-                  ? 'bg-slate-700 text-white'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              )}
-            >
-              <Icon size={16} />
-              {label}
-            </Link>
-          ))}
+          {links.map(({ href, label, icon: Icon }) => {
+            const isUnassigned = href === '/unassigned-machines';
+            const showBadge = isUnassigned && unassignedCount > 0;
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={cn(
+                  'flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors',
+                  pathname === href
+                    ? 'bg-slate-700 text-white'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                )}
+              >
+                <Icon size={16} />
+                <span className="flex-1">{label}</span>
+                {showBadge && (
+                  <span className="bg-orange-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">
+                    {unassignedCount}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
         </nav>
         <div className="px-3 py-3 border-t border-slate-700">
           <button
