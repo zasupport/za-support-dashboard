@@ -7,6 +7,7 @@ import { AutoRefresh } from '@/components/auto-refresh';
 import { AnalyseButton } from './AnalyseButton';
 import { NotesEditor } from './NotesEditor';
 import { DescriptionEditor } from './DescriptionEditor';
+import { TitleEditor } from './TitleEditor';
 
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
 const API_TOKEN = process.env.ZA_API_TOKEN || '';
@@ -61,7 +62,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ job_
       <div className="flex items-start justify-between gap-4">
         <div>
           <Link href="/workshop" className="text-slate-400 text-xs hover:text-white mb-1 block">← Workshop</Link>
-          <h1 className="text-xl font-bold text-white leading-snug">{job.title}</h1>
+          <TitleEditor jobRef={job.job_ref} initialTitle={job.title} />
           <p className="text-slate-400 text-sm font-mono mt-0.5">{job.job_ref}</p>
         </div>
         <div className="flex flex-col items-end gap-2">
