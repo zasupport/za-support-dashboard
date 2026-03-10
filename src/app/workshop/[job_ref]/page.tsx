@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { JobActions } from './JobActions';
 import { WorkshopLineItems } from './WorkshopLineItems';
 import { AutoRefresh } from '@/components/auto-refresh';
+import { AnalyseButton } from './AnalyseButton';
 
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
 const API_TOKEN = process.env.ZA_API_TOKEN || '';
@@ -79,6 +80,9 @@ export default async function JobDetailPage({ params }: { params: Promise<{ job_
         labourMinutes={job.labour_minutes}
         assignedTo={job.assigned_to}
       />
+
+      {/* AI Analysis */}
+      <AnalyseButton jobRef={job.job_ref} />
 
       {/* Job details */}
       <Card className="bg-slate-800 border-slate-700">
