@@ -11,6 +11,27 @@ import { DailyActionQueue } from '@/components/DailyActionQueue';
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
 const API_TOKEN = process.env.ZA_API_TOKEN || '';
 
+interface ActivationCode {
+  client_id: string;
+  code: string;
+  used_at: string | null;
+  machine_serial: string | null;
+  machine_hostname: string | null;
+  status: string;
+}
+
+async function fetchActivationCodes(): Promise<ActivationCode[]> {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/agent/activation-codes`, {
+      headers: { Authorization: `Bearer ${API_TOKEN}` },
+      cache: 'no-store',
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.data ?? [];
+  } catch { return []; }
+}
+
 async function fetchMorning() {
   const res = await fetch(`${API_URL}/api/v1/clients/morning/overview`, {
     headers: { Authorization: `Bearer ${API_TOKEN}` },
@@ -87,9 +108,20 @@ function GradeBadge({ riskScore, riskLevel, daysSinceScan }: {
 }
 
 export default async function MorningPage() {
-  const [clients, shield, radar, checkins, todayAlerts, portalViews, upsells] = await Promise.all([
-    fetchMorning(), fetchCyberShieldSummary(), fetchUpgradeRadar(), fetchCheckinStatus(), fetchTodayAlerts(), fetchRecentPortalViews(), fetchRecentUpsells(),
+  const [clients, shield, radar, checkins, todayAlerts, portalViews, upsells, activationCodes] = await Promise.all([
+    fetchMorning(), fetchCyberShieldSummary(), fetchUpgradeRadar(), fetchCheckinStatus(), fetchTodayAlerts(), fetchRecentPortalViews(), fetchRecentUpsells(), fetchActivationCodes(),
   ]);
+
+  // Build per-client scout status map from activation codes
+  const scoutStatusMap: Record<string, { installed: boolean; serial: string | null; hostname: string | null; code: string }> = {};
+  for (const ac of activationCodes as ActivationCode[]) {
+    scoutStatusMap[ac.client_id] = {
+      installed: ac.used_at != null,
+      serial: ac.machine_serial,
+      hostname: ac.machine_hostname,
+      code: ac.code,
+    };
+  }
   const urgent = clients.filter((c: any) => c.urgency_level?.toLowerCase().startsWith('urgent'));
   const overdue = clients.filter((c: any) => (c.days_since_scan ?? 999) > 30);
 
@@ -393,6 +425,7 @@ export default async function MorningPage() {
                 <th className="text-center px-4 py-3 font-medium">Open Tasks</th>
                 <th className="text-center px-4 py-3 font-medium">Jobs</th>
                 <th className="text-center px-4 py-3 font-medium">Upgrade</th>
+                <th className="text-center px-4 py-3 font-medium">Scout</th>
                 <th className="text-right px-4 py-3 font-medium">Actions</th>
               </tr>
             </thead>
@@ -465,11 +498,32 @@ export default async function MorningPage() {
                     <td className="px-4 py-3 text-center">
                       {(c.critical_lifecycle_count ?? 0) > 0 ? (
                         <Link href={`/clients/${c.client_id}`} className="text-orange-400 hover:text-orange-300 font-semibold" title="Critical/overdue lifecycle devices — click for client page">
-                          ⚠ {c.critical_lifecycle_count}
+                          ! {c.critical_lifecycle_count}
                         </Link>
                       ) : (
                         <span className="text-slate-700">—</span>
                       )}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {(() => {
+                        const scout = scoutStatusMap[c.client_id];
+                        if (!scout) return <span className="text-slate-600 text-xs">No code</span>;
+                        if (scout.installed) {
+                          return (
+                            <span
+                              className="text-green-400 text-xs font-medium"
+                              title={scout.hostname ? `${scout.hostname} (${scout.serial})` : scout.serial ?? 'Installed'}
+                            >
+                              Active
+                            </span>
+                          );
+                        }
+                        return (
+                          <span className="text-yellow-500 text-xs" title={`Code: ${scout.code} — PKG not yet installed`}>
+                            PKG pending
+                          </span>
+                        );
+                      })()}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex gap-2 justify-end">
