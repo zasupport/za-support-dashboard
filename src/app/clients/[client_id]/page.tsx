@@ -54,6 +54,23 @@ async function fetchHealthScore(clientId: string) {
   }
 }
 
+async function fetchActivationCode(clientId: string) {
+  const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
+  const API_TOKEN = process.env.ZA_API_TOKEN || '';
+  try {
+    const res = await fetch(`${API_URL}/api/v1/agent/activation-codes?client_id=${clientId}`, {
+      headers: { Authorization: `Bearer ${API_TOKEN}` },
+      cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const codes: any[] = data.data ?? [];
+    return codes.find((c: any) => c.status === 'active') ?? codes[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
 async function fetchLastPortalView(clientId: string): Promise<string | null> {
   const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
   const API_TOKEN = process.env.ZA_API_TOKEN || '';
@@ -72,7 +89,7 @@ async function fetchLastPortalView(clientId: string): Promise<string | null> {
 
 export default async function ClientDetailPage({ params }: { params: Promise<{ client_id: string }> }) {
   const { client_id } = await params;
-  const [client, tasks, checkins, health, jobs, devices, network, lastPortalView] = await Promise.all([
+  const [client, tasks, checkins, health, jobs, devices, network, lastPortalView, activationCode] = await Promise.all([
     fetchClient(client_id),
     fetchClientTasks(client_id),
     fetchClientCheckins(client_id),
@@ -81,6 +98,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
     fetchClientDevices(client_id),
     fetchClientNetwork(client_id),
     fetchLastPortalView(client_id),
+    fetchActivationCode(client_id),
   ]);
 
   if (!client) notFound();
@@ -200,6 +218,35 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
           </CardContent>
         </Card>
       )}
+
+      {/* Scout Activation */}
+      {activationCode ? (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm">Scout Activation</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-teal-300 text-lg font-bold tracking-widest">{(activationCode as any).code}</span>
+              <span className={`text-xs px-2 py-0.5 rounded border font-medium ${
+                (activationCode as any).status === 'active' ? 'bg-teal-900/40 text-teal-300 border-teal-700/40'
+                : (activationCode as any).status === 'used' ? 'bg-slate-700 text-slate-300 border-slate-600'
+                : 'bg-orange-900/30 text-orange-400 border-orange-700/30'
+              }`}>{(activationCode as any).status}</span>
+              <Link href="/activation" className="text-xs text-slate-400 hover:text-teal-400 ml-auto">Manage →</Link>
+            </div>
+            {(activationCode as any).machine_serial && (
+              <p className="text-xs text-slate-400 font-mono">
+                Registered: {(activationCode as any).machine_serial}
+                {(activationCode as any).machine_hostname ? ` (${(activationCode as any).machine_hostname})` : ''}
+              </p>
+            )}
+            {(activationCode as any).status === 'active' && !(activationCode as any).machine_serial && (
+              <p className="text-xs text-slate-500">PKG not yet installed on client machine.</p>
+            )}
+          </CardContent>
+        </Card>
+      ) : null}
 
       {/* Registered devices */}
       {(devices as any[]).length > 0 && (
