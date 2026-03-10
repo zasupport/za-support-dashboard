@@ -5,6 +5,7 @@ import { JobActions } from './JobActions';
 import { WorkshopLineItems } from './WorkshopLineItems';
 import { AutoRefresh } from '@/components/auto-refresh';
 import { AnalyseButton } from './AnalyseButton';
+import { NotesEditor } from './NotesEditor';
 
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
 const API_TOKEN = process.env.ZA_API_TOKEN || '';
@@ -123,14 +124,12 @@ export default async function JobDetailPage({ params }: { params: Promise<{ job_
       )}
 
       {/* Notes */}
-      {job.notes && (
-        <Card className="bg-slate-800 border-slate-700">
-          <CardHeader><CardTitle className="text-white text-sm">Notes</CardTitle></CardHeader>
-          <CardContent>
-            <p className="text-slate-300 text-sm whitespace-pre-wrap leading-relaxed">{job.notes}</p>
-          </CardContent>
-        </Card>
-      )}
+      <Card className="bg-slate-800 border-slate-700">
+        <CardHeader><CardTitle className="text-white text-sm">Notes</CardTitle></CardHeader>
+        <CardContent>
+          <NotesEditor jobRef={job.job_ref} initialNotes={job.notes} />
+        </CardContent>
+      </Card>
 
       {/* Line items */}
       <WorkshopLineItems
