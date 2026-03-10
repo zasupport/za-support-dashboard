@@ -16,6 +16,7 @@ import { UpsellPanel } from './UpsellPanel';
 import { UpsellFunnel } from './UpsellFunnel';
 import { LifecyclePanel } from './LifecyclePanel';
 import { PhysicalAssessmentPanel } from './PhysicalAssessmentPanel';
+import { RemoteCommandsPanel } from './RemoteCommandsPanel';
 import Link from 'next/link';
 import { AutoRefresh } from '@/components/auto-refresh';
 import { notFound } from 'next/navigation';
@@ -435,6 +436,12 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
           </Card>
         );
       })()}
+
+      {/* Remote Commands — queue and monitor commands for this client */}
+      <RemoteCommandsPanel
+        clientId={client.client_id}
+        deviceSerial={(devices as any[])[0]?.serial}
+      />
 
       {/* AI Client Insights — similar clients + cross-pattern detection */}
       <SimilarInsights clientId={client.client_id} />

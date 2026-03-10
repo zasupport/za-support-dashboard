@@ -63,6 +63,28 @@ async function fetchRecentPortalViews() {
   } catch { return null; }
 }
 
+async function fetchCommandsSummary() {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/agent/commands/summary`, {
+      headers: { Authorization: `Bearer ${API_TOKEN}` },
+      cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch { return null; }
+}
+
+async function fetchUnassignedMachines() {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/agent/unassigned`, {
+      headers: { Authorization: `Bearer ${API_TOKEN}` },
+      cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch { return null; }
+}
+
 async function fetchRecentUpsells() {
   try {
     const res = await fetch(
@@ -108,8 +130,8 @@ function GradeBadge({ riskScore, riskLevel, daysSinceScan }: {
 }
 
 export default async function MorningPage() {
-  const [clients, shield, radar, checkins, todayAlerts, portalViews, upsells, activationCodes] = await Promise.all([
-    fetchMorning(), fetchCyberShieldSummary(), fetchUpgradeRadar(), fetchCheckinStatus(), fetchTodayAlerts(), fetchRecentPortalViews(), fetchRecentUpsells(), fetchActivationCodes(),
+  const [clients, shield, radar, checkins, todayAlerts, portalViews, upsells, activationCodes, commandsSummary, unassigned] = await Promise.all([
+    fetchMorning(), fetchCyberShieldSummary(), fetchUpgradeRadar(), fetchCheckinStatus(), fetchTodayAlerts(), fetchRecentPortalViews(), fetchRecentUpsells(), fetchActivationCodes(), fetchCommandsSummary(), fetchUnassignedMachines(),
   ]);
 
   // Build per-client scout status map from activation codes
@@ -163,6 +185,38 @@ export default async function MorningPage() {
       {urgent.length > 0 && (
         <div className="rounded-md border border-red-500/40 bg-red-500/10 px-4 py-3 text-red-300 text-sm">
           URGENT clients: {urgent.map((c: any) => `${c.first_name} ${c.last_name}`).join(', ')} — action today.
+        </div>
+      )}
+
+      {/* Agent stats strip — Pending Commands + Unassigned Machines */}
+      {((commandsSummary && (commandsSummary.pending > 0 || commandsSummary.executing > 0 || commandsSummary.failed_24h > 0)) || (unassigned && (unassigned.count ?? 0) > 0)) && (
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 rounded-md bg-slate-800 border border-slate-700 text-xs text-slate-300">
+          <span className="text-teal-400 font-semibold">Remote Agent</span>
+          {commandsSummary && (
+            <>
+              {commandsSummary.pending > 0 && (
+                <span>
+                  <span className="text-yellow-400 font-bold">{commandsSummary.pending}</span> pending command{commandsSummary.pending !== 1 ? 's' : ''}
+                </span>
+              )}
+              {commandsSummary.executing > 0 && (
+                <span>
+                  <span className="text-blue-400 font-bold">{commandsSummary.executing}</span> executing
+                </span>
+              )}
+              {commandsSummary.failed_24h > 0 && (
+                <span>
+                  <span className="text-red-400 font-bold">{commandsSummary.failed_24h}</span> failed (24h)
+                </span>
+              )}
+            </>
+          )}
+          {unassigned && (unassigned.count ?? 0) > 0 && (
+            <span>
+              <span className="text-orange-400 font-bold">{unassigned.count}</span> unassigned machine{unassigned.count !== 1 ? 's' : ''}
+            </span>
+          )}
+          <Link href="/remote-commands" className="ml-auto text-teal-400 hover:text-teal-300 shrink-0">Commands →</Link>
         </div>
       )}
 
