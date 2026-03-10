@@ -317,10 +317,10 @@ app/modules/{module_name}/
    - Medical: R 3,500 setup / R 4,500/month | Home: R 799 / R 1,199 / R 1,499 tiers
 
 ## Clients
-- Dr Evan Shoul — Stem/X-DSL ISP, gateway 192.168.1.252, UniFi Express 7
+- Dr Evan Shoul — Stem/X-DSL ISP, gateway 192.168.1.252, UniFi Express 7. Reception: Lenovo V130-20IGM AIO. Vericlaim software. Receptionist: Kedibone Matheatau (shoul@joburgid.com). Printer: Brother MFC-L5710DW.
 - Dr Anton Meyberg — "Dr's Pieterse, Hunt, Meyberg, Laher & Associates"
 - Charles Chemel — NTT Data ISP, UniFi Site Manager
-- Gillian Pearson — client_id: gillian-pearson (MacBook Pro 13" Mid 2012, Catalina, ESET, Movie Magic 6.2)
+- Gillian Pearson — client_id: gillian-pearson. MacBook Pro 13" Mid 2012, Catalina 10.15.7, Serial C1MKNNLCDTY3. ESET, Movie Magic 6.2. iCloud 200GB (81.63GB used). TeamViewerQS.app pending removal. ESET orphaned user eset_ecs6m_schedd pending removal.
 - Neil Brandt | Roger Naidoo | Kim Ayoub | Steve Pillinger | Richard Meade | Linda Forrest | Zoë Jewell
 
 ## Planned Modules (Backlog — Priority Order)
@@ -1796,3 +1796,59 @@ Repair management system for ZA Support internal use, with planned expansion as 
 - Bundle 2 (Standard — keyboard + trackpad + screen + MagSafe): R1,999
 - Bundle 3 (Comprehensive — all GREEN + YELLOW components): R3,499
 Exclude: Battery, cables, Butterfly keyboard (RED — never warranty)
+
+
+---
+
+# SECTION 45: WORKSHOP INTELLIGENCE — STANDING INSTRUCTIONS (PERMANENT — ALL SESSIONS)
+# Added: 10/03/2026 | Source: Courtney explicit instruction — "no need to ask me again"
+
+## 45.1 Workshop DB → Claude Code Analysis (ALWAYS AUTO-EXECUTE)
+When ANY workshop analysis task arises — a job, a client, a fleet overview, or diagnostic data:
+1. ALWAYS pull live data from Render PostgreSQL using the local CLI tools first:
+   - `za-workshop-db --dump` | `za-db-context workshop` | `za-analyse --job WS-YYYY-NNNN`
+2. NEVER wait to be asked — if a client or job is mentioned, auto-pull context and analyse
+3. Analysis saved automatically to: `/tmp/za-analysis-{target}-{timestamp}.txt`
+
+## 45.2 Workshop Web App "Analyse This" — Auto-Build Rule (PERMANENT)
+Backend endpoint `POST /api/v1/workshop/jobs/{job_ref}/analyse` MUST exist.
+When missing: build it immediately. Dashboard "Analyse this" button → POST → renders result inline.
+
+## 45.3 CLI Tool Reference (all in ~/bin/)
+| Tool | Usage | Output |
+|---|---|---|
+| `za-workshop-db` | `--dump`, `--jobs`, `--schema` | Raw psql output |
+| `za-db-context` | `workshop`, `clients`, `sales`, `all` | /tmp/za-db-context.txt |
+| `za-analyse` | `--job`, `--client`, `--fleet`, `--file` | Claude analysis + /tmp/za-analysis-*.txt |
+
+---
+
+# SECTION 44: ADAPTIVE DETECTION ARCHITECTURE (CRITICAL — ALL SCOUT CODE)
+# Source: INSTRUCTIONS-7.md Part 20 | Added: 09/03/2026
+
+## The Problem
+Every detection failure in Health Check Scout traces to: checking one path when there are many, trusting a single pass without verification. Examples: iCloud (checked dir listing, missed 81GB synced), TeamViewer (checked TeamViewer.app, missed TeamViewerQS.app), XProtect (path moved between Catalina and Monterey).
+
+## Rule: No Code Before Matrix
+Before writing or modifying ANY Scout phase code, document the complete variant matrix first — all known paths, OS version differences, application variants. Then write code.
+
+## Component 1: OS Detection Gateway (runs FIRST)
+MACOS_NUM = 1015/1100/1200/1300/1400/1500/1600. XProtect pre-Monterey: /System/Library/CoreServices/; Monterey+: /Library/Apple/System/Library/CoreServices/. Login items: Ventura+ uses sfltool; pre-Ventura uses osascript.
+
+## Component 2: Multi-Path Detection
+For every service: check ALL known locations. Service = "not detected" ONLY when ALL paths return negative. Minimum 3 methods per service.
+
+## Component 3: Verification Agent
+Before client report: re-verify with DIFFERENT method. Primary==verify: CONFIRMED. Primary\!=verify: CONFLICT — hold for Courtney review, never include without sign-off.
+
+## Component 4: Known-Variant Database
+- TeamViewer variants: TeamViewer.app + TeamViewerQS.app + TeamViewer Host.app + TeamViewer QuickJoin.app + daemons
+- iCloud: MobileMeAccounts defaults + com.apple.bird.plist + brctl + CloudDocs dir + Desktop sync + quota
+- Google Drive: ~/Google Drive/ OR ~/Library/CloudStorage/GoogleDrive-*/ OR /Volumes/GoogleDrive/ OR browser cookies OR com.apple.internetaccounts
+- ESET: esets_daemon/gui/tray/proxy/mac/ctl/pidmapper/fcor/scan/sci processes + 2 kexts + orphaned user eset_ecs* + /Library/Application Support/ESET/
+
+## Phase 14 Cloud Detection — Corrected (09/03/2026)
+NEVER declare data "unprotected" from filesystem checks alone. Optimise Mac Storage evicts files — filesystem is unreliable. Definitive check: `defaults read MobileMeAccounts` (always works). Google Drive browser-only: check com.apple.internetaccounts defaults.
+
+## Physical Access Data Capture Principle (CRITICAL)
+When client machine has limited workshop time: NEVER return it without minimum 60-second capture (system_profiler hardware + storage + battery + app inventory). Partial data from 15 modules beats complete data from 3. Origin: Gillian Pearson machine due back 09/03/2026 with 30 min remaining.
