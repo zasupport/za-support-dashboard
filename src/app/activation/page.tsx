@@ -2,9 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.zasupport.com';
-const API_TOKEN = process.env.NEXT_PUBLIC_API_TOKEN || '';
-
 interface ActivationCode {
   id: string;
   code: string;
@@ -61,14 +58,8 @@ export default function ActivationPage() {
     setError(null);
     try {
       const [cr, dr] = await Promise.all([
-        fetch(`${API_URL}/api/v1/agent/activation-codes`, {
-          headers: { Authorization: `Bearer ${API_TOKEN}` },
-          cache: 'no-store',
-        }),
-        fetch(`${API_URL}/api/v1/agent/device-tokens`, {
-          headers: { Authorization: `Bearer ${API_TOKEN}` },
-          cache: 'no-store',
-        }),
+        fetch('/api/activation', { cache: 'no-store' }),
+        fetch('/api/activation/devices', { cache: 'no-store' }),
       ]);
       const cj = cr.ok ? await cr.json() : { data: [] };
       const dj = dr.ok ? await dr.json() : { data: [] };
@@ -85,19 +76,13 @@ export default function ActivationPage() {
 
   async function revokeCode(code: string) {
     if (!confirm(`Revoke code ${code}? The device using this code will retain its device token.`)) return;
-    await fetch(`${API_URL}/api/v1/agent/activation-codes/${code}/revoke`, {
-      method: 'PATCH',
-      headers: { Authorization: `Bearer ${API_TOKEN}` },
-    });
+    await fetch(`/api/activation/${encodeURIComponent(code)}/revoke`, { method: 'PATCH' });
     load();
   }
 
   async function revokeDevice(id: string, serial: string) {
     if (!confirm(`Revoke device token for ${serial}? This device will be locked out immediately.`)) return;
-    await fetch(`${API_URL}/api/v1/agent/device-tokens/${id}/revoke`, {
-      method: 'PATCH',
-      headers: { Authorization: `Bearer ${API_TOKEN}` },
-    });
+    await fetch(`/api/activation/devices/${encodeURIComponent(id)}/revoke`, { method: 'PATCH' });
     load();
   }
 
@@ -110,12 +95,9 @@ export default function ActivationPage() {
     setError(null);
     setGenResult(null);
     try {
-      const res = await fetch(`${API_URL}/api/v1/agent/activation-codes/generate`, {
+      const res = await fetch('/api/activation', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${API_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(genForm),
       });
       if (!res.ok) {
