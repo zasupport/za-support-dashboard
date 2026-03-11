@@ -21,8 +21,9 @@ interface UnassignedMachine {
 }
 
 interface Client {
-  id: string;
-  name: string;
+  client_id: string;
+  first_name: string;
+  last_name: string;
 }
 
 function IdentityScoreBar({ score }: { score: number }) {
@@ -133,8 +134,8 @@ function AssignModal({
             >
               <option value="">— select client —</option>
               {clients.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
+                <option key={c.client_id} value={c.client_id}>
+                  {c.first_name} {c.last_name}
                 </option>
               ))}
             </select>
