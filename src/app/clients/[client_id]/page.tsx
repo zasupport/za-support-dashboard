@@ -16,7 +16,8 @@ import { UpsellPanel } from './UpsellPanel';
 import { UpsellFunnel } from './UpsellFunnel';
 import { LifecyclePanel } from './LifecyclePanel';
 import { PhysicalAssessmentPanel } from './PhysicalAssessmentPanel';
-import { RemoteCommandsPanel } from './RemoteCommandsPanel';
+import { RemoteCommandsPanel } from './RemoteCommandsPanel'
+import SlaPanel from '@/components/SlaPanel';
 import Link from 'next/link';
 import { AutoRefresh } from '@/components/auto-refresh';
 import { notFound } from 'next/navigation';
@@ -219,6 +220,9 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
           </CardContent>
         </Card>
       )}
+
+      {/* SLA Panel — Scout tier management */}
+      <SlaPanel clientId={client.client_id} />
 
       {/* Scout Activation */}
       {activationCode ? (
