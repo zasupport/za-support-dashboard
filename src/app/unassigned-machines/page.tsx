@@ -62,6 +62,16 @@ function timeAgo(iso: string | null): string {
   return `${Math.floor(hrs / 24)}d ago`;
 }
 
+function computeRenewalDate(startDate: string): string {
+  const d = new Date(startDate);
+  d.setFullYear(d.getFullYear() + 1);
+  return d.toISOString().split('T')[0];
+}
+
+function todayIso(): string {
+  return new Date().toISOString().split('T')[0];
+}
+
 function AssignModal({
   machine,
   clients,
@@ -74,8 +84,12 @@ function AssignModal({
   onAssigned: () => void;
 }) {
   const [selectedClientId, setSelectedClientId] = useState('');
+  const [slaActive, setSlaActive] = useState(false);
+  const [slaStartDate, setSlaStartDate] = useState(todayIso());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const renewalPreview = slaActive && slaStartDate ? computeRenewalDate(slaStartDate) : null;
 
   async function handleAssign() {
     if (!selectedClientId) {
@@ -85,12 +99,14 @@ function AssignModal({
     setLoading(true);
     setError('');
     try {
+      const body: Record<string, unknown> = { client_id: selectedClientId, sla_active: slaActive };
+      if (slaActive && slaStartDate) body.sla_start_date = slaStartDate;
       const res = await fetch(
         `/api/unassigned/${machine.machine_id}/assign`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ client_id: selectedClientId }),
+          body: JSON.stringify(body),
         }
       );
       const data = await res.json();
@@ -124,7 +140,8 @@ function AssignModal({
           )}
         </p>
 
-        <div className="space-y-3">
+        <div className="space-y-4">
+          {/* Client selector */}
           <div>
             <label className="text-xs text-slate-400 block mb-1.5">Client</label>
             <select
@@ -140,6 +157,39 @@ function AssignModal({
               ))}
             </select>
           </div>
+
+          {/* SLA toggle */}
+          <div className="flex items-center gap-3 py-2 border-t border-slate-700">
+            <label className="flex items-center gap-2.5 cursor-pointer select-none">
+              <div
+                className={`relative w-9 h-5 rounded-full transition-colors ${slaActive ? 'bg-teal-600' : 'bg-slate-600'}`}
+                onClick={() => setSlaActive((v) => !v)}
+              >
+                <span
+                  className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${slaActive ? 'translate-x-4' : 'translate-x-0.5'}`}
+                />
+              </div>
+              <span className="text-sm text-slate-300">This client has an SLA agreement</span>
+            </label>
+          </div>
+
+          {/* SLA start date — only shown when SLA is active */}
+          {slaActive && (
+            <div className="space-y-1.5">
+              <label className="text-xs text-slate-400 block">Agreement start date</label>
+              <input
+                type="date"
+                value={slaStartDate}
+                onChange={(e) => setSlaStartDate(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-600 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-teal-500"
+              />
+              {renewalPreview && (
+                <p className="text-slate-500 text-xs">
+                  Renewal due: <span className="text-slate-400">{renewalPreview}</span>
+                </p>
+              )}
+            </div>
+          )}
 
           {error && (
             <p className="text-red-400 text-xs">{error}</p>

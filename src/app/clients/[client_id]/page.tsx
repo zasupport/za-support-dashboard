@@ -18,6 +18,7 @@ import { LifecyclePanel } from './LifecyclePanel';
 import { PhysicalAssessmentPanel } from './PhysicalAssessmentPanel';
 import { RemoteCommandsPanel } from './RemoteCommandsPanel'
 import SlaPanel from '@/components/SlaPanel';
+import SlaStatusCard from '@/components/SlaStatusCard';
 import Link from 'next/link';
 import { AutoRefresh } from '@/components/auto-refresh';
 import { notFound } from 'next/navigation';
@@ -220,6 +221,9 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
           </CardContent>
         </Card>
       )}
+
+      {/* SLA Agreement Status — renewal tracking */}
+      <SlaStatusCard clientId={client.client_id} />
 
       {/* SLA Panel — Scout tier management */}
       <SlaPanel clientId={client.client_id} />
