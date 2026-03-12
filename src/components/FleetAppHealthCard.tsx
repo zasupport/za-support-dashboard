@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import useSWR from 'swr';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -21,15 +21,13 @@ const GRADE_COLOR: Record<string, string> = {
   F: 'text-red-400',
 };
 
-export function FleetAppHealthCard() {
-  const [data, setData] = useState<FleetAppHealth | null>(null);
+const fetcher = (url: string) => fetch(url).then(r => r.json());
 
-  useEffect(() => {
-    fetch('/api/diagnostics/fleet/app-health')
-      .then(r => r.json())
-      .then(setData)
-      .catch(() => {});
-  }, []);
+export function FleetAppHealthCard() {
+  const { data } = useSWR<FleetAppHealth>('/api/diagnostics/fleet/app-health', fetcher, {
+    refreshInterval: 60000, // 60s — device data
+    revalidateOnFocus: true,
+  });
 
   if (!data || !data.total_devices_graded) {
     return (

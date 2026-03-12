@@ -13,5 +13,7 @@ export async function GET(req: NextRequest) {
     cache: 'no-store',
   });
   if (!res.ok) return NextResponse.json([]);
-  return NextResponse.json(await res.json());
+  return NextResponse.json(await res.json(), {
+    headers: { 'Cache-Control': 's-maxage=30, stale-while-revalidate' },
+  });
 }

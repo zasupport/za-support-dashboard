@@ -10,7 +10,9 @@ export async function GET() {
       cache: 'no-store',
     });
     if (!res.ok) return NextResponse.json({}, { status: res.status });
-    return NextResponse.json(await res.json());
+    return NextResponse.json(await res.json(), {
+      headers: { 'Cache-Control': 's-maxage=30, stale-while-revalidate' },
+    });
   } catch {
     return NextResponse.json({});
   }

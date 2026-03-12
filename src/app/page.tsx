@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Monitor, Wifi, Shield, Bell, Users, Wrench, Activity, Coffee, ShieldCheck, Radar, Zap } from 'lucide-react';
 import { AutoRefresh } from '@/components/auto-refresh';
 import { FleetAppHealthCard } from '@/components/FleetAppHealthCard';
+import { PredictiveAlerts } from '@/components/PredictiveAlerts';
 import Link from 'next/link';
 
 function timeAgo(ts?: string) {
@@ -176,6 +177,9 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Fleet App Health — Phase 23 */}
         <FleetAppHealthCard />
+
+        {/* Predictive Alerts — failure predictions fleet-wide */}
+        <PredictiveAlerts limit={6} />
 
         {/* ISP Status */}
         <Card className="bg-slate-800 border-slate-700">
