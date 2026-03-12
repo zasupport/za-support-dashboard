@@ -42,7 +42,7 @@ export default async function DashboardPage() {
   const ispList     = ispStatus.status === 'fulfilled' ? ispStatus.value : [];
   const alertList   = alerts.status   === 'fulfilled' ? alerts.value   : [];
   const shieldList  = shieldEvents.status === 'fulfilled' ? shieldEvents.value : [];
-  const clientMeta  = clients.status  === 'fulfilled' ? clients.value?.meta  : null;
+  const clientMeta  = clients.status  === 'fulfilled' && clients.value ? clients.value.meta : null;
   const activityData = activity.status === 'fulfilled' ? activity.value?.events ?? [] : [];
 
   const workshopAll    = workshopData.status === 'fulfilled' ? (workshopData.value?.data ?? []) : [];

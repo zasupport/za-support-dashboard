@@ -64,17 +64,18 @@ export async function fetchClients(status?: string, page = 1, per_page = 100) {
     const params = new URLSearchParams({ page: String(page), per_page: String(per_page) });
     if (status) params.set('status', status);
     const res = await fetch(`${API_URL}/api/v1/clients?${params}`, { headers: headers(), signal: withTimeout(TIMEOUT_MS), next: { revalidate: 30 } });
-    if (!res.ok) return { data: [], meta: { total: 0 } };
+    if (!res.ok) return null;
     return res.json();
-  } catch { return { data: [], meta: { total: 0 } }; }
+  } catch { return null; }
 }
 
 export async function fetchClient(client_id: string) {
   try {
-    const res = await fetch(`${API_URL}/api/v1/clients/${client_id}`, { headers: headers(), signal: withTimeout(TIMEOUT_MS), next: { revalidate: 30 } });
-    if (!res.ok) return null;
+    const res = await fetch(`${API_URL}/api/v1/clients/${client_id}`, { headers: headers(), signal: withTimeout(TIMEOUT_MS), cache: 'no-store' });
+    if (res.status === 404) return null;          // client genuinely doesn't exist
+    if (!res.ok) return { _error: true, status: res.status }; // backend error — not a 404
     return res.json();
-  } catch { return null; }
+  } catch { return { _error: true, status: 503 }; } // network error
 }
 
 export async function fetchClientTasks(client_id: string) {

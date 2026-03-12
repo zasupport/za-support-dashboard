@@ -37,6 +37,7 @@ export function ClientsClient() {
   const [meta, setMeta] = useState<{ total?: number; page?: number }>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [backendError, setBackendError] = useState(false);
 
   async function load(page = 1) {
     setLoading(true);
@@ -46,8 +47,15 @@ export function ClientsClient() {
     try {
       const res = await fetch(`/api/clients?${params}`);
       const json = await res.json();
-      setClients(Array.isArray(json.data) ? json.data : []);
-      setMeta(json.meta ?? {});
+      if (json._error) {
+        setBackendError(true);
+        setClients([]);
+        setMeta({});
+      } else {
+        setBackendError(false);
+        setClients(Array.isArray(json.data) ? json.data : []);
+        setMeta(json.meta ?? {});
+      }
     } catch {
       setError('Failed to load clients');
     } finally {
@@ -84,7 +92,13 @@ export function ClientsClient() {
 
       {loading && <p className="text-slate-400 text-sm">Loading...</p>}
       {error && <p className="text-red-400 text-sm">{error}</p>}
-      {!loading && !error && clients.length === 0 && (
+      {backendError && !loading && (
+        <div className="rounded-md border border-orange-500/40 bg-orange-500/10 px-4 py-3 text-orange-300 text-sm">
+          The API is temporarily unavailable. The backend may be starting up — please refresh in a moment.
+          <button onClick={() => load()} className="ml-3 underline hover:no-underline">Retry</button>
+        </div>
+      )}
+      {!loading && !error && !backendError && clients.length === 0 && (
         <p className="text-slate-400 text-sm">No clients found.</p>
       )}
 

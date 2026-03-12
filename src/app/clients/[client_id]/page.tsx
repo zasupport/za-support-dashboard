@@ -106,6 +106,20 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
 
   if (!client) notFound();
 
+  // Backend error (5xx / network timeout) — show error state instead of 404
+  if ((client as any)?._error) {
+    return (
+      <div className="space-y-6">
+        <Link href="/clients" className="text-slate-400 text-xs hover:text-white block">← All Clients</Link>
+        <div className="rounded-md border border-orange-500/40 bg-orange-500/10 px-6 py-8 text-center">
+          <p className="text-orange-300 text-lg font-semibold mb-2">Unable to load client profile</p>
+          <p className="text-slate-400 text-sm">The API returned an error ({(client as any).status}). The backend may be starting up — please refresh in a moment.</p>
+          <a href={`/clients/${client_id}`} className="inline-block mt-4 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm rounded transition-colors">Retry</a>
+        </div>
+      </div>
+    );
+  }
+
   const isUrgent = client.urgency_level?.toLowerCase().startsWith('urgent');
 
   return (
