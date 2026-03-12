@@ -1,7 +1,7 @@
 # ZA Support — Dashboard Project Rules
 # Global rules auto-loaded from: ~/.claude/CLAUDE.md (do not duplicate here)
 # Project-specific rules ONLY in this file
-# Last Updated: 10/03/2026
+# Last Updated: 12/03/2026 — §83 added to global CLAUDE.md (chitchat session sweep)
 
 ## PROJECT IDENTITY
 - Repo: zasupport/za-support-dashboard
