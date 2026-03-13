@@ -173,7 +173,7 @@ export async function fetchCyberShieldSummary() {
 
 export async function fetchClientNetwork(client_id: string) {
   try {
-    const res = await fetch(`${API_URL}/api/v1/network/unifi/live/${encodeURIComponent(client_id)}`, {
+    const res = await fetch(`${API_URL}/api/v1/unifi/${encodeURIComponent(client_id)}/latest`, {
       headers: headers(), signal: withTimeout(TIMEOUT_MS), cache: 'no-store',
     });
     if (!res.ok) return null;
@@ -183,7 +183,7 @@ export async function fetchClientNetwork(client_id: string) {
 
 export async function fetchClientNetworkHistory(client_id: string, hours = 24) {
   try {
-    const res = await fetch(`${API_URL}/api/v1/network/unifi/history/${encodeURIComponent(client_id)}?hours=${hours}`, {
+    const res = await fetch(`${API_URL}/api/v1/unifi/${encodeURIComponent(client_id)}/history?hours=${hours}`, {
       headers: headers(), signal: withTimeout(TIMEOUT_MS), next: { revalidate: 300 },
     });
     if (!res.ok) return [];
