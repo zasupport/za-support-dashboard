@@ -13,6 +13,9 @@ export function middleware(request: NextRequest) {
   // Allow public client portal (shareable read-only links — no auth required)
   if (pathname.startsWith('/portal/')) return NextResponse.next();
 
+  // Allow public PKG install page — client-facing, no auth required
+  if (pathname === '/install') return NextResponse.next();
+
   // Allow internal Next.js routes
   if (pathname.startsWith('/_next') || pathname.startsWith('/favicon')) return NextResponse.next();
 
