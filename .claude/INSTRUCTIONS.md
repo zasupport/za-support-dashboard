@@ -118,3 +118,5 @@ New API data needed?
 za-support-dashboard on Vercel (main branch)
 Live: https://dashboard.zasupport.com
 Backend: https://api.zasupport.com
+
+# §100 added 13/03/2026: Task Classification — No False Manual Gates
