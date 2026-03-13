@@ -107,3 +107,7 @@ ZA_API_TOKEN=<agent bearer token>
 - Minimum 20 concurrent agents per non-trivial task (hard floor, no ceiling)
 - Every build, verify, deploy, investigation = 20+ agents launched simultaneously
 - See global ~/.claude/CLAUDE.md §73.5-§73.6 for full rules
+
+## PKG PUBLISH RULE (PERMANENT — §94 — 13/03/2026)
+- Every PKG build → publish to /api/v1/agent/pkg/latest + OTA broadcast immediately
+- Never hold a built PKG — §94.1 auto-execute rule (no asking)
