@@ -3,6 +3,12 @@ name: Deploy to Vercel
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - '.claude/**'
+      - 'memory/**'
+      - '.gitignore'
+      - '*.log'
   workflow_dispatch:
     inputs:
       reason:
