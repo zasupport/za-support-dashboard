@@ -34,6 +34,10 @@
 - Every build, verify, deploy = 20+ agents launched simultaneously
 - See global ~/.claude/CLAUDE.md §73.5-§73.6 for full rules
 
+## PKG PUBLISH RULE (PERMANENT — §94 — 13/03/2026)
+- Every PKG build → publish to /api/v1/agent/pkg/latest + OTA broadcast immediately
+- Never hold a built PKG — §94.1 auto-execute rule (no asking)
+
 ## PROJECT-SPECIFIC NOTES
 - Mobile-first design — all views must be usable on iPhone
 - Dark/light mode via Tailwind dark: prefix
