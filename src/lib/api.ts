@@ -233,3 +233,13 @@ export async function fetchFleetInterventionSummary(days = 30) {
     return res.json();
   } catch { return { count: 0, total_value_protected: 0, interventions: [] }; }
 }
+
+export async function fetchDedupFleetSummary() {
+  try {
+    const res = await fetch(`${API_URL}/api/v1/dedup/fleet/summary`, {
+      headers: headers(), signal: withTimeout(TIMEOUT_MS), next: { revalidate: 300 },
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch { return null; }
+}
