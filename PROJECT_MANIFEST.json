@@ -1,11 +1,11 @@
 {
   "name": "za-support-dashboard",
-  "display_name": "ZA Support CyberPulse Dashboard",
+  "display_name": "ZA Support Health Check Dashboard",
   "version": "1.0.0",
-  "description": "Health Check AI monitoring dashboard — devices, ISP status, shield events, app intelligence, interaction analytics",
+  "description": "Health Check dashboard — devices, ISP status, shield events, app intelligence, interaction analytics",
   "owner": "Courtney Bentley / ZA Support",
   "stack": {
-    "framework": "Next.js 16",
+    "framework": "Next.js 15",
     "language": "TypeScript",
     "styling": "Tailwind CSS + shadcn/ui",
     "runtime": "Node.js"

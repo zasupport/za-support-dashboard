@@ -1,0 +1,36 @@
+staticSites:
+  - type: static
+    name: za-support-dashboard
+    plan: free
+    runtime: node
+    region: oregon
+    buildCommand: npm run build
+    publishPath: .next
+    buildFilter:
+      paths:
+        - src/**
+        - app/**
+        - components/**
+        - lib/**
+        - public/**
+        - package.json
+        - next.config.*
+        - tailwind.config.*
+        - tsconfig.json
+      ignoredPaths:
+        - "*.md"
+        - ".claude/**"
+    envVars:
+      # Backend API — server-side only (never NEXT_PUBLIC_ for secrets)
+      - key: ZA_API_URL
+        value: "https://api.zasupport.com"
+      - key: ZA_API_TOKEN
+        sync: false
+      # Dashboard session auth
+      - key: DASHBOARD_PASSWORD
+        sync: false
+      # Public vars
+      - key: NEXT_PUBLIC_API_URL
+        value: "https://api.zasupport.com"
+      - key: NEXT_PUBLIC_VERSION
+        value: "0.2.1"
