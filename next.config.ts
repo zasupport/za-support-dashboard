@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  env: {
+    NEXT_PUBLIC_VERSION: process.env.npm_package_version ?? '0.2.0',
+  },
   compress: true,
   poweredByHeader: false,
   images: {
