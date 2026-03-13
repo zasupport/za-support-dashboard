@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   try {
     const res = await fetch(`${API_URL}/api/v1/alerts?limit=${limit}`, {
       headers: {
-        Authorization: `Bearer ${API_TOKEN}`,
+        'X-API-Key': API_TOKEN,
         'Content-Type': 'application/json',
       },
       signal: AbortSignal.timeout(8000),

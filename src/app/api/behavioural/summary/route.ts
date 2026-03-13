@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const res = await fetch(`${apiUrl}/api/v1/behavioural/summary/${encodeURIComponent(clientId)}`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { 'X-API-Key': token },
       cache: 'no-store',
     });
     if (!res.ok) return NextResponse.json({ devices: [] });

@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   try {
     const res = await fetch(
       `${API_URL}/api/v1/sales/recommendations/${encodeURIComponent(clientId)}`,
-      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' },
+      { headers: { 'X-API-Key': API_TOKEN }, cache: 'no-store' },
     );
     if (!res.ok) return NextResponse.json({ recommendations: [] });
     return NextResponse.json(await res.json());
@@ -29,7 +29,7 @@ export async function PATCH(req: NextRequest) {
       `${API_URL}/api/v1/sales/recommendations/${encodeURIComponent(rec_id)}/status`,
       {
         method: 'PATCH',
-        headers: { Authorization: `Bearer ${API_TOKEN}`, 'Content-Type': 'application/json' },
+        headers: { 'X-API-Key': API_TOKEN, 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
       },
     );

@@ -11,7 +11,7 @@ export async function PATCH(
   const body = await req.json();
   const res = await fetch(`${API_URL}/api/v1/clients/${client_id}/status`, {
     method: 'PATCH',
-    headers: { Authorization: `Bearer ${API_TOKEN}`, 'Content-Type': 'application/json' },
+    headers: { 'X-API-Key': API_TOKEN, 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
   const data = await res.json();

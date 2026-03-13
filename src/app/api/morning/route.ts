@@ -5,7 +5,7 @@ const API_TOKEN = process.env.ZA_API_TOKEN || '';
 
 export async function GET() {
   const res = await fetch(`${API_URL}/api/v1/clients/morning/overview`, {
-    headers: { Authorization: `Bearer ${API_TOKEN}` },
+    headers: { 'X-API-Key': API_TOKEN },
     cache: 'no-store',
   });
   if (!res.ok) return NextResponse.json([], { status: res.status });

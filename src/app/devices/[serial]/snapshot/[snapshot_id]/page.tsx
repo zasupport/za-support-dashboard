@@ -8,7 +8,7 @@ async function fetchSnapshot(snapshotId: string) {
   try {
     const res = await fetch(
       `${API_URL}/api/v1/diagnostics/snapshots/${snapshotId}`,
-      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' }
+      { headers: { 'X-API-Key': API_TOKEN }, cache: 'no-store' }
     );
     if (!res.ok) return null;
     return res.json();

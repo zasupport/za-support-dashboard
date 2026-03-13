@@ -7,12 +7,12 @@ const API_TOKEN = process.env.ZA_API_TOKEN || '';
 async function fetchClients() {
   try {
     const res = await fetch(`${API_URL}/api/v1/clients?per_page=100&status=active`, {
-      headers: { Authorization: `Bearer ${API_TOKEN}` },
+      headers: { 'X-API-Key': API_TOKEN },
       cache: 'no-store',
     });
     const j = res.ok ? await res.json() : { data: [] };
     const sla = await fetch(`${API_URL}/api/v1/clients?per_page=100&status=sla`, {
-      headers: { Authorization: `Bearer ${API_TOKEN}` },
+      headers: { 'X-API-Key': API_TOKEN },
       cache: 'no-store',
     });
     const j2 = sla.ok ? await sla.json() : { data: [] };
@@ -23,7 +23,7 @@ async function fetchClients() {
 async function fetchToken() {
   try {
     const res = await fetch(`${API_URL}/api/v1/system/agent-token`, {
-      headers: { Authorization: `Bearer ${API_TOKEN}` },
+      headers: { 'X-API-Key': API_TOKEN },
       cache: 'no-store',
     });
     return res.ok ? (await res.json()).token : null;

@@ -13,7 +13,7 @@ export async function GET(
   try {
     const res = await fetch(
       `${API_URL}/api/v1/workshop/jobs/${job_ref}/invoice${send ? '?send=true' : ''}`,
-      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' }
+      { headers: { 'X-API-Key': API_TOKEN }, cache: 'no-store' }
     );
 
     if (!res.ok) return NextResponse.json({ error: 'Invoice failed' }, { status: res.status });

@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     const res = await fetch(
       `${API_URL}/api/v1/reports/interventions/fleet/recent?${qs.toString()}`,
       {
-        headers: { Authorization: `Bearer ${API_TOKEN}` },
+        headers: { 'X-API-Key': API_TOKEN },
         cache: 'no-store',
       }
     );

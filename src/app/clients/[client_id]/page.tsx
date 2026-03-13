@@ -47,7 +47,7 @@ async function fetchHealthScore(clientId: string) {
   const API_TOKEN = process.env.ZA_API_TOKEN || '';
   try {
     const res = await fetch(`${API_URL}/api/v1/clients/${clientId}/health`, {
-      headers: { Authorization: `Bearer ${API_TOKEN}` },
+      headers: { 'X-API-Key': API_TOKEN },
       cache: 'no-store',
     });
     if (!res.ok) return null;
@@ -62,7 +62,7 @@ async function fetchActivationCode(clientId: string) {
   const API_TOKEN = process.env.ZA_API_TOKEN || '';
   try {
     const res = await fetch(`${API_URL}/api/v1/agent/activation-codes?client_id=${clientId}`, {
-      headers: { Authorization: `Bearer ${API_TOKEN}` },
+      headers: { 'X-API-Key': API_TOKEN },
       cache: 'no-store',
     });
     if (!res.ok) return null;
@@ -80,7 +80,7 @@ async function fetchLastPortalView(clientId: string): Promise<string | null> {
   try {
     const res = await fetch(
       `${API_URL}/api/v1/clients/portal-views/recent?client_id=${clientId}&days=90&limit=1`,
-      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' },
+      { headers: { 'X-API-Key': API_TOKEN }, cache: 'no-store' },
     );
     if (!res.ok) return null;
     const data = await res.json();

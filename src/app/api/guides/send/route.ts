@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   try {
     const res = await fetch(`${API_URL}/api/v1/guides/${guide_id}/send`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${API_TOKEN}`, 'Content-Type': 'application/json' },
+      headers: { 'X-API-Key': API_TOKEN, 'Content-Type': 'application/json' },
       body: JSON.stringify({ client_id }),
     });
     const json = await res.json();

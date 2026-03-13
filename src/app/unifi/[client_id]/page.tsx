@@ -11,7 +11,7 @@ async function fetchNetworkSnapshots(client_id: string, hours = 24): Promise<any
   try {
     const res = await fetch(
       `${API_URL}/api/v1/unifi/snapshots/${encodeURIComponent(client_id)}?limit=10`,
-      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' }
+      { headers: { 'X-API-Key': API_TOKEN }, cache: 'no-store' }
     );
     if (!res.ok) return [];
     const data = await res.json();

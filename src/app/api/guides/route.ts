@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
 const API_TOKEN = process.env.ZA_API_TOKEN || '';
 
-const headers = () => ({ Authorization: `Bearer ${API_TOKEN}`, 'Content-Type': 'application/json' });
+const headers = () => ({ 'X-API-Key': API_TOKEN, 'Content-Type': 'application/json' });
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;

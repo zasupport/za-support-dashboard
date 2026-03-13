@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const res = await fetch(`${API_URL}/api/v1/agent/commands?${params}`, {
-      headers: { Authorization: `Bearer ${API_TOKEN}` },
+      headers: { 'X-API-Key': API_TOKEN },
       cache: 'no-store',
     });
     if (!res.ok) return NextResponse.json({ data: [], meta: { total: 0, page: 1, per_page: 20 } }, { status: res.status });
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     const res = await fetch(`${API_URL}/api/v1/agent/commands`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${API_TOKEN}`,
+        'X-API-Key': API_TOKEN,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),

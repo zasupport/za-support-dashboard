@@ -11,7 +11,7 @@ export async function GET(
   const url = `${API_URL}/api/v1/unifi/${encodeURIComponent(client_id)}/report`;
   try {
     const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${API_TOKEN}` },
+      headers: { 'X-API-Key': API_TOKEN },
       cache: 'no-store',
     });
     if (!res.ok) {

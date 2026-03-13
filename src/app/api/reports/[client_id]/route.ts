@@ -11,7 +11,7 @@ export async function GET(
   const snapshot_id = req.nextUrl.searchParams.get('snapshot_id') || '';
   const url = `${API_URL}/api/v1/reports/cyberpulse/${client_id}${snapshot_id ? `?snapshot_id=${snapshot_id}` : ''}`;
   try {
-    const res = await fetch(url, { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' });
+    const res = await fetch(url, { headers: { 'X-API-Key': API_TOKEN }, cache: 'no-store' });
     if (!res.ok) return NextResponse.json({ error: await res.text() }, { status: res.status });
     const pdf = await res.arrayBuffer();
     const disposition = res.headers.get('content-disposition') || 'inline; filename="Health Check_Report.pdf"';

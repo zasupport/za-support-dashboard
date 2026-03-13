@@ -25,7 +25,7 @@ interface ActivationCode {
 async function fetchActivationCodes(): Promise<ActivationCode[]> {
   try {
     const res = await fetch(`${API_URL}/api/v1/agent/activation-codes`, {
-      headers: { Authorization: `Bearer ${API_TOKEN}` },
+      headers: { 'X-API-Key': API_TOKEN },
       cache: 'no-store',
     });
     if (!res.ok) return [];
@@ -36,7 +36,7 @@ async function fetchActivationCodes(): Promise<ActivationCode[]> {
 
 async function fetchMorning() {
   const res = await fetch(`${API_URL}/api/v1/clients/morning/overview`, {
-    headers: { Authorization: `Bearer ${API_TOKEN}` },
+    headers: { 'X-API-Key': API_TOKEN },
     cache: 'no-store',
   });
   if (!res.ok) return [];
@@ -47,7 +47,7 @@ async function fetchTodayAlerts() {
   try {
     const res = await fetch(
       `${API_URL}/api/v1/reports/interventions/fleet/recent?days=1&limit=50&action_type=alert_sent`,
-      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' },
+      { headers: { 'X-API-Key': API_TOKEN }, cache: 'no-store' },
     );
     if (!res.ok) return null;
     return res.json();
@@ -58,7 +58,7 @@ async function fetchRecentPortalViews() {
   try {
     const res = await fetch(
       `${API_URL}/api/v1/clients/portal-views/recent?days=7&limit=20`,
-      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' },
+      { headers: { 'X-API-Key': API_TOKEN }, cache: 'no-store' },
     );
     if (!res.ok) return null;
     return res.json();
@@ -68,7 +68,7 @@ async function fetchRecentPortalViews() {
 async function fetchCommandsSummary() {
   try {
     const res = await fetch(`${API_URL}/api/v1/agent/commands/summary`, {
-      headers: { Authorization: `Bearer ${API_TOKEN}` },
+      headers: { 'X-API-Key': API_TOKEN },
       cache: 'no-store',
     });
     if (!res.ok) return null;
@@ -79,7 +79,7 @@ async function fetchCommandsSummary() {
 async function fetchUnassignedMachines() {
   try {
     const res = await fetch(`${API_URL}/api/v1/agent/unassigned`, {
-      headers: { Authorization: `Bearer ${API_TOKEN}` },
+      headers: { 'X-API-Key': API_TOKEN },
       cache: 'no-store',
     });
     if (!res.ok) return null;
@@ -91,7 +91,7 @@ async function fetchRecentUpsells() {
   try {
     const res = await fetch(
       `${API_URL}/api/v1/sales/recommendations/recent?days=7&limit=15`,
-      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' },
+      { headers: { 'X-API-Key': API_TOKEN }, cache: 'no-store' },
     );
     if (!res.ok) return null;
     return res.json();

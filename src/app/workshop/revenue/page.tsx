@@ -8,7 +8,7 @@ async function fetchRevenue() {
   try {
     const res = await fetch(
       `${process.env.ZA_API_URL || 'https://api.zasupport.com'}/api/v1/workshop/revenue`,
-      { headers: { Authorization: `Bearer ${process.env.ZA_API_TOKEN || ''}` }, cache: 'no-store' }
+      { headers: { 'X-API-Key': (process.env.ZA_API_TOKEN || '') }, cache: 'no-store' }
     );
     return res.ok ? res.json() : null;
   } catch { return null; }

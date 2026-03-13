@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   try {
     const res = await fetch(`${API_URL}/api/v1/proposals/`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${API_TOKEN}`, 'Content-Type': 'application/json' },
+      headers: { 'X-API-Key': API_TOKEN, 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
     if (!res.ok) return NextResponse.json({ error: 'Failed to create proposal' }, { status: res.status });
@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
   const qs = parts.length ? `?${parts.join('&')}` : '';
   try {
     const res = await fetch(`${API_URL}/api/v1/proposals/${qs}`, {
-      headers: { Authorization: `Bearer ${API_TOKEN}` },
+      headers: { 'X-API-Key': API_TOKEN },
       cache: 'no-store',
     });
     if (!res.ok) return NextResponse.json({ proposals: [] });

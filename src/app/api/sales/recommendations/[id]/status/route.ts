@@ -15,7 +15,7 @@ export async function PATCH(
       {
         method: 'PATCH',
         headers: {
-          Authorization: `Bearer ${API_TOKEN}`,
+          'X-API-Key': API_TOKEN,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(body),

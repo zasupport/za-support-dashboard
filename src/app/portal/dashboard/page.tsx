@@ -86,7 +86,7 @@ export default function PortalDashboard() {
     if (!token) { router.push("/portal/login"); return; }
 
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/portal/me`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { 'X-API-Key': token },
     });
 
     if (res.status === 401) { router.push("/portal/login"); return; }

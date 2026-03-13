@@ -12,7 +12,7 @@ export async function PATCH(
   try {
     const res = await fetch(
       `${API_URL}/api/v1/agent/device-tokens/${encodeURIComponent(id)}/revoke`,
-      { method: 'PATCH', headers: { Authorization: `Bearer ${API_TOKEN}` } }
+      { method: 'PATCH', headers: { 'X-API-Key': API_TOKEN } }
     );
     if (!res.ok) return NextResponse.json({ detail: 'Revoke failed' }, { status: res.status });
     return NextResponse.json(await res.json());

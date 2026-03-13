@@ -11,7 +11,7 @@ export async function GET(
   try {
     const res = await fetch(
       `${API_URL}/api/v1/reports/health-summary/${encodeURIComponent(client_id)}`,
-      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' },
+      { headers: { 'X-API-Key': API_TOKEN }, cache: 'no-store' },
     );
     if (!res.ok) return NextResponse.json({ error: 'Backend error' }, { status: res.status });
     return NextResponse.json(await res.json());

@@ -8,7 +8,7 @@ export async function POST() {
     const res = await fetch(`${API_BASE}/api/v1/notifications/digest/send-now`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${API_TOKEN}`,
+        'X-API-Key': API_TOKEN,
         "Content-Type": "application/json",
       },
       cache: "no-store",

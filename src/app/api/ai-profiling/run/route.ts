@@ -7,7 +7,7 @@ export async function POST() {
   try {
     const res = await fetch(`${API_URL}/api/v1/ai-profiling/run`, {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${API_TOKEN}` },
+      headers: { 'X-API-Key': API_TOKEN },
     });
     if (!res.ok) return NextResponse.json({ error: 'Run failed' }, { status: res.status });
     return NextResponse.json(await res.json());

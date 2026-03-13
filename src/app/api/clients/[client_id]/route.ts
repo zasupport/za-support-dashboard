@@ -10,7 +10,7 @@ export async function GET(
   const { client_id } = await params;
   try {
     const res = await fetch(`${API_URL}/api/v1/clients/${client_id}`,
-      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' }
+      { headers: { 'X-API-Key': API_TOKEN }, cache: 'no-store' }
     );
     if (!res.ok) return NextResponse.json(null, { status: res.status });
     return NextResponse.json(await res.json());
@@ -28,7 +28,7 @@ export async function PATCH(
     const body = await req.text();
     const res = await fetch(`${API_URL}/api/v1/clients/${client_id}`, {
       method: 'PATCH',
-      headers: { Authorization: `Bearer ${API_TOKEN}`, 'Content-Type': 'application/json' },
+      headers: { 'X-API-Key': API_TOKEN, 'Content-Type': 'application/json' },
       body,
     });
     const data = await res.json().catch(() => null);

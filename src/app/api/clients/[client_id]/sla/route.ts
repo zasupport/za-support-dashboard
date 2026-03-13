@@ -10,7 +10,7 @@ export async function GET(
   const { client_id } = await params
   try {
     const res = await fetch(`${API_BASE}/api/v1/agent/config?client_id=${client_id}`, {
-      headers: { Authorization: `Bearer ${AGENT_TOKEN}` },
+      headers: { 'X-API-Key': AGENT_TOKEN },
       cache: 'no-store',
     })
     const data = await res.json()
@@ -38,7 +38,7 @@ export async function POST(
     const res = await fetch(`${API_BASE}${endpoint}`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${AGENT_TOKEN}`,
+        'X-API-Key': AGENT_TOKEN,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ client_id, tier_code }),

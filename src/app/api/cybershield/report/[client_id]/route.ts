@@ -14,7 +14,7 @@ export async function GET(
   try {
     const res = await fetch(
       `${API_URL}/api/v1/cybershield/reports/${client_id}/generate${qs}`,
-      { headers: { Authorization: `Bearer ${API_TOKEN}` } }
+      { headers: { 'X-API-Key': API_TOKEN } }
     );
     if (!res.ok) {
       const json = await res.json().catch(() => ({ detail: 'Failed' }));

@@ -6,7 +6,7 @@ const API_TOKEN = process.env.ZA_API_TOKEN || "";
 export async function GET() {
   try {
     const res = await fetch(`${API_BASE}/api/v1/notifications/digest/preview`, {
-      headers: { Authorization: `Bearer ${API_TOKEN}` },
+      headers: { 'X-API-Key': API_TOKEN },
       // No cache — always fetch fresh so Courtney sees live queue
       cache: "no-store",
     });

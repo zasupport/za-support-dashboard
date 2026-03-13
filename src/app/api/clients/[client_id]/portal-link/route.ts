@@ -11,7 +11,7 @@ export async function GET(
   try {
     const res = await fetch(
       `${API_URL}/api/v1/clients/${client_id}/portal-link`,
-      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' }
+      { headers: { 'X-API-Key': API_TOKEN }, cache: 'no-store' }
     );
     if (!res.ok) return NextResponse.json(null, { status: res.status });
     return NextResponse.json(await res.json());

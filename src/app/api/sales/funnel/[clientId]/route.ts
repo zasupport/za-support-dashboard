@@ -11,7 +11,7 @@ export async function GET(
   try {
     const res = await fetch(
       `${API_URL}/api/v1/sales/recommendations/${clientId}/funnel`,
-      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' },
+      { headers: { 'X-API-Key': API_TOKEN }, cache: 'no-store' },
     );
     if (!res.ok) return NextResponse.json({ stages: [], active_value_rand: 0, converted_value_rand: 0 });
     return NextResponse.json(await res.json());

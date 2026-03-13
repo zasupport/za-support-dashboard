@@ -10,7 +10,7 @@ export async function DELETE(
   const { job_ref, item_id } = await params;
   try {
     const res = await fetch(`${API_URL}/api/v1/workshop/jobs/${job_ref}/line-items/${item_id}`, {
-      method: 'DELETE', headers: { Authorization: `Bearer ${API_TOKEN}` },
+      method: 'DELETE', headers: { 'X-API-Key': API_TOKEN },
     });
     return new NextResponse(null, { status: res.status });
   } catch {

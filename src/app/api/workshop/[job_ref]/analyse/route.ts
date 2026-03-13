@@ -14,7 +14,7 @@ export async function POST(
       `${API_URL}/api/v1/workshop/jobs/${encodeURIComponent(job_ref)}/analyse`,
       {
         method: 'POST',
-        headers: { Authorization: `Bearer ${API_TOKEN}` },
+        headers: { 'X-API-Key': API_TOKEN },
         // Claude analysis may take up to 30s — no body needed
       }
     );

@@ -12,7 +12,7 @@ export async function GET(
     // List assessments filtered by client_id, most recent first
     const res = await fetch(
       `${API_URL}/api/v1/physical-assessment/?client_id=${encodeURIComponent(id)}&per_page=5`,
-      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' },
+      { headers: { 'X-API-Key': API_TOKEN }, cache: 'no-store' },
     );
     if (!res.ok) return NextResponse.json({ data: [], meta: { total: 0 } }, { status: res.status });
     return NextResponse.json(await res.json());

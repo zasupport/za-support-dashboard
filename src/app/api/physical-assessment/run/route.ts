@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     const res = await fetch(`${API_URL}/api/v1/physical-assessment/`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${API_TOKEN}`,
+        'X-API-Key': API_TOKEN,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),

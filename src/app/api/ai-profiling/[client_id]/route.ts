@@ -12,15 +12,15 @@ export async function GET(
   try {
     const [profileRes, similarRes, patternsRes] = await Promise.all([
       fetch(`${API_BASE}/api/v1/ai-profiling/clients/${client_id}`, {
-        headers: { Authorization: `Bearer ${TOKEN}` },
+        headers: { 'X-API-Key': TOKEN },
         next: { revalidate: 3600 },
       }),
       fetch(`${API_BASE}/api/v1/ai-profiling/clients/${client_id}/similar?limit=5`, {
-        headers: { Authorization: `Bearer ${TOKEN}` },
+        headers: { 'X-API-Key': TOKEN },
         next: { revalidate: 3600 },
       }),
       fetch(`${API_BASE}/api/v1/ai-profiling/patterns`, {
-        headers: { Authorization: `Bearer ${TOKEN}` },
+        headers: { 'X-API-Key': TOKEN },
         next: { revalidate: 3600 },
       }),
     ]);

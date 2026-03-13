@@ -9,7 +9,7 @@ export async function GET(
 ) {
   const { client_id } = await params;
   const res = await fetch(`${API_URL}/api/v1/clients/${client_id}/brief`, {
-    headers: { Authorization: `Bearer ${API_TOKEN}` },
+    headers: { 'X-API-Key': API_TOKEN },
     cache: 'no-store',
   });
   if (!res.ok) return NextResponse.json({ error: 'Not found' }, { status: res.status });

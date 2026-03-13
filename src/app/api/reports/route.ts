@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   try {
     const res = await fetch(
       `${API_URL}/api/v1/reports/history/${encodeURIComponent(client_id)}`,
-      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' }
+      { headers: { 'X-API-Key': API_TOKEN }, cache: 'no-store' }
     );
     if (!res.ok) return NextResponse.json([]);
     return NextResponse.json(await res.json());
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${API_TOKEN}` },
+      headers: { 'X-API-Key': API_TOKEN },
       cache: 'no-store',
     });
     if (!res.ok) {

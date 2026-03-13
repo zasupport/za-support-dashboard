@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
   try {
     const res = await fetch(
       `${API_URL}/api/v1/sales/recommendations/recent?days=${days}&limit=${limit}`,
-      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' },
+      { headers: { 'X-API-Key': API_TOKEN }, cache: 'no-store' },
     );
     if (!res.ok) return NextResponse.json({ recommendations: [], count: 0, total_pipeline_value: 0 });
     return NextResponse.json(await res.json());

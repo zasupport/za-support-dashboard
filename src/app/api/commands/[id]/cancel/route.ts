@@ -11,7 +11,7 @@ export async function POST(
   try {
     const res = await fetch(`${API_URL}/api/v1/agent/commands/${id}/cancel`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${API_TOKEN}` },
+      headers: { 'X-API-Key': API_TOKEN },
     });
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });

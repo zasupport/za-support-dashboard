@@ -10,7 +10,7 @@ export async function GET(
   const { serial } = await params;
   try {
     const res = await fetch(`${API_URL}/api/v1/diagnostics/devices/${serial}/metrics`, {
-      headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store',
+      headers: { 'X-API-Key': API_TOKEN }, cache: 'no-store',
     });
     if (!res.ok) return NextResponse.json([]);
     return NextResponse.json(await res.json());

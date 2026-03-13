@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     const res = await fetch(
       `${apiUrl}/api/v1/behavioural/device/${encodeURIComponent(clientId)}/${encodeURIComponent(deviceId)}`,
       {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { 'X-API-Key': token },
         cache: 'no-store',
       }
     );

@@ -9,7 +9,7 @@ export async function DELETE(
 ) {
   const { client_id, note_id } = await params;
   const res = await fetch(`${API_URL}/api/v1/clients/${client_id}/notes/${note_id}`, {
-    method: 'DELETE', headers: { Authorization: `Bearer ${API_TOKEN}` },
+    method: 'DELETE', headers: { 'X-API-Key': API_TOKEN },
   });
   if (!res.ok) return NextResponse.json({ error: 'Failed to delete note' }, { status: res.status });
   return NextResponse.json(await res.json());

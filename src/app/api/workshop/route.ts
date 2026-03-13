@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
   try {
     const res = await fetch(
       `${API_URL}/api/v1/workshop/jobs?${params}`,
-      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' }
+      { headers: { 'X-API-Key': API_TOKEN }, cache: 'no-store' }
     );
     if (!res.ok) return NextResponse.json({ data: [], meta: {} });
     return NextResponse.json(await res.json());
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const res = await fetch(`${API_URL}/api/v1/workshop/jobs`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${API_TOKEN}`, 'Content-Type': 'application/json' },
+      headers: { 'X-API-Key': API_TOKEN, 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
     const data = await res.json();

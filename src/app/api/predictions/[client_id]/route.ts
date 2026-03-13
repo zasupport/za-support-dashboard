@@ -11,7 +11,7 @@ export async function GET(
   try {
     const res = await fetch(`${API_URL}/api/v1/predictions/${client_id}`, {
       headers: {
-        Authorization: `Bearer ${API_TOKEN}`,
+        'X-API-Key': API_TOKEN,
         'Content-Type': 'application/json',
       },
       signal: AbortSignal.timeout(10000),

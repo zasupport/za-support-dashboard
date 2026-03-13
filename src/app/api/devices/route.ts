@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
   const params   = new URLSearchParams({ per_page });
   if (search) params.set('search', search);
   const res = await fetch(`${API_URL}/api/v1/diagnostics/devices?${params}`, {
-    headers: { Authorization: `Bearer ${API_TOKEN}` },
+    headers: { 'X-API-Key': API_TOKEN },
     cache: 'no-store',
   });
   if (!res.ok) return NextResponse.json([]);

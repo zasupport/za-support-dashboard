@@ -15,7 +15,7 @@ export async function GET(
   try {
     const res = await fetch(
       `${API_URL}/api/v1/interaction-analytics/devices/${encodeURIComponent(device_id)}/frustration-timeline?start=${start}&end=${end}`,
-      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' }
+      { headers: { 'X-API-Key': API_TOKEN }, cache: 'no-store' }
     );
     if (!res.ok) return NextResponse.json([]);
     return NextResponse.json(await res.json());

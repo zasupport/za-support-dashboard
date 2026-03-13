@@ -2,7 +2,7 @@ export const revalidate = 300; // ISR: dedup data changes infrequently
 
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
 const API_TOKEN = process.env.ZA_API_TOKEN || '';
-const h = { Authorization: `Bearer ${API_TOKEN}` };
+const h = { 'X-API-Key': API_TOKEN };
 
 // Known client IDs — scans per client
 const CLIENT_IDS = ['gillian-pearson', 'evan-shoul', 'charles-chemel', 'anton-meyberg'];

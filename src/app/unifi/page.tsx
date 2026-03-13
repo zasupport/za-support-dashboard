@@ -9,7 +9,7 @@ const API_TOKEN = process.env.ZA_API_TOKEN || '';
 async function fetchUnifiOverview(): Promise<any[]> {
   try {
     const res = await fetch(`${API_URL}/api/v1/unifi/overview`, {
-      headers: { Authorization: `Bearer ${API_TOKEN}`, 'Content-Type': 'application/json' },
+      headers: { 'X-API-Key': API_TOKEN, 'Content-Type': 'application/json' },
       cache: 'no-store',
     });
     if (!res.ok) return [];

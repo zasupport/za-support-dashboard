@@ -10,7 +10,7 @@ const API_TOKEN = process.env.ZA_API_TOKEN || '';
 
 async function fetchBrief(client_id: string) {
   const res = await fetch(`${API_URL}/api/v1/clients/${client_id}/brief`, {
-    headers: { Authorization: `Bearer ${API_TOKEN}` },
+    headers: { 'X-API-Key': API_TOKEN },
     cache: 'no-store',
   });
   if (!res.ok) return null;

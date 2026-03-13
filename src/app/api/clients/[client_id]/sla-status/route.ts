@@ -10,7 +10,7 @@ export async function GET(
   const { client_id } = await params
   try {
     const res = await fetch(`${API_BASE}/api/v1/clients/${client_id}/sla`, {
-      headers: { Authorization: `Bearer ${AGENT_TOKEN}` },
+      headers: { 'X-API-Key': AGENT_TOKEN },
       cache: 'no-store',
     })
     const data = await res.json()

@@ -17,7 +17,7 @@ export async function GET() {
   try {
     // Step 1: get all clients
     const clientsRes = await fetch(`${API_URL}/api/v1/clients?per_page=100`, {
-      headers: { Authorization: `Bearer ${API_TOKEN}` },
+      headers: { 'X-API-Key': API_TOKEN },
       cache: 'no-store',
     });
     if (!clientsRes.ok) return NextResponse.json([]);
@@ -37,7 +37,7 @@ export async function GET() {
           const profileRes = await fetch(
             `${API_URL}/api/v1/ai-profiling/clients/${encodeURIComponent(client.client_id)}`,
             {
-              headers: { Authorization: `Bearer ${API_TOKEN}` },
+              headers: { 'X-API-Key': API_TOKEN },
               cache: 'no-store',
             }
           );

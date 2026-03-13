@@ -14,7 +14,7 @@ export async function PUT(req: NextRequest) {
     const res = await fetch(`${apiUrl}/api/v1/behavioural/hourly-rate/${encodeURIComponent(client_id)}`, {
       method: 'PUT',
       headers: {
-        Authorization: `Bearer ${token}`,
+        'X-API-Key': token,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ hourly_rate_zar }),

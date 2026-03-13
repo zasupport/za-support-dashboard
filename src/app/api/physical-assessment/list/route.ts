@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   if (clientId) qs.set('client_id', clientId);
   try {
     const res = await fetch(`${API_URL}/api/v1/physical-assessment/?${qs}`, {
-      headers: { 'Authorization': `Bearer ${API_TOKEN}` },
+      headers: { 'X-API-Key': API_TOKEN },
       cache: 'no-store',
     });
     if (!res.ok) return NextResponse.json({ data: [], meta: { total: 0 } }, { status: res.status });

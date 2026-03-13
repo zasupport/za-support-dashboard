@@ -8,7 +8,7 @@ export async function GET(
   const res = await fetch(
     `${process.env.ZA_API_URL}/api/v1/reports/roi/${clientId}/history`,
     {
-      headers: { Authorization: `Bearer ${process.env.ZA_API_TOKEN}` },
+      headers: { 'X-API-Key': (process.env.ZA_API_TOKEN || '') },
       cache: 'no-store',
     },
   );

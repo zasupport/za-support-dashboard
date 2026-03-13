@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ clientId: string }> }) {
   const { clientId } = await params;
   const res = await fetch(`${process.env.ZA_API_URL}/api/v1/reports/roi/${clientId}/summary`, {
-    headers: { Authorization: `Bearer ${process.env.ZA_API_TOKEN}` },
+    headers: { 'X-API-Key': (process.env.ZA_API_TOKEN || '') },
     cache: 'no-store',
   });
   if (!res.ok) return NextResponse.json({ error: 'Not found' }, { status: res.status });
@@ -14,7 +14,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ cl
   const { clientId } = await params;
   const res = await fetch(`${process.env.ZA_API_URL}/api/v1/reports/roi/${clientId}/calculate`, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${process.env.ZA_API_TOKEN}` },
+    headers: { 'X-API-Key': (process.env.ZA_API_TOKEN || '') },
   });
   if (!res.ok) return NextResponse.json({ error: 'Failed' }, { status: res.status });
   return NextResponse.json(await res.json());

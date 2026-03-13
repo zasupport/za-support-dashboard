@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   try {
     const res = await fetch(
       `${API_URL}/api/v1/medical/practices?${params}`,
-      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' }
+      { headers: { 'X-API-Key': API_TOKEN }, cache: 'no-store' }
     );
     if (!res.ok) return NextResponse.json({ data: [], meta: {} });
     return NextResponse.json(await res.json());
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     const res = await fetch(`${API_URL}/api/v1/medical/practices`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${API_TOKEN}`,
+        'X-API-Key': API_TOKEN,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),

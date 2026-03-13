@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     const res = await fetch(`${API_URL}/api/v1/clients/intake`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${API_TOKEN}`,
+        'X-API-Key': API_TOKEN,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
   try {
     const res = await fetch(
       `${API_URL}/api/v1/clients?${params}`,
-      { headers: { Authorization: `Bearer ${API_TOKEN}` }, cache: 'no-store' }
+      { headers: { 'X-API-Key': API_TOKEN }, cache: 'no-store' }
     );
     if (!res.ok) return NextResponse.json({ data: [], meta: {}, _error: true, _status: res.status });
     return NextResponse.json(await res.json());

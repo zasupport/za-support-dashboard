@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     const res = await fetch(
       `${API_BASE}/api/v1/notifications/digest?status=${status}&limit=${limit}`,
       {
-        headers: { Authorization: `Bearer ${API_TOKEN}` },
+        headers: { 'X-API-Key': API_TOKEN },
         next: { revalidate: 30 },
       }
     );
