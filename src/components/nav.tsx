@@ -46,8 +46,8 @@ const links = [
 const mobileLinks = [
   { href: '/', label: 'Home', icon: Monitor },
   { href: '/morning', label: 'Brief', icon: Coffee },
+  { href: '/notifications', label: 'Alerts', icon: Bell },
   { href: '/interventions', label: 'Actions', icon: Zap },
-  { href: '/whatsapp', label: 'WhatsApp', icon: MessageCircle },
   { href: '/clients', label: 'Clients', icon: Users },
   { href: '/workshop', label: 'Workshop', icon: Wrench },
 ];
@@ -152,19 +152,30 @@ export function Nav() {
 
       {/* Mobile bottom nav */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-900 border-t border-slate-700 flex">
-        {mobileLinks.map(({ href, label, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            className={cn(
-              'flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-xs transition-colors',
-              pathname === href ? 'text-teal-400' : 'text-slate-500 hover:text-slate-300'
-            )}
-          >
-            <Icon size={18} />
-            <span>{label}</span>
-          </Link>
-        ))}
+        {mobileLinks.map(({ href, label, icon: Icon }) => {
+          const isNotifications = href === '/notifications';
+          const showBadge = isNotifications && notificationCount > 0;
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                'flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-xs transition-colors relative',
+                pathname === href ? 'text-teal-400' : 'text-slate-500 hover:text-slate-300'
+              )}
+            >
+              <span className="relative">
+                <Icon size={18} />
+                {showBadge && (
+                  <span className="absolute -top-1 -right-1.5 bg-yellow-500 text-slate-900 text-[9px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center leading-none">
+                    {notificationCount > 9 ? '9+' : notificationCount}
+                  </span>
+                )}
+              </span>
+              <span>{label}</span>
+            </Link>
+          );
+        })}
       </nav>
     </>
   );
