@@ -318,6 +318,9 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
           <CardHeader className="flex-row items-center justify-between pb-2">
             <CardTitle className="text-white text-sm">Network Intelligence</CardTitle>
             <div className="flex items-center gap-2">
+              <Link href={`/unifi/${client.client_id}`} className="text-xs text-teal-400 hover:text-teal-300">
+                Full Network View →
+              </Link>
               {network.stale && (
                 <span className="text-xs px-2 py-0.5 rounded border bg-yellow-500/10 text-yellow-400 border-yellow-500/30">Stale data</span>
               )}

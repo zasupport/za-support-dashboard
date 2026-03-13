@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee, ShieldCheck, Download, Settings, BookOpen, LogOut, TrendingUp, Stethoscope, Copy, FlaskConical, Cpu, Zap, Radar, Brain, ClipboardList, MessageCircle, KeyRound, Terminal, Inbox } from 'lucide-react';
+import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee, ShieldCheck, Download, Settings, BookOpen, LogOut, TrendingUp, Stethoscope, Copy, FlaskConical, Cpu, Zap, Radar, Brain, ClipboardList, MessageCircle, KeyRound, Terminal, Inbox, Network } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GlobalSearch } from './GlobalSearch';
 import { useEffect, useState } from 'react';
@@ -23,6 +23,7 @@ const links = [
   { href: '/unassigned-machines', label: 'Unassigned', icon: Inbox },
   { href: '/devices', label: 'Devices', icon: Monitor },
   { href: '/isp', label: 'ISP Status', icon: Wifi },
+  { href: '/unifi', label: 'Network Monitor', icon: Network },
   { href: '/shield', label: 'Shield Events', icon: Shield },
   { href: '/intelligence', label: 'App Intelligence', icon: BarChart2 },
   { href: '/analytics', label: 'Interaction Analytics', icon: Activity },
