@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 const links = [
   { href: '/', label: 'Dashboard', icon: Monitor },
   { href: '/morning', label: 'Morning Brief', icon: Coffee },
+  { href: '/notifications', label: 'Notifications', icon: Bell },
   { href: '/interventions', label: 'Automations', icon: Zap },
   { href: '/whatsapp', label: 'WhatsApp Inbox', icon: MessageCircle },
   { href: '/clients', label: 'Clients', icon: Users },
@@ -53,7 +54,8 @@ const mobileLinks = [
 
 export function Nav() {
   const pathname = usePathname();
-  const [unassignedCount, setUnassignedCount] = useState(0);
+  const [unassignedCount, setUnassignedCount]     = useState(0);
+  const [notificationCount, setNotificationCount] = useState(0);
 
   useEffect(() => {
     async function fetchUnassignedCount() {
@@ -72,6 +74,23 @@ export function Nav() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    async function fetchNotificationCount() {
+      try {
+        const res = await fetch('/api/notifications/summary', { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+        setNotificationCount(data.pending_count ?? 0);
+      } catch {
+        // non-fatal — badge just won't show
+      }
+    }
+    fetchNotificationCount();
+    // Refresh count every 60 seconds
+    const interval = setInterval(fetchNotificationCount, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <>
       {/* Desktop sidebar */}
@@ -82,8 +101,10 @@ export function Nav() {
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {links.map(({ href, label, icon: Icon }) => {
-            const isUnassigned = href === '/unassigned-machines';
-            const showBadge = isUnassigned && unassignedCount > 0;
+            const isUnassigned    = href === '/unassigned-machines';
+            const isNotifications = href === '/notifications';
+            const showUnassignedBadge    = isUnassigned    && unassignedCount > 0;
+            const showNotificationBadge  = isNotifications && notificationCount > 0;
             return (
               <Link
                 key={href}
@@ -97,9 +118,14 @@ export function Nav() {
               >
                 <Icon size={16} />
                 <span className="flex-1">{label}</span>
-                {showBadge && (
+                {showUnassignedBadge && (
                   <span className="bg-orange-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">
                     {unassignedCount}
+                  </span>
+                )}
+                {showNotificationBadge && (
+                  <span className="bg-yellow-500 text-slate-900 text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">
+                    {notificationCount}
                   </span>
                 )}
               </Link>
