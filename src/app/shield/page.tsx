@@ -3,6 +3,8 @@ import { fetchShieldEvents } from '@/lib/api';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AutoRefresh } from '@/components/auto-refresh';
+
+export const revalidate = 30; // ISR: shield events refresh frequently
 import { ShieldJobButton } from './ShieldJobButton';
 
 function severityVariant(s: string): 'destructive' | 'secondary' | 'outline' {

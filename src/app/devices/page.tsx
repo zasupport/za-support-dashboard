@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { AutoRefresh } from '@/components/auto-refresh';
 
+export const revalidate = 60; // ISR: revalidate every 60 seconds
+
 function RiskBadge({ level }: { level?: string }) {
   if (!level) return <span className="text-slate-600 text-xs">—</span>;
   const l = level.toLowerCase();

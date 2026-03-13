@@ -4,6 +4,8 @@ import { AutoRefresh } from '@/components/auto-refresh';
 import Link from 'next/link';
 import { AlertActions } from './AlertActions';
 
+export const revalidate = 30; // ISR: alerts refresh frequently
+
 const SEVERITY_STYLE: Record<string, string> = {
   critical: 'bg-red-500/20 text-red-300 border-red-500/30',
   high:     'bg-orange-500/20 text-orange-300 border-orange-500/30',

@@ -2,6 +2,8 @@ import { WorkshopBoard } from './WorkshopBoard';
 import { WorkshopNewJob } from './WorkshopNewJob';
 import { AutoRefresh } from '@/components/auto-refresh';
 
+export const revalidate = 60; // ISR: revalidate every 60 seconds
+
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
 const API_TOKEN = process.env.ZA_API_TOKEN || '';
 const H = { Authorization: `Bearer ${API_TOKEN}` };

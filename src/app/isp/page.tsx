@@ -3,6 +3,8 @@ import { fetchISPStatus, fetchClientISPMap, fetchISPOutages } from '@/lib/api';
 import { ISPOutageChart } from './ISPOutageChart';
 import { ISPTimelineChart } from './ISPTimelineChart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+export const revalidate = 30; // ISR: ISP status refreshes more frequently
 import { Badge } from '@/components/ui/badge';
 import { AutoRefresh } from '@/components/auto-refresh';
 import { Wifi, WifiOff, AlertTriangle } from 'lucide-react';

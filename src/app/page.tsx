@@ -1,4 +1,6 @@
 import { fetchDevices, fetchISPStatus, fetchAlerts, fetchShieldEvents, fetchClients, fetchActivityFeed, fetchOpenWorkshopJobs, fetchCyberShieldSummary, fetchUpgradeRadar, fetchFleetInterventionSummary, fetchDedupFleetSummary } from '@/lib/api';
+
+export const revalidate = 60; // ISR: revalidate every 60 seconds
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Monitor, Wifi, Shield, Bell, Users, Wrench, Activity, Coffee, ShieldCheck, Radar, Zap } from 'lucide-react';

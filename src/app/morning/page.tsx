@@ -3,6 +3,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { AutoRefresh } from '@/components/auto-refresh';
 import { fetchCyberShieldSummary, fetchUpgradeRadar, fetchCheckinStatus } from '@/lib/api';
 import { TrendAlerts } from './TrendAlerts';
+
+export const revalidate = 60; // ISR: revalidate every 60 seconds
 import { FleetInterventionsFeed } from '@/components/FleetInterventionsFeed';
 import { ServicesPanel } from '@/components/ServicesPanel';
 import { UpsellLeadActions } from '@/components/UpsellLeadActions';
