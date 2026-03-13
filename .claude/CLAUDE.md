@@ -29,6 +29,11 @@
 - lib/ — Utilities, API helpers
 - app/api/ — Route handlers (server-side API calls to backend)
 
+## AGENT RULE (PERMANENT — 13/03/2026)
+- Minimum 10 concurrent agents per non-trivial task (hard floor, no ceiling)
+- Every build, verify, deploy = 10+ agents launched simultaneously
+- See global ~/.claude/CLAUDE.md §73.5-§73.6 for full rules
+
 ## PROJECT-SPECIFIC NOTES
 - Mobile-first design — all views must be usable on iPhone
 - Dark/light mode via Tailwind dark: prefix
