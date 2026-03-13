@@ -2,20 +2,49 @@
   "mcpServers": {
     "za-support": {
       "command": "python3",
-      "args": ["${HOME}/zasupport/mcp/za_support_mcp.py"],
-      "note": "Keys loaded from ~/.za-support.env — sourced in mcp server at startup"
+      "args": [
+        "${HOME}/zasupport/mcp/za_support_mcp.py"
+      ],
+      "note": "Keys from ~/.za-support.env | Bridge: za_bridge_server.py on port 7777"
     }
   },
   "permissions": {
     "allow": [
-      "Bash(git:*)", "Bash(python3:*)", "Bash(pip:*)", "Bash(pip3:*)",
-      "Bash(npm:*)", "Bash(npx:*)", "Bash(curl:*)", "Bash(cat:*)",
-      "Bash(ls:*)", "Bash(find:*)", "Bash(grep:*)", "Bash(mkdir:*)",
-      "Bash(cp:*)", "Bash(mv:*)", "Bash(echo:*)", "Bash(chmod:*)",
-      "Bash(source:*)", "Bash(alembic:*)", "Bash(uvicorn:*)", "Bash(gunicorn:*)",
-      "Bash(zip:*)", "Bash(unzip:*)", "Bash(psql:*)", "Bash(bash:*)",
-      "Bash(open:*)", "Bash(which:*)", "Bash(env:*)", "Bash(sw_vers:*)",
-      "Bash(system_profiler:*)", "Bash(networksetup:*)", "Bash(defaults:*)"
+      "Bash(git:*)",
+      "Bash(python3:*)",
+      "Bash(pip:*)",
+      "Bash(pip3:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(curl:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(echo:*)",
+      "Bash(chmod:*)",
+      "Bash(source:*)",
+      "Bash(alembic:*)",
+      "Bash(uvicorn:*)",
+      "Bash(gunicorn:*)",
+      "Bash(zip:*)",
+      "Bash(unzip:*)",
+      "Bash(psql:*)",
+      "Bash(bash:*)",
+      "Bash(open:*)",
+      "Bash(which:*)",
+      "Bash(env:*)",
+      "Bash(sw_vers:*)",
+      "Bash(system_profiler:*)",
+      "Bash(networksetup:*)",
+      "Bash(defaults:*)",
+      "Bash(security:*)",
+      "Bash(launchctl:*)",
+      "Bash(brew:*)",
+      "Bash(cloudflared:*)"
     ]
   }
 }
