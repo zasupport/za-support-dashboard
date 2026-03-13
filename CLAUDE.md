@@ -102,3 +102,8 @@ ZA_API_TOKEN=<agent bearer token>
 - [x] Automated Interventions page (/interventions) with 24h/7d/30d filter
 - [ ] Lifecycle records need seeding from Scout diagnostic uploads (happens automatically on next Scout run per client)
 - [ ] Sales recommendations need generating from diagnostic findings (backend ROI engine feeds this)
+
+## AGENT RULE (PERMANENT — 13/03/2026)
+- Minimum 10 concurrent agents per non-trivial task (hard floor, no ceiling)
+- Every build, verify, deploy, investigation = 10+ agents launched simultaneously
+- See global ~/.claude/CLAUDE.md §73.5-§73.6 for full rules
