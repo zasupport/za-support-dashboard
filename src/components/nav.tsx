@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee, ShieldCheck, Download, Settings, BookOpen, LogOut, TrendingUp, Stethoscope, Copy, FlaskConical, Cpu, Zap, Radar, Brain, ClipboardList, MessageCircle, KeyRound, Terminal, Inbox, Network } from 'lucide-react';
+import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee, ShieldCheck, Download, Settings, BookOpen, LogOut, TrendingUp, Stethoscope, Copy, FlaskConical, Cpu, Zap, Radar, Brain, ClipboardList, MessageCircle, KeyRound, Terminal, Inbox, Network, HardDrive } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GlobalSearch } from './GlobalSearch';
 import { useEffect, useState } from 'react';
@@ -35,6 +35,7 @@ const links = [
   { href: '/sales', label: 'Sales CRM', icon: TrendingUp },
   { href: '/medical', label: 'Medical', icon: Stethoscope },
   { href: '/dedup', label: 'Deduplication', icon: Copy },
+  { href: '/storage-cleanup', label: 'Storage Cleanup', icon: HardDrive },
   { href: '/guides', label: 'Guides', icon: BookOpen },
   { href: '/research', label: 'Research', icon: FlaskConical },
   { href: '/reports', label: 'Reports', icon: FileText },
