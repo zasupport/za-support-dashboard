@@ -111,3 +111,10 @@ ZA_API_TOKEN=<agent bearer token>
 ## PKG PUBLISH RULE (PERMANENT — §94 — 13/03/2026)
 - Every PKG build → publish to /api/v1/agent/pkg/latest + OTA broadcast immediately
 - Never hold a built PKG — §94.1 auto-execute rule (no asking)
+
+## §109: AUTO-APPROVE IMPROVEMENTS (PERMANENT — HARD)
+ANY request to improve/optimise/upgrade/enhance/fix/refactor ANY file, script, pipeline, page, rule, or process = pre-approved. Execute immediately, zero questions.
+∅ "Shall I save this?" | ∅ "Want me to update?" | ∅ "Would you like me to?" | ∅ "Should I?" — ALL BANNED on improvement requests.
+Applies to: all files in this repo, CLAUDE.md updates, memory files, rules propagation, script improvements.
+Hard stops only: DROP TABLE prod | delete client data | force push main | new paid >R500/mo
+→ memory/feedback_auto_approve_improvements.md
