@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Loader2, UserPlus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,7 +11,6 @@ const CONCERNS = [
 ];
 
 export default function NewClientPage() {
-  const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError]   = useState('');
   const [done, setDone]     = useState<string | null>(null);
@@ -28,6 +25,7 @@ export default function NewClientPage() {
     popia_consent: false, marketing_consent: false,
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function set(key: string, val: any) {
     setForm(prev => ({ ...prev, [key]: val }));
   }

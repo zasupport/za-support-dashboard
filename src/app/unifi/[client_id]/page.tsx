@@ -6,7 +6,7 @@ import { fetchClientNetwork, fetchClientNetworkHistory } from '@/lib/api';
 import { LatencyChart } from './LatencyChart';
 import { Network, Wifi, WifiOff, Router, Monitor, Clock } from 'lucide-react';
 
-async function fetchNetworkSnapshots(client_id: string, hours = 24): Promise<any[]> {
+async function fetchNetworkSnapshots(client_id: string, _hours = 24): Promise<unknown[]> {
   const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
   const API_TOKEN = process.env.ZA_API_TOKEN || '';
   try {

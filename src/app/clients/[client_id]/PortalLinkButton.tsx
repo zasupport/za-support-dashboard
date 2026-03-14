@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState } from 'react';
@@ -77,12 +76,6 @@ export function PortalLinkButton({
     await navigator.clipboard.writeText(buildMessage());
     setMsgCopied(true);
     setTimeout(() => setMsgCopied(false), 2500);
-  }
-
-  function openWhatsApp() {
-    const text = encodeURIComponent(buildMessage());
-    const cleanPhone = (phone || '').replace(/\D/g, '').replace(/^0/, '27');
-    window.open(`https://wa.me/${cleanPhone || ''}?text=${text}`, '_blank');
   }
 
   if (state === 'idle') {

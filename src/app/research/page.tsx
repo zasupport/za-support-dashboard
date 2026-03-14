@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -77,7 +76,7 @@ export default function ResearchPage() {
       if (digestRes.status === 'fulfilled' && digestRes.value.ok) {
         setDigest(await digestRes.value.json());
       }
-    } catch (e) {
+    } catch {
       setError('Failed to load research data.');
     } finally {
       setLoading(false);
@@ -95,7 +94,7 @@ export default function ResearchPage() {
       const data = await res.json();
       await loadData();
       alert(`Scrape complete — ${data.new_items} new items added.`);
-    } catch (e) {
+    } catch {
       setError('Scrape failed.');
     } finally {
       setScraping(false);
@@ -114,13 +113,14 @@ export default function ResearchPage() {
       await loadData();
       setShowDigest(true);
       if (data.status === 'no_items') alert('No new items to include in digest.');
-    } catch (e) {
+    } catch {
       setError('Digest generation failed.');
     } finally {
       setGenerating(false);
     }
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { loadData(); }, []);
 
   const filtered = filter === 'all' ? items : items.filter(i => i.category === filter);

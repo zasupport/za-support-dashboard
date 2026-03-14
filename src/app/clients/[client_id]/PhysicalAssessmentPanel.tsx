@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,13 +15,6 @@ interface Assessment {
   critical_findings?: number;
   total_financial_exposure?: number;
 }
-
-const SEVERITY_COLORS: Record<string, string> = {
-  critical: 'text-red-400',
-  high:     'text-orange-400',
-  moderate: 'text-yellow-400',
-  low:      'text-green-400',
-};
 
 const STATUS_BADGE: Record<string, string> = {
   in_progress: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',

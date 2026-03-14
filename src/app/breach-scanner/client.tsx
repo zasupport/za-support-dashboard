@@ -16,13 +16,6 @@ type DashboardStats = {
   provider_health: Record<string, unknown>;
 };
 
-const SEVERITY_COLORS: Record<string, string> = {
-  critical: 'text-red-400',
-  high: 'text-orange-400',
-  medium: 'text-yellow-400',
-  low: 'text-green-400',
-};
-
 export function BreachScannerClient() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);

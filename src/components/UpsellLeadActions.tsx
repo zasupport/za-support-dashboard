@@ -1,10 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState } from 'react';
 
-// Status type retained for documentation
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type _Status = 'pending' | 'contacted' | 'won' | 'dismissed';
 
 const STATUS_CONFIG: Record<string, { label: string; badge: string; cls: string }> = {

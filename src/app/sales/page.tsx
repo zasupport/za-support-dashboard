@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -601,6 +600,7 @@ const SEQ_COLOUR: Record<string, string> = {
   opted_out:   '#CC0000',
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function FollowUpTab() {
   const [sequences, setSequences] = useState<RepairSequence[]>([]);
   const [loading,   setLoading]   = useState(true);
@@ -1148,7 +1148,6 @@ function FollowUpSequencesTab() {
 
   const active    = seqs.filter(s => !s.converted && !s.opted_out && !s.step_365d_sent_at);
   const converted = seqs.filter(s => s.converted);
-  const optedOut  = seqs.filter(s => s.opted_out);
   const convValue = converted.reduce((sum, s) => sum + (s.converted_value_rand ?? 0), 0);
 
   // Sequences where next step is overdue (past threshold, not sent yet)

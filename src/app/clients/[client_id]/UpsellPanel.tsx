@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -12,13 +11,6 @@ type Recommendation = {
   roi_description: string | null;
   status: string;
   created_at: string;
-};
-
-const CATEGORY_COLORS: Record<string, string> = {
-  repair:    'bg-orange-500/20 text-orange-400 border-orange-500/30',
-  warranty:  'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  accessory: 'bg-teal-500/20 text-teal-400 border-teal-500/30',
-  service:   'bg-purple-500/20 text-purple-400 border-purple-500/30',
 };
 
 const STATUS_CONFIG: Record<string, { label: string; next: string; nextLabel: string; color: string }> = {
@@ -100,7 +92,6 @@ export function UpsellPanel({ clientId }: { clientId: string }) {
       <div className="space-y-2">
         {active.map(rec => {
           const cfg = STATUS_CONFIG[rec.status] ?? STATUS_CONFIG.pending;
-          const catColor = CATEGORY_COLORS[rec.product_category ?? ''] ?? 'bg-slate-500/20 text-slate-400 border-slate-500/30';
           return (
             <div key={rec.id} className="bg-slate-700/40 rounded-lg p-3 border border-slate-600/40">
               <div className="flex items-start justify-between gap-2">
