@@ -372,16 +372,16 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
               </div>
             </div>
 
-            {/* Throughput */}
-            {(network.wan_rx_mbps != null || network.wan_tx_mbps != null) && (
+            {/* Throughput — /latest returns download_mbps/upload_mbps */}
+            {(network.download_mbps != null || network.upload_mbps != null) && (
               <div className="grid grid-cols-2 gap-3 mb-4">
                 <div className="bg-slate-900/50 rounded-md p-3 flex items-center gap-2">
                   <span className="text-green-400 text-xs font-medium">↓ RX</span>
-                  <span className="text-slate-200 text-xs font-mono">{network.wan_rx_mbps != null ? `${network.wan_rx_mbps.toFixed(2)} Mbps` : '—'}</span>
+                  <span className="text-slate-200 text-xs font-mono">{network.download_mbps != null ? `${network.download_mbps.toFixed(2)} Mbps` : '—'}</span>
                 </div>
                 <div className="bg-slate-900/50 rounded-md p-3 flex items-center gap-2">
                   <span className="text-teal-400 text-xs font-medium">↑ TX</span>
-                  <span className="text-slate-200 text-xs font-mono">{network.wan_tx_mbps != null ? `${network.wan_tx_mbps.toFixed(2)} Mbps` : '—'}</span>
+                  <span className="text-slate-200 text-xs font-mono">{network.upload_mbps != null ? `${network.upload_mbps.toFixed(2)} Mbps` : '—'}</span>
                 </div>
               </div>
             )}
