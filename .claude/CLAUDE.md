@@ -35,6 +35,7 @@
 - No direct backend DB access from dashboard — API only
 
 ## AUTO-APPROVE RULE (§109 — PERMANENT — HARD)
+ZERO QUESTIONS — ALL ACTIONS PRE-APPROVED — banned: 'shall I' | 'would you like' | 'do you want' | 'can I' — read MEMORY.md at session start — execute pending items immediately — hard stops only: DROP TABLE prod | delete client data | force push main | >R500/mo new paid
 ALL improvement/optimisation/fix/refactor requests on any file, script, rule, or MD in this repo = pre-approved.
 Execute immediately. Zero questions. Never ask "shall I", "want me to", "would you like". Hard stops only.
 
@@ -71,3 +72,18 @@ Before ANY non-trivial task: count running agents. If <20 → spawn to 20 immedi
 Tasks >90s: spawn 10 more agents instantly — no exception.
 Sequential steps BANNED. Every independent action = its own agent.
 ∅ serial DB query → read → fix → test. Run ALL simultaneously.
+
+# SECTION 127: ZERO-PAUSE AUTONOMOUS EXECUTION (PERMANENT — HARD)
+After ANY task: IMMEDIATELY proceed to next highest-priority item from MEMORY.md §PENDING ACTIONS. ∅pause ∅summary ∅"session complete" ∅wait.
+BANNED: stopping then waiting for "continue"/"next"/"go" | trailing status reports with no next action.
+CORRECT: last task verified → MEMORY.md updated → next pending item executing IN SAME RESPONSE.
+Only valid stop = HARD STOP (DROP TABLE prod | delete client data | force push main | new paid >R500/mo).
+→ memory/feedback_zero_pause.md | REINFORCED 14/03/2026 ×4 FINAL
+
+# SECTION 128: UNIFI — CRITICAL SLA SYSTEM (PERMANENT — HARD — P1)
+→ memory/feedback_unifi_critical.md
+Dr Evan Shoul = active SLA client. UniFi data = core of HC reports. ANY UniFi 404/stub/missing = P1.
+Pre-approved: scraping tools | API polling | workarounds | 20+ agents
+ON UniFi failure: fix immediately ∅ask ∅pause | build fallback scraper if API insufficient
+Clients: Shoul | Chemel | Jewell — all 3 must have live is_reachable+cloud_wan_status+device_count
+∅ stale UniFi data >15min during business hours | scheduled poll every 5min
