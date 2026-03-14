@@ -9,7 +9,7 @@ const CLIENT_IDS = ['gillian-pearson', 'evan-shoul', 'charles-chemel', 'anton-me
 
 async function fetchSummary(clientId: string) {
   try {
-    const res = await fetch(`${API_URL}/api/v1/dedup/summary/${clientId}`, { headers: h, cache: 'no-store' });
+    const res = await fetch(`${API_URL}/api/v1/deduplication/${clientId}/latest`, { headers: h, cache: 'no-store' });
     return res.ok ? await res.json() : null;
   } catch { return null; }
 }

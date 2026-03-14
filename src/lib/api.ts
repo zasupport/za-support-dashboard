@@ -193,8 +193,6 @@ export async function fetchClientNetworkHistory(client_id: string, hours = 24) {
 
 export async function fetchOpenWorkshopJobs() {
   try {
-    const params = new URLSearchParams({ per_page: '100' });
-    // Fetch open + in_progress separately via multiple calls, or just fetch all and filter client-side
     const res = await fetch(`${API_URL}/api/v1/workshop/jobs?per_page=100`, {
       headers: headers(), signal: withTimeout(TIMEOUT_MS), next: { revalidate: 60 },
     });
@@ -236,7 +234,7 @@ export async function fetchFleetInterventionSummary(days = 30) {
 
 export async function fetchDedupFleetSummary() {
   try {
-    const res = await fetch(`${API_URL}/api/v1/dedup/fleet/summary`, {
+    const res = await fetch(`${API_URL}/api/v1/deduplication/fleet/summary`, {
       headers: headers(), signal: withTimeout(TIMEOUT_MS), next: { revalidate: 300 },
     });
     if (!res.ok) return null;
