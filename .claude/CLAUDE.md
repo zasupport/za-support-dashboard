@@ -64,3 +64,10 @@ Monitor: ~/bin/za-ci-monitor.sh (every 5min) | Alert: ~/Desktop/ZA-CI-FAILURE-*.
 
 ## AUTOMATION/MONITORING TOOL REQUESTS (§124 — PERMANENT — HARD)
 Requests to build any monitoring, alerting, watchdog, automation, or CI tool = pre-approved. Build immediately, zero questions. ∅ ask, ∅ confirm.
+
+## AGENT COMPLIANCE — SELF-ENFORCEMENT (§125 — PERMANENT — HARD)
+MINIMUM 15 AGENTS ALWAYS — PRE-APPROVED — NO CEILING — ∅sequential in main context — see ~/.claude/CLAUDE.md §73
+Before ANY non-trivial task: count running agents. If <20 → spawn to 20 immediately.
+Tasks >90s: spawn 10 more agents instantly — no exception.
+Sequential steps BANNED. Every independent action = its own agent.
+∅ serial DB query → read → fix → test. Run ALL simultaneously.
