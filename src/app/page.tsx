@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { fetchDevices, fetchISPStatus, fetchAlerts, fetchShieldEvents, fetchClients, fetchActivityFeed, fetchOpenWorkshopJobs, fetchCyberShieldSummary, fetchUpgradeRadar, fetchFleetInterventionSummary, fetchDedupFleetSummary } from '@/lib/api';
 
 export const revalidate = 60; // ISR: revalidate every 60 seconds

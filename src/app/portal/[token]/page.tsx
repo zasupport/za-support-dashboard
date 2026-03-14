@@ -239,7 +239,7 @@ export default async function PortalPage({ params }: { params: Promise<{ token: 
               What ZA Support Did For You
             </h2>
             <p className="text-xs text-slate-500 mb-4">
-              These actions happened automatically — you didn't need to do anything.
+              These actions happened automatically — you didn&apos;t need to do anything.
             </p>
             <div className="space-y-0">
               {recent_interventions.map((item, i) => (

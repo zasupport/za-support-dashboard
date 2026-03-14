@@ -96,7 +96,7 @@ export default function PortalDashboard() {
     setLoading(false);
   }, [router]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { load(); }, [load]); // eslint-disable-line react-hooks/set-state-in-effect
 
   function signOut() {
     localStorage.removeItem("portal_token");

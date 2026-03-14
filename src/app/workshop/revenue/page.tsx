@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { AutoRefresh } from '@/components/auto-refresh';
 
 export const revalidate = 300; // ISR: revenue data, revalidate every 5 minutes

@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: err }, { status: res.status });
     }
     return NextResponse.json(await res.json());
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: 'Request failed' }, { status: 500 });
   }
 }

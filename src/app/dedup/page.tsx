@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export const revalidate = 300; // ISR: dedup data changes infrequently
 
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';

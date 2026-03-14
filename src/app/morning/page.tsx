@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { AutoRefresh } from '@/components/auto-refresh';

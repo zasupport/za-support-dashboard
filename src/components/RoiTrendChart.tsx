@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   AreaChart,
   Area,
@@ -56,6 +56,18 @@ export function RoiTrendChart({ clientId }: { clientId: string }) {
       .finally(() => setLoading(false));
   }, [clientId]);
 
+  // Cumulative running total — must be before early returns (hooks rules)
+  const { chartData, cumulative } = useMemo(() => {
+    const result = data.reduce<{ mapped: (RoiPeriod & { cumulative_value: number })[]; total: number }>(
+      (acc, p) => {
+        const next = acc.total + p.total_value_protected;
+        return { mapped: [...acc.mapped, { ...p, cumulative_value: next }], total: next };
+      },
+      { mapped: [], total: 0 }
+    );
+    return { chartData: result.mapped, cumulative: result.total };
+  }, [data]);
+
   if (loading) {
     return (
       <div className="h-40 bg-slate-800 rounded-lg border border-slate-700 flex items-center justify-center">
@@ -71,13 +83,6 @@ export function RoiTrendChart({ clientId }: { clientId: string }) {
       </div>
     );
   }
-
-  // Cumulative running total for the filled area
-  let cumulative = 0;
-  const chartData = data.map(p => {
-    cumulative += p.total_value_protected;
-    return { ...p, cumulative_value: cumulative };
-  });
 
   const peak = Math.max(...chartData.map(d => d.cumulative_value), 1);
 

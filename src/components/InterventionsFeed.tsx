@@ -76,12 +76,12 @@ export function InterventionsFeed({ clientId }: { clientId: string }) {
   const [days, setDays]       = useState(30);
 
   useEffect(() => {
-    setLoading(true);
+    let cancelled = false;
     fetch(`/api/reports/interventions/${clientId}?days=${days}`)
       .then(r => r.json())
-      .then(json => setData(json))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .then(json => { if (!cancelled) { setData(json); setLoading(false); } })
+      .catch(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, [clientId, days]);
 
   const successCount = data?.interventions.filter(i => i.outcome === 'success').length ?? 0;

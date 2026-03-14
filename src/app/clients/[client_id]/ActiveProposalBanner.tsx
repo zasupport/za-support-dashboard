@@ -28,15 +28,16 @@ export function ActiveProposalBanner({ clientId }: { clientId: string }) {
   if (!proposal) return null;
 
   if (proposal.status === 'viewed') {
+    const now = new Date();
     const daysLeft = proposal.expires_at
-      ? Math.max(0, Math.ceil((new Date(proposal.expires_at).getTime() - Date.now()) / 86400000))
+      ? Math.max(0, Math.ceil((new Date(proposal.expires_at).getTime() - now.getTime()) / 86400000))
       : null;
     return (
       <div className="rounded-md border border-amber-500/50 bg-amber-500/10 px-4 py-3 text-amber-200 text-sm flex items-start gap-3">
         <span className="text-lg leading-none mt-0.5">👀</span>
         <div>
           <strong>Proposal opened — this client is looking right now.</strong>
-          {' '}Call them to close while it's top of mind.
+          {' '}Call them to close while it&apos;s top of mind.
           {daysLeft !== null && <span className="ml-2 text-amber-400/80">(Expires in {daysLeft}d)</span>}
           {proposal.proposal_url && (
             <a
@@ -67,8 +68,9 @@ export function ActiveProposalBanner({ clientId }: { clientId: string }) {
 
   // pending — sent but not opened
   if (proposal.status === 'pending') {
+    const now = new Date();
     const daysLeft = proposal.expires_at
-      ? Math.max(0, Math.ceil((new Date(proposal.expires_at).getTime() - Date.now()) / 86400000))
+      ? Math.max(0, Math.ceil((new Date(proposal.expires_at).getTime() - now.getTime()) / 86400000))
       : null;
     return (
       <div className="rounded-md border border-blue-500/30 bg-blue-500/5 px-4 py-3 text-blue-300 text-sm flex items-start gap-3">

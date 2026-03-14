@@ -257,7 +257,7 @@ export default function WhatsAppInboxPage() {
                 <div className="flex items-center gap-3">
                   <span className="text-xs text-slate-500 w-28">Auto reply</span>
                   {selected.reply_sent ? (
-                    <span className="text-xs text-green-400">Sent: "{selected.reply_sent.slice(0, 60)}{selected.reply_sent.length > 60 ? '…' : ''}"</span>
+                    <span className="text-xs text-green-400">Sent: &quot;{selected.reply_sent.slice(0, 60)}{selected.reply_sent.length > 60 ? '…' : ''}&quot;</span>
                   ) : (
                     <span className="text-xs text-slate-500">No auto reply</span>
                   )}

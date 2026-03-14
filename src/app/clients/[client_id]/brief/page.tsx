@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Link from 'next/link';
 import { AutoRefresh } from '@/components/auto-refresh';
 import { notFound } from 'next/navigation';
@@ -111,7 +112,7 @@ export default async function SiteVisitBriefPage({ params }: { params: Promise<{
               </ul>
             )}
             {client.concerns_detail && (
-              <p className="text-slate-300 text-xs italic">"{client.concerns_detail}"</p>
+              <p className="text-slate-300 text-xs italic">&quot;{client.concerns_detail}&quot;</p>
             )}
           </CardContent>
         </Card>

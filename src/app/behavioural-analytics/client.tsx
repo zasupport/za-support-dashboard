@@ -79,11 +79,6 @@ function bottleneckLabel(type: string | null): string {
   return map[type] ?? type;
 }
 
-const chartStyle = {
-  contentStyle: { background: '#1e293b', border: '1px solid #334155', borderRadius: 6 },
-  labelStyle: { color: '#94a3b8', fontSize: 11 },
-  itemStyle: { color: '#e2e8f0', fontSize: 11 },
-};
 
 // ── Trend chart for a specific device ────────────────────────────────────────
 
@@ -92,12 +87,12 @@ function DeviceTrendChart({ clientId, deviceId }: { clientId: string; deviceId: 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
+    let cancelled = false;
     fetch(`/api/behavioural/trends?client_id=${encodeURIComponent(clientId)}&device_id=${encodeURIComponent(deviceId)}&days=90`)
       .then(r => r.json())
-      .then(d => setTrend(Array.isArray(d) ? d : []))
-      .catch(() => setTrend([]))
-      .finally(() => setLoading(false));
+      .then(d => { if (!cancelled) { setTrend(Array.isArray(d) ? d : []); setLoading(false); } })
+      .catch(() => { if (!cancelled) { setTrend([]); setLoading(false); } });
+    return () => { cancelled = true; };
   }, [clientId, deviceId]);
 
   if (loading) return <p className="text-slate-500 text-xs mt-2">Loading trend…</p>;
@@ -142,12 +137,12 @@ function LossBreakdown({ clientId, deviceId }: { clientId: string; deviceId: str
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
+    let cancelled = false;
     fetch(`/api/behavioural/device?client_id=${encodeURIComponent(clientId)}&device_id=${encodeURIComponent(deviceId)}`)
       .then(r => r.json())
-      .then(d => setDetail(d))
-      .catch(() => setDetail(null))
-      .finally(() => setLoading(false));
+      .then(d => { if (!cancelled) { setDetail(d); setLoading(false); } })
+      .catch(() => { if (!cancelled) { setDetail(null); setLoading(false); } });
+    return () => { cancelled = true; };
   }, [clientId, deviceId]);
 
   if (loading) return <p className="text-slate-500 text-xs mt-3">Loading breakdown…</p>;

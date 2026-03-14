@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Link from 'next/link';
 import { fetchShieldEvents } from '@/lib/api';
 import { Card, CardContent } from '@/components/ui/card';

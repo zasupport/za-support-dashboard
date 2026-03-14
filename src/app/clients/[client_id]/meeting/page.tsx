@@ -271,7 +271,7 @@ export default function MeetingPage() {
         {/* ROI pitch line */}
         {data.roi.pitch && (
           <div className="rounded-xl bg-teal-900/20 border border-teal-700/30 px-4 py-3">
-            <p className="text-sm text-teal-300 text-center font-medium italic">"{data.roi.pitch}"</p>
+            <p className="text-sm text-teal-300 text-center font-medium italic">&quot;{data.roi.pitch}&quot;</p>
           </div>
         )}
 

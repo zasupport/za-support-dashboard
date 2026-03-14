@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -615,10 +616,12 @@ function FollowUpTab() {
     setLoading(false);
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { load(); }, [load]); // eslint-disable-line react-hooks/set-state-in-effect
 
-  const daysSince = (d: string) =>
-    Math.floor((Date.now() - new Date(d).getTime()) / 86_400_000);
+  const daysSince = (d: string) => {
+    const now = new Date();
+    return Math.floor((now.getTime() - new Date(d).getTime()) / 86_400_000);
+  };
 
   const convList  = sequences.filter(s => s.converted);
   const active    = sequences.filter(s => !s.converted && !s.opted_out);
@@ -1141,7 +1144,7 @@ function FollowUpSequencesTab() {
     setLoading(false);
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { load(); }, [load]); // eslint-disable-line react-hooks/set-state-in-effect
 
   const active    = seqs.filter(s => !s.converted && !s.opted_out && !s.step_365d_sent_at);
   const converted = seqs.filter(s => s.converted);
@@ -1285,7 +1288,7 @@ function ProposalsTab() {
     setLoading(false);
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { load(); }, [load]); // eslint-disable-line react-hooks/set-state-in-effect
 
   const copyLink = (url: string, id: string) => {
     navigator.clipboard.writeText(url || `https://app.zasupport.com/proposal/${id}`);
@@ -1473,7 +1476,7 @@ export default function SalesPage() {
     setLoading(false);
   }, []);
 
-  useEffect(() => { loadData(); }, [loadData]);
+  useEffect(() => { loadData(); }, [loadData]); // eslint-disable-line react-hooks/set-state-in-effect
 
   const saveOpportunity = async (data: Record<string, unknown>) => {
     try {

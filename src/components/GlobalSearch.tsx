@@ -35,12 +35,14 @@ export function GlobalSearch() {
           fetch(`/api/clients?search=${encodeURIComponent(query)}&per_page=5`).then(r => r.ok ? r.json() : { data: [] }),
           fetch(`/api/devices?search=${encodeURIComponent(query)}&per_page=5`).then(r => r.ok ? r.json() : []),
         ]);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const clients: Result[] = (cr.data || []).map((c: any) => ({
           type: 'client',
           label: `${c.first_name} ${c.last_name}`,
           sub:   `${c.client_id} · ${c.status}`,
           href:  `/clients/${c.client_id}`,
         }));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const devices: Result[] = (Array.isArray(dr) ? dr : []).map((d: any) => ({
           type: 'device',
           label: d.hostname || d.serial,

@@ -57,12 +57,12 @@ export function FleetInterventionsFeed() {
   const [days, setDays]       = useState(1);
 
   useEffect(() => {
-    setLoading(true);
+    let cancelled = false;
     fetch(`/api/reports/interventions/fleet?days=${days}&limit=60`)
       .then(r => r.json())
-      .then(json => setData(json))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .then(json => { if (!cancelled) { setData(json); setLoading(false); } })
+      .catch(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, [days]);
 
   const totalValue = data?.total_value_protected ?? 0;

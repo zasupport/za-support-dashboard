@@ -28,12 +28,12 @@ function FrustrationTimeline({ deviceId }: { deviceId: string }) {
   const [loading, setLoading]   = useState(true);
 
   useEffect(() => {
-    setLoading(true);
+    let cancelled = false;
     fetch(`/api/analytics/frustration-timeline/${encodeURIComponent(deviceId)}?days=30`)
       .then(r => r.json())
-      .then(d => setTimeline(Array.isArray(d) ? d : []))
-      .catch(() => setTimeline([]))
-      .finally(() => setLoading(false));
+      .then(d => { if (!cancelled) { setTimeline(Array.isArray(d) ? d : []); setLoading(false); } })
+      .catch(() => { if (!cancelled) { setTimeline([]); setLoading(false); } });
+    return () => { cancelled = true; };
   }, [deviceId]);
 
   if (loading) return <p className="text-slate-500 text-xs mt-2">Loading timeline…</p>;

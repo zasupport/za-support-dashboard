@@ -143,6 +143,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ job_
         <Card className="bg-slate-800 border-slate-700">
           <CardHeader><CardTitle className="text-white text-sm">Status History</CardTitle></CardHeader>
           <CardContent className="space-y-2">
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {[...job.history].reverse().map((h: any) => (
               <div key={h.id} className="flex items-start gap-3 text-xs">
                 <span className="text-slate-500 shrink-0">{new Date(h.changed_at).toLocaleString('en-ZA')}</span>

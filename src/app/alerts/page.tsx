@@ -17,7 +17,9 @@ export default async function AlertsPage() {
   const alerts = await fetchAlerts(100);
   const list = Array.isArray(alerts) ? alerts : [];
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const critical = list.filter((a: any) => a.severity === 'critical' || a.risk_level === 'CRITICAL');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const high     = list.filter((a: any) => a.severity === 'high'     || a.risk_level === 'HIGH');
 
   return (
@@ -59,6 +61,7 @@ export default async function AlertsPage() {
                 </tr>
               </thead>
               <tbody>
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {list.map((a: any, i: number) => {
                   const serial    = a.serial    || a.device_id || null;
                   const clientId  = a.client_id || null;

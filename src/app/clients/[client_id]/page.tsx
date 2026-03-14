@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { fetchClient, fetchClientTasks, fetchClientCheckins, fetchClientJobs, fetchClientDevices, fetchClientNetwork } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TaskChecklist } from './TaskChecklist';
@@ -22,6 +23,14 @@ import SlaStatusCard from '@/components/SlaStatusCard';
 import Link from 'next/link';
 import { AutoRefresh } from '@/components/auto-refresh';
 import { notFound } from 'next/navigation';
+
+function getTimeAgo(date: Date): string {
+  const mins = Math.floor((new Date().getTime() - date.getTime()) / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1440) return `${Math.floor(mins / 60)}h ago`;
+  return `${Math.floor(mins / 1440)}d ago`;
+}
 
 function Row({ label, value }: { label: string; value?: string | boolean | null }) {
   if (!value && value !== false) return null;
@@ -122,6 +131,10 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
 
   const isUrgent = client.urgency_level?.toLowerCase().startsWith('urgent');
 
+  const portalViewedAgo = lastPortalView
+    ? getTimeAgo(new Date(lastPortalView))
+    : null;
+
   return (
     <div className="space-y-6">
       <AutoRefresh intervalMs={300000} />
@@ -200,7 +213,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
             {client.concerns_detail && (
               <div className="py-1.5">
                 <p className="text-slate-500 text-xs mb-1">In their own words</p>
-                <p className="text-slate-300 text-xs italic">"{client.concerns_detail}"</p>
+                <p className="text-slate-300 text-xs italic">&quot;{client.concerns_detail}&quot;</p>
               </div>
             )}
           </CardContent>
@@ -418,16 +431,11 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
         <CreateJobButton clientId={client.client_id} />
         <PortalLinkButton clientId={client.client_id} phone={client.phone} firstName={client.first_name} />
         <ProposalButton clientId={client.client_id} clientName={`${client.first_name} ${client.last_name}`} />
-        {lastPortalView && (() => {
-          const diff = Date.now() - new Date(lastPortalView).getTime();
-          const mins = Math.floor(diff / 60000);
-          const timeAgo = mins < 1 ? 'just now' : mins < 60 ? `${mins}m ago` : mins < 1440 ? `${Math.floor(mins / 60)}h ago` : `${Math.floor(mins / 1440)}d ago`;
-          return (
-            <span className="text-xs px-3 py-1.5 rounded-md bg-indigo-900/30 border border-indigo-700/40 text-indigo-300">
-              👁 Portal viewed {timeAgo}
-            </span>
-          );
-        })()}
+        {portalViewedAgo && (
+          <span className="text-xs px-3 py-1.5 rounded-md bg-indigo-900/30 border border-indigo-700/40 text-indigo-300">
+            👁 Portal viewed {portalViewedAgo}
+          </span>
+        )}
         <span className="text-slate-500 text-xs">Generated from latest Scout diagnostic</span>
       </div>
 

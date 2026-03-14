@@ -103,7 +103,7 @@ export function EditClientButton({ client }: { client: ClientData }) {
                 <option value="Urgent">Urgent</option>
                 <option value="Moderate">Moderate</option>
               </select>
-              <label className={lbl}>Concerns (client's own words)</label>
+              <label className={lbl}>Concerns (client&apos;s own words)</label>
               <textarea rows={3} value={form.concerns_detail} onChange={e => set('concerns_detail', e.target.value)} className={`${inp} resize-none`} />
               {error && <p className="text-red-400 text-xs mt-2">{error}</p>}
               <div className="flex gap-3 mt-4">

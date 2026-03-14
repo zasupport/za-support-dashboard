@@ -30,7 +30,8 @@ export async function GET(
     const patterns = patternsRes.ok ? (await patternsRes.json()).data : [];
 
     // Filter patterns to those affecting this client
-    const clientPatterns = patterns.filter((p: any) =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const clientPatterns = (patterns as any[]).filter((p: any) =>
       Array.isArray(p.affected_clients) && p.affected_clients.includes(client_id)
     );
 

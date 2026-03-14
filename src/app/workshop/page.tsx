@@ -48,9 +48,13 @@ export default async function WorkshopPage() {
     clientNames[c.client_id] = `${c.first_name} ${c.last_name}`;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const open   = jobs.filter((j: any) => j.status === 'open').length;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const inProg = jobs.filter((j: any) => j.status === 'in_progress').length;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const urgent = jobs.filter((j: any) => j.priority === 'urgent' && !['completed','cancelled','done'].includes(j.status)).length;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const auto   = jobs.filter((j: any) => j.source === 'auto_diagnostic').length;
 
   const fmtR = (v: number) => `R ${v.toLocaleString('en-ZA', { minimumFractionDigits: 0 })}`;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AutoRefresh } from '@/components/auto-refresh';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 

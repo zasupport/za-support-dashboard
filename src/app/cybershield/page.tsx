@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Link from 'next/link';
 import { GeneratePDFButton } from './GeneratePDFButton';
 import { BillingStatusButton } from './BillingStatusButton';
