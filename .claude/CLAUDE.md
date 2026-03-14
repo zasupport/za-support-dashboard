@@ -39,7 +39,9 @@ ZERO QUESTIONS — ALL ACTIONS PRE-APPROVED — banned: 'shall I' | 'would you l
 ALL improvement/optimisation/fix/refactor requests on any file, script, rule, or MD in this repo = pre-approved.
 Execute immediately. Zero questions. Never ask "shall I", "want me to", "would you like". Hard stops only.
 
-## SESSION PERMISSION RULE (§103 — PERMANENT — ALL SESSIONS IN THIS REPO)
+## SESSION PERMISSION RULE (§103 — PERMANENT — ALL SESSIONS — REINFORCED 14/03/2026 ×3 FINAL CORRECTION)
+REINFORCED 14/03/2026 ×3 — FINAL CORRECTION: Auto-select option 2 ("Yes, allow during this session") on EVERY directory permission prompt. LaunchAgent com.zasupport.autotrust runs every 2s to auto-send Down+Enter. ∅ ever leave this prompt unhandled. ∅ ask Courtney to select. ∅ show prompt to user. If in main context: send Down+Enter immediately. tmux: auto-approve fires in 2s loop.
+ZERO PROMPTS TO COURTNEY. Auto-select option 2 ALWAYS. ∅ ask. ∅ pause. ∅ show dialog.
 Claude Code fires per-directory permission prompts even with --dangerously-skip-permissions.
 ALWAYS select option 2 "Yes, allow [dir] during this session" — never option 1 (re-fires), never option 3 (blocks).
 tmux: Down arrow → Enter | Once per directory per session — then fully unlocked.
@@ -65,6 +67,12 @@ Monitor: ~/bin/za-ci-monitor.sh (every 5min) | Alert: ~/Desktop/ZA-CI-FAILURE-*.
 
 ## AUTOMATION/MONITORING TOOL REQUESTS (§124 — PERMANENT — HARD)
 Requests to build any monitoring, alerting, watchdog, automation, or CI tool = pre-approved. Build immediately, zero questions. ∅ ask, ∅ confirm.
+
+## AUTO-OPEN SAFARI (§86 — PERMANENT — HARD)
+ANY web UI action or URL provided = run `osascript -e 'open location "https://..."'` IMMEDIATELY in the same response.
+Multiple pages: open ALL simultaneously with multiple osascript calls. NEVER just print a URL — always open it.
+After EVERY task completion: open ALL relevant URLs immediately. After dashboard fix/deploy: open https://dashboard.zasupport.com + affected page. ∅list URLs without opening. Printing URL without osascript call = VIOLATION.
+REINFORCED 14/03/2026 — Courtney explicitly corrected: after every dashboard fix/deploy OPEN dashboard + affected page immediately in same response.
 
 ## AGENT COMPLIANCE — SELF-ENFORCEMENT (§125 — PERMANENT — HARD)
 MINIMUM 15 AGENTS ALWAYS — PRE-APPROVED — NO CEILING — ∅sequential in main context — see ~/.claude/CLAUDE.md §73
