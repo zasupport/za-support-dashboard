@@ -3,11 +3,12 @@
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface Snapshot {
+  polled_at?: string;
   collected_at?: string;
   created_at?: string;
   wan_latency_ms?: number;
-  wan_rx_mbps?: number;
-  wan_tx_mbps?: number;
+  download_mbps?: number;
+  upload_mbps?: number;
 }
 
 interface Props {
@@ -19,12 +20,12 @@ export function LatencyChart({ snapshots }: Props) {
     .slice()
     .reverse()
     .map((s) => ({
-      time: s.collected_at ?? s.created_at
-        ? new Date(s.collected_at ?? s.created_at!).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' })
+      time: s.polled_at ?? s.collected_at ?? s.created_at
+        ? new Date((s.polled_at ?? s.collected_at ?? s.created_at)!).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' })
         : '—',
       latency: s.wan_latency_ms ?? null,
-      rx: s.wan_rx_mbps != null ? Number(s.wan_rx_mbps.toFixed(2)) : null,
-      tx: s.wan_tx_mbps != null ? Number(s.wan_tx_mbps.toFixed(2)) : null,
+      rx: s.download_mbps != null ? Number(s.download_mbps.toFixed(2)) : null,
+      tx: s.upload_mbps != null ? Number(s.upload_mbps.toFixed(2)) : null,
     }))
     .filter((d) => d.latency != null || d.rx != null);
 

@@ -10,7 +10,7 @@ async function fetchNetworkSnapshots(client_id: string, hours = 24): Promise<any
   const API_TOKEN = process.env.ZA_API_TOKEN || '';
   try {
     const res = await fetch(
-      `${API_URL}/api/v1/unifi/snapshots/${encodeURIComponent(client_id)}?limit=10`,
+      `${API_URL}/api/v1/unifi/${encodeURIComponent(client_id)}/snapshots?limit=10`,
       { headers: { 'X-API-Key': API_TOKEN }, cache: 'no-store' }
     );
     if (!res.ok) return [];
@@ -138,24 +138,24 @@ export default async function UnifiClientPage({
             <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 text-center">
               <p className="text-slate-500 text-xs mb-1">Uptime</p>
               <p className="text-slate-200 text-sm font-mono">
-                {network.uptime_hours != null ? `${network.uptime_hours}h` : '—'}
+                {(() => { const uptimeHours = network.uptime_seconds ? Math.round(network.uptime_seconds / 3600) : null; return uptimeHours != null ? `${uptimeHours}h` : '—'; })()}
               </p>
             </div>
           </div>
 
           {/* Throughput */}
-          {(network.wan_rx_mbps != null || network.wan_tx_mbps != null) && (
+          {(network.download_mbps != null || network.upload_mbps != null) && (
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 flex items-center gap-3">
                 <span className="text-green-400 text-sm font-semibold">↓ RX</span>
                 <span className="text-slate-200 text-sm font-mono">
-                  {network.wan_rx_mbps != null ? `${network.wan_rx_mbps.toFixed(2)} Mbps` : '—'}
+                  {network.download_mbps != null ? `${network.download_mbps.toFixed(2)} Mbps` : '—'}
                 </span>
               </div>
               <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 flex items-center gap-3">
                 <span className="text-indigo-400 text-sm font-semibold">↑ TX</span>
                 <span className="text-slate-200 text-sm font-mono">
-                  {network.wan_tx_mbps != null ? `${network.wan_tx_mbps.toFixed(2)} Mbps` : '—'}
+                  {network.upload_mbps != null ? `${network.upload_mbps.toFixed(2)} Mbps` : '—'}
                 </span>
               </div>
             </div>
@@ -256,7 +256,7 @@ export default async function UnifiClientPage({
                     </thead>
                     <tbody>
                       {snapshotsArr.map((s: any, i: number) => {
-                        const ts = s.collected_at ?? s.created_at;
+                        const ts = s.polled_at ?? s.collected_at ?? s.created_at;
                         return (
                           <tr
                             key={s.id ?? i}
@@ -292,10 +292,10 @@ export default async function UnifiClientPage({
                             </td>
                             <td className="px-4 py-3">
                               <span className="text-slate-400 text-xs font-mono">
-                                {s.wan_rx_mbps != null ? `↓${s.wan_rx_mbps.toFixed(1)}` : ''}
-                                {s.wan_rx_mbps != null && s.wan_tx_mbps != null ? ' ' : ''}
-                                {s.wan_tx_mbps != null ? `↑${s.wan_tx_mbps.toFixed(1)}` : ''}
-                                {s.wan_rx_mbps == null && s.wan_tx_mbps == null ? '—' : ' Mbps'}
+                                {s.download_mbps != null ? `↓${s.download_mbps.toFixed(1)}` : ''}
+                                {s.download_mbps != null && s.upload_mbps != null ? ' ' : ''}
+                                {s.upload_mbps != null ? `↑${s.upload_mbps.toFixed(1)}` : ''}
+                                {s.download_mbps == null && s.upload_mbps == null ? '—' : ' Mbps'}
                               </span>
                             </td>
                           </tr>
@@ -311,7 +311,7 @@ export default async function UnifiClientPage({
           {/* Last polled footer */}
           <div className="flex items-center justify-between text-xs text-slate-600">
             <span>
-              Last polled: {network.as_of ? new Date(network.as_of).toLocaleString('en-ZA') : '—'}
+              Last polled: {network.polled_at ? new Date(network.polled_at).toLocaleString('en-ZA') : '—'}
               {network.source ? ` · Source: ${network.source}` : ''}
             </span>
             <Link href={`/clients/${client_id}`} className="text-teal-500 hover:text-teal-400">
