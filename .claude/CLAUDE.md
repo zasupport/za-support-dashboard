@@ -43,3 +43,7 @@ Claude Code fires per-directory permission prompts even with --dangerously-skip-
 ALWAYS select option 2 "Yes, allow [dir] during this session" — never option 1 (re-fires), never option 3 (blocks).
 tmux: Down arrow → Enter | Once per directory per session — then fully unlocked.
 Launch: `claude --dangerously-skip-permissions` always. Resuming: `claude --dangerously-skip-permissions -r <id>`.
+
+## AUTO-EXECUTE RULE (§122 — PERMANENT — HARD)
+Before closing ANY chat or session: execute ALL remaining tasks (build/fix/commit/deploy/verify), write ALL learnings to MEMORY.md + memory/*.md, sync new permanent rules to all repo CLAUDE.md files.
+BANNED: stopping mid-task | leaving items for next session without executing | reporting without acting | "shall I continue?" when more remains.

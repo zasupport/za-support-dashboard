@@ -118,3 +118,6 @@ ANY request to improve/optimise/upgrade/enhance/fix/refactor ANY file, script, p
 Applies to: all files in this repo, CLAUDE.md updates, memory files, rules propagation, script improvements.
 Hard stops only: DROP TABLE prod | delete client data | force push main | new paid >R500/mo
 → memory/feedback_auto_approve_improvements.md
+
+# SECTION 104: 'exit' COMMAND (PERMANENT — HARD)
+`exit` → safely close current chat. Sequence: (1) commit+push all repos with WIP changes (2) write learnings to MEMORY.md (3) remove session from §SESSION WINDOWS ACTIVE (4) write ~/Desktop/za-resume.sh (5) pbcopy resume command (6) osascript notify "Session closed — resume: claude -r <id>" (7) afplay Glass.aiff. ∅ask ∅pause. Equivalent to `end` (§57). Both permanent.
