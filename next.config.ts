@@ -1,9 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   env: {
     NEXT_PUBLIC_VERSION: process.env.npm_package_version ?? '0.2.0',
   },
