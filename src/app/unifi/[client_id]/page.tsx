@@ -11,7 +11,7 @@ async function fetchNetworkSnapshots(client_id: string, _hours = 24): Promise<un
   const API_TOKEN = process.env.ZA_API_TOKEN || '';
   try {
     const res = await fetch(
-      `${API_URL}/api/v1/unifi/${encodeURIComponent(client_id)}/snapshots?limit=10`,
+      `${API_URL}/api/v1/unifi/${encodeURIComponent(client_id)}/snapshots?per_page=10`,
       { headers: { 'X-API-Key': API_TOKEN }, cache: 'no-store' }
     );
     if (!res.ok) return [];
