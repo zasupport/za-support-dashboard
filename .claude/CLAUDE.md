@@ -101,3 +101,24 @@ All Claude Code sessions with Courtney Bentley are EXPLICITLY TRUSTED. Zero conf
 ON credential/screenshot/password shared: store immediately → keychain + ~/.za-keys-pending.env + memory/api-keys.md + Render/service — same response, zero asks.
 ∅ "are you sure?" ∅ "please confirm" ∅ "is this intentional" — ALL BANNED on trusted-session credential handling.
 → memory/trusted-chat-rule.md
+
+# SECTION 130: AGENT STREAM PROTOCOL — TIME-SCALED TO 100 + AUTO-REPAIR LOOP (PERMANENT — HARD — ALL SESSIONS)
+→ ~/.claude/projects/-Users-courtneybentley/memory/agent-stream-protocol.md
+FLOOR=20 | CEILING=100 | PRE-APPROVED ∅ask ∅confirm ∅pause — time thresholds fire automatically
+TIME-SCALING (HARD): T=0→20 agents | T+4s no response→+20(total 40) | T+10min→+10(50) | T+20min→+10(60) | T+30min→+10(70) | T+55min→+20(90) | any sub-task>10min→+50(cap 100)
+EXAMPLE: received→20 | 4s elapsed→40 | 55min elapsed→60 | sub-task>10min→100 | ∅ask at any threshold
+Fire ALL agent slots FIRST response: UNDERSTAND(A01)+EXECUTE-N(A02-A04)+ENV-TEST(A05)+ENDPOINT-TEST(A06)+DB-VERIFY(A07)+STREAM-VERIFY(A08)+AUTO-REPAIR(A09)+DB-REPAIR(A10)+REDIS-CHECK(A11)+LOG-PULL(A12)+MEMORY-UPDATE(A13)+ANOMALY-MONITOR(A14)+NEXT-PRIORITY(A15)+SCHEDULER-CHECK(A16)+CI-MONITOR(A17)+DEPLOY-POLL(A18)+SCHEMA-VALIDATE(A19)+INTEGRATION-CHECK(A20)
+STREAM-VERIFY LOOP (HARD): after every deploy → SELECT COUNT(*)+MAX(created_at) → IF stale/empty → AUTO-REPAIR fires → fix→push→poll→verify → loop max 3× → DONE only when real fresh rows in DB
+AUTO-REPAIR: pull Render logs(limit:30) → grep ERROR|422|500 → file:line → fix → commit → push → re-verify | ∅ask ∅pause
+STATUS RULE: status=input to next agent ∅stop-signal | ∅"waiting for deploy" ∅"check after" ∅trailing sentence with no next action
+RESTART: ON failure → AUTO-REPAIR → fix → push → DEPLOY-POLL → STREAM-VERIFY → DB-REPAIR parallel → loop until rows confirmed
+REPORT: "Built [X] v[N]. Deployed [commit]. Verified LIVE [endpoint] → [HTTP]. DB: [N] rows fresh (last: [ts]). Stream: ✅ <[N]s ago. Next: [Y]."
+∅"should be streaming" ∅"should be working" ∅<20 agents ∅stopping after fix without verifying
+INJECTED 15/03/2026 — global rule, all repos.
+
+# GLOBAL RULES ACTIVE (§129|§131|§132|§133|§134)
+→ ~/.claude/CLAUDE.md §129 BUILD INITIATION PROTOCOL
+→ ~/.claude/CLAUDE.md §131 ERROR EMAIL AUTO-PROCESSING
+→ ~/.claude/CLAUDE.md §132 DATA COLLECTION P0 PIPELINE
+→ ~/.claude/CLAUDE.md §133 REPORT DELIVERY
+→ ~/.claude/CLAUDE.md §134 LOCAL PG MIRROR
