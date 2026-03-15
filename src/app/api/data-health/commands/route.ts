@@ -9,8 +9,12 @@ export async function GET() {
       headers: { 'X-API-Key': API_TOKEN },
       cache: 'no-store',
     });
-    if (!res.ok) return NextResponse.json({ by_client: {}, _error: true });
-    return NextResponse.json(await res.json());
+    if (!res.ok) return NextResponse.json({ pending: 0, by_client: {}, _error: true });
+    const data = await res.json();
+    const summary: any[] = data.summary ?? [];
+    const totalPending = summary.reduce((sum: number, c: any) => sum + (c.pending ?? 0), 0);
+    const byClient = Object.fromEntries(summary.map((c: any) => [c.client_id, c.pending ?? 0]));
+    return NextResponse.json({ pending: totalPending, by_client: byClient, unassigned_machines_count: data.unassigned_machines_count ?? 0 });
   } catch {
     return NextResponse.json({ by_client: {}, _error: true });
   }
