@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { client_id: string } }
+  { params }: { params: Promise<{ client_id: string }> }
 ) {
-  const { client_id } = params;
+  const { client_id } = await params;
   const { searchParams } = new URL(req.url);
   const severity = searchParams.get("severity") || "";
   const limit = searchParams.get("limit") || "100";
