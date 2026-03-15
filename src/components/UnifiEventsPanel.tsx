@@ -72,9 +72,7 @@ export function UnifiEventsPanel({ clientId, apiBase }: { clientId: string; apiB
   const [filter, setFilter] = useState<string>("all");
 
   useEffect(() => {
-    fetch(`${apiBase}/api/v1/unifi/${clientId}/events?limit=100`, {
-      headers: { "X-API-Key": process.env.NEXT_PUBLIC_ZA_API_TOKEN || "" },
-    })
+    fetch(`/api/unifi/${clientId}/events?limit=100`)
       .then((r) => r.json())
       .then((d) => {
         setEvents(d.events || []);
