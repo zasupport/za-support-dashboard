@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee, ShieldCheck, Download, Settings, BookOpen, LogOut, TrendingUp, Stethoscope, Copy, FlaskConical, Cpu, Zap, Radar, Brain, ClipboardList, MessageCircle, KeyRound, Terminal, Inbox, Network, HardDrive, HeartPulse } from 'lucide-react';
+import { Monitor, Wifi, Shield, BarChart2, Activity, Bell, Lock, Search, Microscope, Users, Wrench, FileText, Coffee, ShieldCheck, Download, Settings, BookOpen, LogOut, TrendingUp, Stethoscope, Copy, FlaskConical, Cpu, Zap, Radar, Brain, ClipboardList, MessageCircle, KeyRound, Terminal, Inbox, Network, HardDrive, HeartPulse, Ticket, UserCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GlobalSearch } from './GlobalSearch';
 import { useEffect, useState } from 'react';
@@ -12,6 +12,8 @@ const links = [
   { href: '/notifications', label: 'Notifications', icon: Bell },
   { href: '/interventions', label: 'Automations', icon: Zap },
   { href: '/whatsapp', label: 'WhatsApp Inbox', icon: MessageCircle },
+  { href: '/tickets', label: 'Tickets', icon: Ticket },
+  { href: '/onboarding', label: 'Onboarding', icon: UserCheck },
   { href: '/clients', label: 'Clients', icon: Users },
   { href: '/ai-profiling', label: 'AI Insights', icon: Brain },
   { href: '/workshop', label: 'Workshop', icon: Wrench },
