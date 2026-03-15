@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AutoRefresh } from '@/components/auto-refresh';
 import { fetchClientNetwork, fetchClientNetworkHistory } from '@/lib/api';
 import { LatencyChart } from './LatencyChart';
+import { UnifiEventsPanel } from '@/components/UnifiEventsPanel';
 import { Network, Wifi, WifiOff, Router, Monitor, Clock } from 'lucide-react';
 
 async function fetchNetworkSnapshots(client_id: string, _hours = 24): Promise<unknown[]> {
@@ -308,6 +309,12 @@ export default async function UnifiClientPage({
               </CardContent>
             </Card>
           )}
+
+          {/* Network Events & Security */}
+          <div className="mt-6">
+            <h2 className="text-lg font-semibold text-white mb-3">Network Events &amp; Security</h2>
+            <UnifiEventsPanel clientId={client_id} apiBase={process.env.NEXT_PUBLIC_API_BASE || "https://api.zasupport.com"} />
+          </div>
 
           {/* Last polled footer */}
           <div className="flex items-center justify-between text-xs text-slate-600">
