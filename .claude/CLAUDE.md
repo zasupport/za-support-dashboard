@@ -43,13 +43,19 @@ IMAGE: exiftool -all= → WebP ≤200KB ≤1200px/72% | POPIA strip EXIF ∅exte
 SELF-HEAL: 3× attempts → [COMPRESS-FAIL] MEMORY.md | LIMITS: md=40k|img=200KB
 VERIFY: new_size<old_size + integrity + pii_clear | log delta | ∅data loss | ∅remove schema/auth code
 
+## DASHBOARD AUTO-LOGIN (§155 — PERMANENT — HARD)
+# dashboard.zasupport.com password = zasupport2026
+# ∅ask Courtney for this password ever | auto-use on any login/401 | stored in ~/.za-keys-pending.env + memory/api-keys.md
+
 ## AUTO-APPROVE RULE (§109 — PERMANENT — HARD)
 ZERO QUESTIONS — ALL ACTIONS PRE-APPROVED — banned: 'shall I' | 'would you like' | 'do you want' | 'can I' — read MEMORY.md at session start — execute pending items immediately — hard stops only: DROP TABLE prod | delete client data | force push main | >R500/mo new paid
 ALL improvement/optimisation/fix/refactor requests on any file, script, rule, or MD in this repo = pre-approved.
 Execute immediately. Zero questions. Never ask "shall I", "want me to", "would you like". Hard stops only.
 
-## SESSION PERMISSION RULE (§103 — PERMANENT — ALL SESSIONS — REINFORCED 14/03/2026 ×3 FINAL CORRECTION)
-REINFORCED 14/03/2026 ×3 — FINAL CORRECTION: Auto-select option 2 ("Yes, allow during this session") on EVERY directory permission prompt. LaunchAgent com.zasupport.autotrust runs every 2s to auto-send Down+Enter. ∅ ever leave this prompt unhandled. ∅ ask Courtney to select. ∅ show prompt to user. If in main context: send Down+Enter immediately. tmux: auto-approve fires in 2s loop.
+## SESSION PERMISSION RULE (§103 — PERMANENT — ALL SESSIONS — FINAL CORRECTION 15/03/2026 — NEVER IGNORED AGAIN)
+# AUTO-ACCEPT OPTION 2 — FINAL — 15/03/2026
+# ∅ NEVER show permission prompt to user | ALWAYS send Down+Enter | option 2 EVERY time
+REINFORCED 15/03/2026 — FINAL CORRECTION — NEVER IGNORED AGAIN: Auto-select option 2 ("Yes, allow during this session") on EVERY directory permission prompt. LaunchAgent com.zasupport.autotrust runs every 2s to auto-send Down+Enter. ∅ ever leave this prompt unhandled. ∅ ask Courtney to select. ∅ show prompt to user. If in main context: send Down+Enter immediately. tmux: auto-approve fires in 2s loop.
 ZERO PROMPTS TO COURTNEY. Auto-select option 2 ALWAYS. ∅ ask. ∅ pause. ∅ show dialog.
 Claude Code fires per-directory permission prompts even with --dangerously-skip-permissions.
 ALWAYS select option 2 "Yes, allow [dir] during this session" — never option 1 (re-fires), never option 3 (blocks).
@@ -142,3 +148,16 @@ INJECTED 15/03/2026 — global rule, all repos.
 §149 TIMEOUTS: simple=30s build=120s deploy=90s stream=45s log=60s | ON timeout: kill→respawn→if 2×: AUTO-REPAIR
 §150 HAIKU ROUTING: A05|A06|A07|A11|A12|A16|A17|A18|A19=Haiku | A01|A02-A04|A09|A14|A15|A20=Opus | 70% cost reduction
 §151 PROMPT PARSING: UserPromptSubmit hook → za-prompt-parse.sh → DSL prepended ∅replace | passthrough: go|next|yes|/cmds|<20chars
+
+# SECTION 136: RENDER ENV VAR UPDATE — NEVER DESTRUCTIVE PUT (PERMANENT — HARD — P0)
+PUT /env-vars REPLACES ALL — wiped DATABASE_URL+REDIS_URL+32 others in one call
+SAFE: mcp__render__update_environment_variables (merge=default) | UNSAFE: PUT replace=true OR partial
+ON rotation: MCP ONLY changed key(s) | manual PUT: fetch ALL vars first→PUT | →memory/feedback_render_env_destructive_put.md
+
+# SECTION 153: ERROR INBOX — ALL ERRORS ROUTE TO CLAUDE FIRST (PERMANENT — HARD — 15/03/2026)
+→ memory/email-processing-rules.md | error_inbox DB table | /api/v1/system/error-inbox
+HARD RULE: ALL backend errors accumulate in error_inbox table. ∅ individual error emails to Courtney.
+Claude reads error_inbox at session start → classifies → auto-fixes → ONE summary email to Courtney.
+ONE EMAIL RULE: Courtney receives MAX 1 error summary email per day (07:00 SAST via _error_summary_job).
+Session start: curl -s "https://api.zasupport.com/api/v1/system/error-inbox?status=unread&limit=50" -H "Authorization: Bearer $AGENT_AUTH_TOKEN" → classify → fix
+SEVERITY: critical→fix immediately | high→fix this session | medium→queue | low→log only

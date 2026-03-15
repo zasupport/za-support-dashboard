@@ -142,3 +142,14 @@ INJECTED 15/03/2026 — global rule, all repos.
 → ~/.claude/CLAUDE.md §132 DATA COLLECTION P0 PIPELINE
 → ~/.claude/CLAUDE.md §133 REPORT DELIVERY
 → ~/.claude/CLAUDE.md §134 LOCAL PG MIRROR
+
+# §COMPRESS: RT COMPRESSION PROTOCOL (PERMANENT — HARD — 15/03/2026)
+→ ~/.claude/projects/-Users-courtneybentley/memory/compression-protocol.md | global §64
+ON every write|edit|build|response: classify→measure→compress→verify SAME response ∅defer ∅batch
+SCOPE: *.ts|*.tsx|*.js|*.json|*.md|*.css|img|Claude ctx
+PIPELINE: write→size_check→IF exceed: compress(method[type])→verify(new<limit)→checksum→log→∅block_task
+IMAGE RT: exiftool -all= → WebP ≤200KB ≤1200px/72% | strip EXIF (POPIA) | ∅original in ctx
+SELF-HEAL: fail→alt_method→split_file→archive | 3×fail→[COMPRESS-FAIL] MEMORY.md ∅block_task
+LIMITS: CLAUDE_MD=40k | MEMORY_MD=120L | TOPIC=200L | IMG=200KB | PDF=500KB
+VERIFY: assert new_size<old_size + integrity_checksum + pii_clear | log "COMPRESSED {f}: {old}→{new} ({pct}%)"
+DATA PROTECTION: scan PII before compress | strip EXIF | ∅PII in Next.js client components | POPIA
