@@ -34,6 +34,15 @@
 - Dark/light mode via Tailwind dark: prefix
 - No direct backend DB access from dashboard — API only
 
+## §COMPRESS: RT COMPRESSION PROTOCOL (PERMANENT — HARD — 15/03/2026)
+→ ~/.claude/projects/-Users-courtneybentley/memory/compression-protocol.md | global §64
+ON every write|edit|build|response: classify→measure→compress→verify SAME response ∅defer
+SCOPE: *.ts|*.tsx|*.json|*.md|img|Claude ctx
+PIPELINE: write→size_check→IF exceed: compress→verify(new<limit)→checksum→log→∅block
+IMAGE: exiftool -all= → WebP ≤200KB ≤1200px/72% | POPIA strip EXIF ∅external
+SELF-HEAL: 3× attempts → [COMPRESS-FAIL] MEMORY.md | LIMITS: md=40k|img=200KB
+VERIFY: new_size<old_size + integrity + pii_clear | log delta | ∅data loss | ∅remove schema/auth code
+
 ## AUTO-APPROVE RULE (§109 — PERMANENT — HARD)
 ZERO QUESTIONS — ALL ACTIONS PRE-APPROVED — banned: 'shall I' | 'would you like' | 'do you want' | 'can I' — read MEMORY.md at session start — execute pending items immediately — hard stops only: DROP TABLE prod | delete client data | force push main | >R500/mo new paid
 ALL improvement/optimisation/fix/refactor requests on any file, script, rule, or MD in this repo = pre-approved.
@@ -122,3 +131,14 @@ INJECTED 15/03/2026 — global rule, all repos.
 → ~/.claude/CLAUDE.md §132 DATA COLLECTION P0 PIPELINE
 → ~/.claude/CLAUDE.md §133 REPORT DELIVERY
 → ~/.claude/CLAUDE.md §134 LOCAL PG MIRROR
+
+# §§145-151: AGENT + PROMPT COMPRESSION (PERMANENT — HARD — 15/03/2026)
+→ ~/.claude/projects/-Users-courtneybentley/memory/compression-protocol.md
+
+§145 AGENT PROMPTS: DSL only ∅prose | ≤500 tokens simple ≤2k complex | FORMAT: TASK:[verb][target] CTX:[min] RET:[§146 DSL] ∅:[bans]
+§146 AGENT RESULTS: [SLOT]:[STATUS][DOMAIN]([finding]) ∅prose | ≤200 tokens/agent | STATUS: ✅❌⚠️⏳— | 20 results=1 line=300 tokens
+§147 PRE-SPAWN DEDUP: hash(domain+verb+target) → IF >80% overlap: merge | ∅2 agents same domain | log ~/.za-agent-dedup.log
+§148 CACHE PREFIX: stable rules FIRST, variable task LAST in ALL agent prompts | ~90% cache hit rate
+§149 TIMEOUTS: simple=30s build=120s deploy=90s stream=45s log=60s | ON timeout: kill→respawn→if 2×: AUTO-REPAIR
+§150 HAIKU ROUTING: A05|A06|A07|A11|A12|A16|A17|A18|A19=Haiku | A01|A02-A04|A09|A14|A15|A20=Opus | 70% cost reduction
+§151 PROMPT PARSING: UserPromptSubmit hook → za-prompt-parse.sh → DSL prepended ∅replace | passthrough: go|next|yes|/cmds|<20chars
