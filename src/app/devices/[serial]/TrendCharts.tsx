@@ -33,6 +33,20 @@ type MetricRow = {
   gatekeeper_on?: boolean | null;
   nvme_pct_used?: number | null;
   nvme_power_on_hours?: number | null;
+  // Phase 29 — IOKit Advanced Intelligence (migration_156)
+  gpu_renderer_util_pct?: number | null;
+  gpu_tiler_util_pct?: number | null;
+  gpu_core_clock_mhz?: number | null;
+  pacc_temp_c?: number | null;
+  eacc_temp_c?: number | null;
+  hid_idle_secs?: number | null;
+  mem_pressure_level_int?: number | null;
+  kext_third_party?: number | null;
+  quarantine_bypassed?: number | null;
+  usb_device_count?: number | null;
+  nq_dl_mbps?: number | null;
+  nq_ul_mbps?: number | null;
+  nq_base_rtt_ms?: number | null;
 };
 
 function fmt(ts: string) {
@@ -311,6 +325,136 @@ export function TrendCharts({ serial }: { serial: string }) {
                 <LineChart data={data}>
                   {grid}{axis([0, 100])}{tip}
                   <Line type="monotone" dataKey="nvme_pct_used" name="NVMe Wear %" stroke="#f87171" dot={false} strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Phase 29 — IOKit Advanced Intelligence */}
+      {(has('gpu_renderer_util_pct') || has('gpu_tiler_util_pct')) && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm">GPU Utilisation (%)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className={chartClass}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data}>
+                  {grid}{axis([0, 100])}{tip}
+                  {has('gpu_renderer_util_pct') && <Line type="monotone" dataKey="gpu_renderer_util_pct" name="Renderer %" stroke="#818cf8" dot={false} strokeWidth={2} />}
+                  {has('gpu_tiler_util_pct') && <Line type="monotone" dataKey="gpu_tiler_util_pct" name="Tiler %" stroke="#a78bfa" dot={false} strokeWidth={2} strokeDasharray="4 2" />}
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {has('gpu_core_clock_mhz') && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm">GPU Core Clock (MHz)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className={chartClass}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data}>
+                  {grid}{axis()}{tip}
+                  <Line type="monotone" dataKey="gpu_core_clock_mhz" name="Core Clock MHz" stroke="#c084fc" dot={false} strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {(has('pacc_temp_c') || has('eacc_temp_c')) && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm">Apple Silicon Cluster Temps (°C)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className={chartClass}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data}>
+                  {grid}{axis()}{tip}
+                  {has('pacc_temp_c') && <Line type="monotone" dataKey="pacc_temp_c" name="pACC (P-core) °C" stroke="#f97316" dot={false} strokeWidth={2} />}
+                  {has('eacc_temp_c') && <Line type="monotone" dataKey="eacc_temp_c" name="eACC (E-core) °C" stroke="#fb923c" dot={false} strokeWidth={2} strokeDasharray="4 2" />}
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {(has('nq_dl_mbps') || has('nq_ul_mbps')) && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm">Network Speed (Mbps)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className={chartClass}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data}>
+                  {grid}{axis()}{tip}
+                  {has('nq_dl_mbps') && <Line type="monotone" dataKey="nq_dl_mbps" name="Download Mbps" stroke="#0FEA7A" dot={false} strokeWidth={2} />}
+                  {has('nq_ul_mbps') && <Line type="monotone" dataKey="nq_ul_mbps" name="Upload Mbps" stroke="#34d399" dot={false} strokeWidth={2} strokeDasharray="4 2" />}
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {has('nq_base_rtt_ms') && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm">Network Base RTT (ms)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className={chartClass}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data}>
+                  {grid}{axis()}{tip}
+                  <Line type="monotone" dataKey="nq_base_rtt_ms" name="Base RTT ms" stroke="#38bdf8" dot={false} strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {has('mem_pressure_level_int') && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm">Memory Pressure Level (0=normal 3=fatal)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className={chartClass}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data}>
+                  {grid}{axis([0, 3])}{tip}
+                  <Line type="stepAfter" dataKey="mem_pressure_level_int" name="Pressure" stroke="#f43f5e" dot={false} strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {has('kext_third_party') && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm">3rd-Party Kernel Extensions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className={chartClass}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data}>
+                  {grid}{axis([0])}{tip}
+                  <Line type="monotone" dataKey="kext_third_party" name="Kexts" stroke="#fbbf24" dot={false} strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
