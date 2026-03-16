@@ -11,6 +11,8 @@ type ContractData = {
   client_email: string;
   practice_name: string | null;
   hpcsa_number: string | null;
+  vat_number?: string | null;
+  company_registration?: string | null;
   status: string;
   expires_at: string | null;
   signed_at: string | null;
@@ -32,6 +34,15 @@ type ContractData = {
 };
 
 const API_URL = 'https://api.zasupport.com';
+
+const ADD_ON_OPTIONS = [
+  { id: 'additional_mac', label: 'Additional Mac device monitoring', price: 'R 399/device/month excl. VAT' },
+  { id: 'windows_device', label: 'Windows or non-macOS device monitoring', price: 'Available as add-on — contact us for pricing' },
+  { id: 'cybershield', label: 'CyberShield network security monitoring', price: 'Full network-level protection — from R 799/month' },
+  { id: 'quarterly_onsite', label: 'Additional quarterly on-site assessment', price: 'R 899/hour — billed at time of visit' },
+  { id: 'group_training', label: 'Annual group staff IT security awareness training', price: 'On-site — contact us for pricing based on staff headcount' },
+  { id: 'individual_training', label: 'Individual one-on-one practitioner training session', price: '1-hour session — contact us for pricing' },
+];
 
 // ─── Accordion section component ──────────────────────────────────────────────
 
@@ -80,19 +91,34 @@ export default function ContractPage() {
   const params = useParams();
   const token = params.token as string;
 
-  const [contract, setContract]       = useState<ContractData | null>(null);
-  const [loading, setLoading]         = useState(true);
-  const [notFound, setNotFound]       = useState(false);
-  const [step, setStep]               = useState<'contract' | 'sign' | 'payment' | 'done'>('contract');
+  const [contract, setContract]           = useState<ContractData | null>(null);
+  const [loading, setLoading]             = useState(true);
+  const [notFound, setNotFound]           = useState(false);
+  const [step, setStep]                   = useState<'contract' | 'confirm' | 'sign' | 'payment' | 'done'>('contract');
   const [paymentMethod, setPaymentMethod] = useState<'credit_card' | 'debit_order'>('debit_order');
   const [signatoryName, setSignatoryName] = useState('');
-  const [hpcsaAgreed, setHpcsaAgreed] = useState(false);
-  const [popiaAgreed, setPopiaAgreed] = useState(false);
-  const [ectaAgreed, setEctaAgreed]   = useState(false);
-  const [allRead, setAllRead]         = useState(false);
-  const [signing, setSigning]         = useState(false);
-  const [paymentUrl, setPaymentUrl]   = useState<string | null>(null);
-  const [error, setError]             = useState('');
+  const [hpcsaAgreed, setHpcsaAgreed]     = useState(false);
+  const [popiaAgreed, setPopiaAgreed]     = useState(false);
+  const [ectaAgreed, setEctaAgreed]       = useState(false);
+  const [allRead, setAllRead]             = useState(false);
+  const [signing, setSigning]             = useState(false);
+  const [error, setError]                 = useState('');
+
+  // Editable details
+  const [editingDetails, setEditingDetails] = useState(false);
+  const [editName, setEditName]             = useState('');
+  const [editPractice, setEditPractice]     = useState('');
+  const [editHpcsa, setEditHpcsa]           = useState('');
+  const [editVat, setEditVat]               = useState('');
+  const [editCompanyReg, setEditCompanyReg] = useState('');
+
+  // Add-ons
+  const [addOns, setAddOns]               = useState<string[]>([]);
+  const [serviceBooking, setServiceBooking] = useState<'yes' | 'no' | null>(null);
+  const [bookingRequested, setBookingRequested] = useState(false);
+
+  // Peach Payments
+  const [peachCheckoutUrl, setPeachCheckoutUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token) return;
@@ -102,6 +128,11 @@ export default function ContractPage() {
         if (d) {
           setContract(d);
           setSignatoryName(d.client_name);
+          setEditName(d.client_name);
+          setEditPractice(d.practice_name || '');
+          setEditHpcsa(d.hpcsa_number || '');
+          setEditVat(d.vat_number || '');
+          setEditCompanyReg(d.company_registration || '');
           if (d.status === 'signed' || d.status === 'payment_initiated' || d.status === 'active') {
             setStep('done');
           }
@@ -128,17 +159,38 @@ export default function ContractPage() {
           popia_agreed: popiaAgreed,
           ecta_agreed: ectaAgreed,
           payment_method: paymentMethod,
+          add_ons: addOns,
+          service_booking_requested: bookingRequested,
+          client_name_confirmed: editName || contract?.client_name,
+          practice_name_confirmed: editPractice || contract?.practice_name,
+          vat_number: editVat,
+          company_registration: editCompanyReg,
         }),
       });
       if (!res.ok) throw new Error();
-      const data = await res.json();
-      setPaymentUrl(data.payment_url || null);
+      // Fetch Peach checkout URL after signing
+      try {
+        const checkoutRes = await fetch(`${API_URL}/api/v1/contracts/medical/${token}/checkout`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        if (checkoutRes.ok) {
+          const cd = await checkoutRes.json();
+          setPeachCheckoutUrl(cd.checkout_url || cd.hosted_url || null);
+        }
+      } catch {
+        // checkout URL not available — show fallback
+      }
       setStep('payment');
     } catch {
       setError('Something went wrong. Please call Courtney directly on 064 529 5863.');
     } finally {
       setSigning(false);
     }
+  };
+
+  const toggleAddOn = (id: string) => {
+    setAddOns(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   };
 
   // ─── Loading / not found ────────────────────────────────────────────────────
@@ -180,14 +232,18 @@ export default function ContractPage() {
             </div>
             <h1 className="text-2xl font-bold text-white mb-2">Contract signed, {firstName}!</h1>
             <p className="text-slate-400">One final step — set up your monthly payment.</p>
+            {bookingRequested && (
+              <p className="text-teal-400 text-sm mt-2">
+                Your Mac service booking request has been noted. Mary will be in touch shortly to arrange a convenient time.
+              </p>
+            )}
           </div>
 
-          {/* Payment method selection balloon */}
           <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 mb-6">
             <h2 className="text-white font-semibold mb-1">Choose your payment method</h2>
             <p className="text-slate-400 text-sm mb-5">
               R {contract.price_excl_vat.toLocaleString('en-ZA')}/month excl. VAT
-              (R {contract.price_incl_vat.toLocaleString('en-ZA')} incl. 15% VAT) — recurring monthly
+              (R {contract.price_incl_vat.toLocaleString('en-ZA')} incl. 15% VAT) — recurring monthly on the 25th
             </p>
             <div className="grid sm:grid-cols-2 gap-4 mb-6">
               {[
@@ -220,39 +276,34 @@ export default function ContractPage() {
               ))}
             </div>
 
-            {paymentUrl ? (
+            {peachCheckoutUrl ? (
               <a
-                href={paymentUrl}
+                href={peachCheckoutUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block w-full bg-teal-600 hover:bg-teal-500 text-white font-semibold py-3 rounded-xl text-center transition-colors"
               >
-                Continue to PayFast — {paymentMethod === 'debit_order' ? 'Debit Order' : 'Credit Card'}
+                Continue to Peach Payments — {paymentMethod === 'debit_order' ? 'Debit Order' : 'Credit Card'}
               </a>
             ) : (
               <div className="bg-slate-700 rounded-xl p-4 text-center">
                 <p className="text-slate-300 text-sm">
-                  Payment link will be sent to <strong>{contract.client_email}</strong> shortly.
+                  Payment setup will be arranged by Courtney directly.
                 </p>
                 <p className="text-slate-400 text-xs mt-1">
-                  Or call Courtney: <a href="tel:0645295863" className="text-teal-400">064 529 5863</a>
+                  A payment link will be sent to <strong>{contract.client_email}</strong> shortly, or call:{' '}
+                  <a href="tel:0645295863" className="text-teal-400">064 529 5863</a>
                 </p>
               </div>
             )}
           </div>
 
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 text-xs text-slate-500 text-center space-y-1">
-            <p>Payments processed securely by PayFast — PCI-DSS Level 1 compliant</p>
+            <p>Payments processed securely by Peach Payments — PCI-DSS compliant. All processing fees are for your account.</p>
             <p>No card or banking details pass through ZA Support servers</p>
-            <p>You may cancel at any time with 30 days written notice</p>
+            <p>12-month initial term applies. Cancellation requires 30 days written notice after initial term.</p>
+            <p>Recurring monthly on the 25th of each month</p>
           </div>
-
-          <button
-            onClick={() => setStep('done')}
-            className="mt-6 w-full text-slate-500 text-sm hover:text-slate-300 transition-colors py-2"
-          >
-            Skip for now — Courtney will follow up
-          </button>
         </div>
       </div>
     );
@@ -300,6 +351,85 @@ export default function ContractPage() {
     );
   }
 
+  // ─── Confirm details step ────────────────────────────────────────────────────
+
+  if (step === 'confirm') {
+    return (
+      <div className="min-h-screen bg-slate-950 text-white">
+        <Nav contract={contract} />
+        <div className="max-w-2xl mx-auto px-6 py-10">
+          <button onClick={() => setStep('contract')} className="text-slate-500 text-sm hover:text-slate-300 mb-6 flex items-center gap-2">
+            ← Back to contract
+          </button>
+          <h2 className="text-xl font-bold text-white mb-2">Confirm Your Details</h2>
+          <p className="text-slate-400 text-sm mb-8">
+            Please review and update your details below. These will be recorded on the signed agreement.
+          </p>
+
+          <div className="space-y-5 mb-8">
+            <div>
+              <label className="block text-slate-300 text-sm font-medium mb-2">Full name</label>
+              <input
+                type="text"
+                value={editName}
+                onChange={e => setEditName(e.target.value)}
+                placeholder="e.g. Dr Leanne Prodehl"
+                className="w-full bg-slate-800 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-teal-500"
+              />
+            </div>
+            <div>
+              <label className="block text-slate-300 text-sm font-medium mb-2">Practice name</label>
+              <input
+                type="text"
+                value={editPractice}
+                onChange={e => setEditPractice(e.target.value)}
+                placeholder="e.g. Prodehl Medical Practice"
+                className="w-full bg-slate-800 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-teal-500"
+              />
+            </div>
+            <div>
+              <label className="block text-slate-300 text-sm font-medium mb-2">HPCSA registration number</label>
+              <input
+                type="text"
+                value={editHpcsa}
+                onChange={e => setEditHpcsa(e.target.value)}
+                placeholder="e.g. MP0123456"
+                className="w-full bg-slate-800 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-teal-500"
+              />
+            </div>
+            <div>
+              <label className="block text-slate-300 text-sm font-medium mb-2">VAT number <span className="text-slate-500 font-normal">(if registered)</span></label>
+              <input
+                type="text"
+                value={editVat}
+                onChange={e => setEditVat(e.target.value)}
+                placeholder="e.g. 4123456789"
+                className="w-full bg-slate-800 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-teal-500"
+              />
+            </div>
+            <div>
+              <label className="block text-slate-300 text-sm font-medium mb-2">Company registration number <span className="text-slate-500 font-normal">(if incorporated)</span></label>
+              <input
+                type="text"
+                value={editCompanyReg}
+                onChange={e => setEditCompanyReg(e.target.value)}
+                placeholder="e.g. 2018/123456/07"
+                className="w-full bg-slate-800 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-teal-500"
+              />
+            </div>
+          </div>
+
+          <button
+            onClick={() => setStep('sign')}
+            className="w-full bg-teal-600 hover:bg-teal-500 text-white font-bold py-4 rounded-xl text-base transition-colors"
+          >
+            Confirm Details &amp; Continue to Sign →
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // ─── Sign step ──────────────────────────────────────────────────────────────
 
   if (step === 'sign') {
@@ -307,8 +437,8 @@ export default function ContractPage() {
       <div className="min-h-screen bg-slate-950 text-white">
         <Nav contract={contract} />
         <div className="max-w-2xl mx-auto px-6 py-10">
-          <button onClick={() => setStep('contract')} className="text-slate-500 text-sm hover:text-slate-300 mb-6 flex items-center gap-2">
-            ← Back to contract
+          <button onClick={() => setStep('confirm')} className="text-slate-500 text-sm hover:text-slate-300 mb-6 flex items-center gap-2">
+            ← Back to details
           </button>
           <h2 className="text-xl font-bold text-white mb-2">Sign the Service Agreement</h2>
           <p className="text-slate-400 text-sm mb-8">
@@ -450,15 +580,66 @@ export default function ContractPage() {
             of {contract.za_support.address} (<strong>"ZA Support"</strong>).
           </p>
           <p>
-            <strong>Client:</strong> {contract.client_name}
-            {contract.practice_name ? `, practising as ${contract.practice_name}` : ''}
-            {contract.hpcsa_number ? `, HPCSA registration number ${contract.hpcsa_number}` : ''}
-            (<strong>"the Client"</strong>).
+            <strong>Client:</strong> {editName || contract.client_name}
+            {(editPractice || contract.practice_name) ? `, practising as ${editPractice || contract.practice_name}` : ''}
+            {(editHpcsa || contract.hpcsa_number) ? `, HPCSA registration number ${editHpcsa || contract.hpcsa_number}` : ''}
+            {editVat ? `, VAT number ${editVat}` : ''}
+            {editCompanyReg ? `, company registration ${editCompanyReg}` : ''}
+            {' '}(<strong>"the Client"</strong>).
           </p>
           <p>
             Together referred to as <strong>"the Parties"</strong>. This Agreement is effective from
             the date of electronic signature by the Client.
           </p>
+
+          {/* Editable details inline */}
+          <div className="mt-4 border-t border-slate-700 pt-4">
+            {!editingDetails ? (
+              <button
+                onClick={() => setEditingDetails(true)}
+                className="text-teal-400 text-xs hover:text-teal-300 underline"
+              >
+                Edit your details
+              </button>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-slate-400 text-xs font-medium">Update your details:</p>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-slate-400 text-xs mb-1">Full name</label>
+                    <input type="text" value={editName} onChange={e => setEditName(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-teal-500" />
+                  </div>
+                  <div>
+                    <label className="block text-slate-400 text-xs mb-1">Practice name</label>
+                    <input type="text" value={editPractice} onChange={e => setEditPractice(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-teal-500" />
+                  </div>
+                  <div>
+                    <label className="block text-slate-400 text-xs mb-1">HPCSA number</label>
+                    <input type="text" value={editHpcsa} onChange={e => setEditHpcsa(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-teal-500" />
+                  </div>
+                  <div>
+                    <label className="block text-slate-400 text-xs mb-1">VAT number</label>
+                    <input type="text" value={editVat} onChange={e => setEditVat(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-teal-500" />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-slate-400 text-xs mb-1">Company registration number</label>
+                    <input type="text" value={editCompanyReg} onChange={e => setEditCompanyReg(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-teal-500" />
+                  </div>
+                </div>
+                <button
+                  onClick={() => setEditingDetails(false)}
+                  className="text-teal-400 text-xs hover:text-teal-300 underline"
+                >
+                  Save details
+                </button>
+              </div>
+            )}
+          </div>
         </AccordionSection>
 
         <AccordionSection title="2. Service Description — Health Check Scout">
@@ -488,10 +669,10 @@ export default function ContractPage() {
             <li>Continuous automated monitoring (24/7/365)</li>
             <li>Monthly Health Check reports delivered to the Client</li>
             <li>Priority remote support — 4-hour response during business hours (08:00–18:00 SAST, Mon–Fri)</li>
-            <li>Critical alerts responded to within 2 hours (including after hours for severity=Critical)</li>
+            <li>Critical alerts responded to within 2 hours (including after hours for severity Critical)</li>
             <li>Quarterly on-site IT health assessments (scheduled at mutual convenience)</li>
-            <li>Annual staff IT security awareness training (1 session, on-site)</li>
-            <li>Hardware procurement at cost price (Client pays hardware cost + 10% handling)</li>
+            <li>IT security awareness training — two-phase paid service: Phase 1: Annual group staff training session (on-site); Phase 2: Individual one-on-one sessions for smaller practices (billed separately per session)</li>
+            <li>Hardware procurement at preferred rates — up to 35% discount on hardware</li>
             <li>Ransomware and data breach alerts with immediate notification</li>
             <li>Backup integrity monitoring and alerting</li>
             <li>macOS patch and compatibility alerts</li>
@@ -510,36 +691,36 @@ export default function ContractPage() {
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="border-b border-slate-700">
-                <th className="text-left py-2 text-slate-400 font-medium">Severity</th>
-                <th className="text-left py-2 text-slate-400 font-medium">Definition</th>
-                <th className="text-left py-2 text-slate-400 font-medium">Response</th>
-                <th className="text-left py-2 text-slate-400 font-medium">Resolution Target</th>
+                <th className="text-left py-3 px-3 text-slate-400 font-medium">Severity</th>
+                <th className="text-left py-3 px-3 text-slate-400 font-medium">Definition</th>
+                <th className="text-left py-3 px-3 text-slate-400 font-medium">Response</th>
+                <th className="text-left py-3 px-3 text-slate-400 font-medium">Resolution Target</th>
               </tr>
             </thead>
             <tbody className="text-slate-300">
               <tr className="border-b border-slate-800">
-                <td className="py-2 text-red-400 font-medium">Critical</td>
-                <td className="py-2">Practice unable to operate; active data breach or ransomware</td>
-                <td className="py-2">2 hours (24/7)</td>
-                <td className="py-2">Same day</td>
+                <td className="py-3 px-3 text-red-400 font-medium">Critical</td>
+                <td className="py-3 px-3">Practice unable to operate; active data breach or ransomware</td>
+                <td className="py-3 px-3">2 hours (24/7)</td>
+                <td className="py-3 px-3">Same day</td>
               </tr>
               <tr className="border-b border-slate-800">
-                <td className="py-2 text-orange-400 font-medium">High</td>
-                <td className="py-2">Major function impaired; significant risk detected</td>
-                <td className="py-2">4 hours (business hours)</td>
-                <td className="py-2">Next business day</td>
+                <td className="py-3 px-3 text-orange-400 font-medium">High</td>
+                <td className="py-3 px-3">Major function impaired; significant risk detected</td>
+                <td className="py-3 px-3">4 hours (business hours)</td>
+                <td className="py-3 px-3">Next business day</td>
               </tr>
               <tr className="border-b border-slate-800">
-                <td className="py-2 text-yellow-400 font-medium">Medium</td>
-                <td className="py-2">Performance degraded; non-urgent risk</td>
-                <td className="py-2">8 hours (business hours)</td>
-                <td className="py-2">3 business days</td>
+                <td className="py-3 px-3 text-yellow-400 font-medium">Medium</td>
+                <td className="py-3 px-3">Performance degraded; non-urgent risk</td>
+                <td className="py-3 px-3">8 hours (business hours)</td>
+                <td className="py-3 px-3">3 business days</td>
               </tr>
               <tr>
-                <td className="py-2 text-green-400 font-medium">Low</td>
-                <td className="py-2">Informational; optimisation opportunity</td>
-                <td className="py-2">Next business day</td>
-                <td className="py-2">5 business days</td>
+                <td className="py-3 px-3 text-green-400 font-medium">Low</td>
+                <td className="py-3 px-3">Informational; optimisation opportunity</td>
+                <td className="py-3 px-3">Next business day</td>
+                <td className="py-3 px-3">5 business days</td>
               </tr>
             </tbody>
           </table>
@@ -591,12 +772,12 @@ export default function ContractPage() {
             <li>Browser history, passwords or authentication credentials</li>
             <li>Clinical notes, prescriptions or any health record content</li>
           </ul>
-          <p className="font-medium text-white mt-3">ZA Support as Operator (POPIA §1):</p>
+          <p className="font-medium text-white mt-3">ZA Support as Operator:</p>
           <ul className="list-disc list-inside space-y-1 mt-2">
             <li>Processes device data under the Client's instruction only</li>
             <li>Implements appropriate technical safeguards (encryption, access control, audit logging)</li>
-            <li>Retains diagnostic data for 90 days detailed, 2 years aggregated, then deleted</li>
-            <li>Does not share, sell, or disclose data to third parties without written consent</li>
+            <li>Retains diagnostic data for analytical and service improvement purposes</li>
+            <li>Maintains strict data confidentiality; diagnostic data is used exclusively for service delivery and is never disclosed to any third party without the Client's prior written authorisation</li>
             <li>Notifies the Client within 72 hours of any actual or suspected data breach</li>
             <li>Assists the Client in meeting data subject access requests relating to Scout data</li>
           </ul>
@@ -612,7 +793,7 @@ export default function ContractPage() {
             the Electronic Communications and Transactions Act, 25 of 2002 (<strong>"ECTA"</strong>).
           </p>
           <ul className="list-disc list-inside space-y-1 mt-2">
-            <li>The Client's electronic signature (typed name + checkbox confirmation) constitutes a valid advanced electronic signature for the purposes of ECTA §13</li>
+            <li>The Client's electronic signature (typed name + checkbox confirmation) constitutes a valid advanced electronic signature for the purposes of the Electronic Communications and Transactions Act, 25 of 2002</li>
             <li>The Agreement is concluded at the time of electronic signing by the Client</li>
             <li>A record of the signing (timestamp, IP address, signatory name) is retained for 5 years</li>
             <li>The Client may request a copy of the signed agreement at any time by emailing courtney@zasupport.com</li>
@@ -621,24 +802,25 @@ export default function ContractPage() {
           <p className="mt-3 text-slate-400 text-xs">
             DocuSeal e-signature (where configured) provides additional legal certainty.
             Both methods are valid under ECTA. The Client acknowledges receiving adequate opportunity
-            to print or save this Agreement before signing (ECTA §22).
+            to print or save this Agreement before signing (ECTA s22).
           </p>
         </AccordionSection>
 
         <AccordionSection title="8. Payment Terms">
           <ul className="list-disc list-inside space-y-1">
             <li>Monthly service fee: <strong className="text-white">R {contract.price_excl_vat.toLocaleString('en-ZA')} excl. VAT (R {contract.price_incl_vat.toLocaleString('en-ZA')} incl. 15% VAT)</strong></li>
-            <li>Billing: Monthly in advance, deducted on the 1st of each calendar month</li>
-            <li>Payment methods accepted: credit card or debit order (via PayFast — PCI-DSS compliant)</li>
+            <li>Billing: Monthly in advance, deducted on the 25th of each calendar month, in advance</li>
+            <li>Payment methods accepted: credit card or debit order (via Peach Payments — PCI-DSS compliant)</li>
             <li>First payment: due upon contract signing and service activation</li>
             <li>Late payment: 2% compound interest per month on overdue amounts (in duplum rule applies)</li>
             <li>ZA Support VAT number: {contract.za_support.vat_no} — VAT invoices issued monthly</li>
-            <li>Price escalation: ZA Support may increase fees annually by CPI + 5%, with 60 days written notice</li>
-            <li>No refunds for partial months; cancellation takes effect end of current billing cycle</li>
+            <li>Price escalation: ZA Support may increase fees by up to 10% annually, with 60 days written notice and prior consultation with the Client to agree on the adjustment</li>
+            <li>Cancellations will attract one further month of service fees. No refunds are issued for partial months.</li>
+            <li>All payment processing fees are for the Client's account</li>
           </ul>
           <p className="mt-3 text-slate-400 text-xs">
-            All payments processed by PayFast (Pty) Ltd. ZA Support does not store card numbers
-            or banking details. PayFast is registered with PASA (Payment Association of South Africa).
+            All payments processed by Peach Payments. ZA Support does not store card numbers
+            or banking details.
           </p>
         </AccordionSection>
 
@@ -678,31 +860,34 @@ export default function ContractPage() {
 
         <AccordionSection title="11. Liability & Indemnification">
           <p>
-            <strong>Limitation of Liability:</strong> ZA Support's total aggregate liability
-            under this Agreement is limited to the total fees paid by the Client in the
-            12 months preceding the claim.
+            ZA Support provides this service on an "as is" basis and accepts no liability whatsoever arising from the provision of services under this Agreement.
           </p>
           <p className="mt-2">
-            ZA Support is not liable for: (a) loss of clinical data (Client must maintain independent backups and comply with HPCSA record-keeping requirements); (b) consequential, indirect or special losses; (c) failures caused by third-party services, internet outages, or force majeure events; (d) issues arising from the Client's failure to implement recommended remediation within 30 days.
+            ZA Support, its directors, employees, agents, and subcontractors are fully indemnified against any claim, loss, damage, liability, cost, or expense of any nature — whether direct, indirect, consequential, incidental, or special — arising from or related to:
           </p>
-          <p className="mt-2">
-            <strong>Indemnification:</strong> The Client indemnifies ZA Support against any
-            claims, losses or regulatory action arising from the Client's failure to comply with
-            HPCSA, POPIA, or National Health Act obligations. ZA Support indemnifies the Client
-            against claims arising directly from ZA Support's gross negligence or wilful misconduct.
+          <ul className="list-[lower-alpha] list-inside space-y-1 mt-2 text-slate-300">
+            <li>this Agreement or the services provided hereunder;</li>
+            <li>any act or omission of the Client, their patients, staff, associates, or any third party connected with the Client;</li>
+            <li>loss or corruption of clinical data (the Client is solely responsible for maintaining independent backups in compliance with HPCSA record-keeping obligations);</li>
+            <li>failures of third-party services, internet connectivity, power supply, hardware, or any infrastructure not owned by ZA Support;</li>
+            <li>the Client's failure to implement recommended remediation actions;</li>
+            <li>any regulatory action, fine, or sanction against the Client; or</li>
+            <li>any claim brought by the Client's patients, associates, partners, employees, or any party related to the Client.</li>
+          </ul>
+          <p className="mt-3">
+            The Client indemnifies ZA Support in full against all such claims, losses, and expenses, including legal costs on an attorney-and-own-client scale. This indemnity survives termination of this Agreement.
           </p>
         </AccordionSection>
 
         <AccordionSection title="12. Term & Termination">
           <p>
-            <strong>Initial term:</strong> This Agreement commences on the date of signing and
-            continues indefinitely (month-to-month) until terminated in accordance with this clause.
+            <strong>Initial term:</strong> This Agreement commences on the date of signing for an initial fixed term of 12 months (the Initial Term) and thereafter automatically renews for successive 12-month periods unless terminated in accordance with this clause.
           </p>
           <ul className="list-disc list-inside space-y-1 mt-2">
             <li><strong>Client termination:</strong> 30 days written notice by email to courtney@zasupport.com. Termination takes effect at end of the billing month in which the notice period expires.</li>
-            <li><strong>ZA Support termination:</strong> 30 days written notice, or immediately for: non-payment (outstanding &gt;30 days), Client's material breach, or insolvency.</li>
+            <li><strong>ZA Support termination:</strong> 30 days written notice, or immediately for: non-payment (outstanding more than 30 days), Client's material breach, or insolvency.</li>
             <li><strong>On termination:</strong> ZA Support will uninstall Scout from all devices within 14 days. Client data will be deleted within 30 days of termination (on written request).</li>
-            <li><strong>No lock-in:</strong> There is no minimum contract period. Cancel anytime with 30 days notice.</li>
+            <li><strong>Minimum term:</strong> 12 months. Early cancellation by the Client prior to the expiry of the Initial Term or any renewal term does not relieve the Client of payment obligations for the remaining months of that term. A cancellation notice will result in one further month of service fees being due.</li>
           </ul>
         </AccordionSection>
 
@@ -721,6 +906,9 @@ export default function ContractPage() {
             competent jurisdiction. The costs of any dispute resolution process are borne equally
             unless the arbitrator orders otherwise.
           </p>
+          <p className="mt-2 text-slate-300 text-sm">
+            For disputes falling within the monetary jurisdiction of the Small Claims Court, the Parties may elect to refer the matter to the Small Claims Court, Randburg. Any other legal proceedings shall be instituted in the Magistrate's Court, Randburg, or the High Court of South Africa, Gauteng Division, Johannesburg, as appropriate.
+          </p>
         </AccordionSection>
 
         <AccordionSection title="14. Governing Law & Jurisdiction">
@@ -729,6 +917,9 @@ export default function ContractPage() {
             Republic of South Africa. The Parties consent to the non-exclusive jurisdiction of
             the High Court of South Africa, Gauteng Division, Johannesburg, for any disputes
             not resolved by arbitration under clause 13.
+          </p>
+          <p className="mt-2">
+            The Parties consent to the jurisdiction of the Magistrate's Court, Randburg, and where applicable, the Small Claims Court, Randburg, in addition to the High Court.
           </p>
           <p className="mt-2">
             This Agreement constitutes the entire agreement between the Parties regarding its
@@ -743,8 +934,85 @@ export default function ContractPage() {
             <li><strong>Severability:</strong> If any provision is found unenforceable, the remaining provisions continue in full force.</li>
             <li><strong>Waiver:</strong> Failure to enforce any right does not waive future enforcement of that right.</li>
             <li><strong>Assignment:</strong> Neither Party may assign this Agreement without the other's written consent, except ZA Support may assign to an affiliate or successor business.</li>
-            <li><strong>Force Majeure:</strong> Neither Party is liable for delays caused by circumstances beyond their reasonable control (load-shedding exceeding 8 hours/day is excluded — ZA Support has backup systems).</li>
+            <li><strong>Force Majeure:</strong> No event or circumstance — including load-shedding, natural disasters, civil unrest, or any other cause — shall excuse either Party from performing their obligations under this Agreement. Each Party is responsible for ensuring service continuity regardless of external conditions.</li>
           </ul>
+        </AccordionSection>
+
+        {/* Section 16: Add-on Services */}
+        <AccordionSection title="16. Add-on Services & Upgrades" badge="Optional" defaultOpen={false}>
+          <p>
+            The following optional services can be added to your SLA at any time. Tick any that apply and we will be in touch to confirm pricing and scheduling.
+          </p>
+          <div className="space-y-3 mt-4">
+            {ADD_ON_OPTIONS.map(opt => (
+              <label
+                key={opt.id}
+                className="flex items-start gap-3 cursor-pointer bg-slate-800/50 border border-slate-700 rounded-xl p-4 hover:border-slate-600 transition-colors"
+              >
+                <input
+                  type="checkbox"
+                  checked={addOns.includes(opt.id)}
+                  onChange={() => toggleAddOn(opt.id)}
+                  className="mt-0.5 w-5 h-5 accent-teal-500 shrink-0"
+                />
+                <div>
+                  <p className="text-white text-sm font-medium">{opt.label}</p>
+                  <p className="text-slate-400 text-xs mt-0.5">{opt.price}</p>
+                </div>
+              </label>
+            ))}
+          </div>
+
+          {/* Machine Service Booking */}
+          <div className="mt-6 border-t border-slate-700 pt-5">
+            <p className="text-white text-sm font-medium mb-3">Machine Service Booking</p>
+            <p className="text-slate-300 text-sm mb-4">
+              Has your primary Mac been serviced (cleaned, thermal paste replaced) in the past 6–12 months?
+            </p>
+            <div className="flex gap-3 mb-4">
+              {[
+                { id: 'yes', label: 'Yes, recently serviced' },
+                { id: 'no', label: 'No — I would like to book it in' },
+              ].map(opt => (
+                <button
+                  key={opt.id}
+                  onClick={() => {
+                    setServiceBooking(opt.id as 'yes' | 'no');
+                    if (opt.id === 'yes') setBookingRequested(false);
+                  }}
+                  className={`flex-1 py-2.5 px-3 rounded-xl border-2 text-sm font-medium transition-all ${
+                    serviceBooking === opt.id
+                      ? 'border-teal-500 bg-teal-950/30 text-white'
+                      : 'border-slate-600 bg-slate-900 text-slate-400 hover:border-slate-500'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            {serviceBooking === 'no' && (
+              <label className="flex items-start gap-3 cursor-pointer bg-slate-800/50 border border-teal-600/30 rounded-xl p-4 hover:border-teal-500/50 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={bookingRequested}
+                  onChange={e => setBookingRequested(e.target.checked)}
+                  className="mt-0.5 w-5 h-5 accent-teal-500 shrink-0"
+                />
+                <div>
+                  <p className="text-white text-sm font-medium">Book my Mac in for a service</p>
+                  <p className="text-slate-400 text-xs mt-0.5">
+                    I understand ZA Support will contact me to arrange a convenient time.
+                  </p>
+                  {bookingRequested && (
+                    <p className="text-teal-400 text-xs mt-1">
+                      Upon ticking, Courtney will be notified and Mary will reach out to schedule.
+                    </p>
+                  )}
+                </div>
+              </label>
+            )}
+          </div>
         </AccordionSection>
 
         {/* All-read confirmation */}
@@ -757,14 +1025,14 @@ export default function ContractPage() {
               className="mt-0.5 w-5 h-5 accent-teal-500 shrink-0"
             />
             <span className="text-slate-300 text-sm">
-              I have read and understood the full Service Level Agreement, including all 15 sections above.
+              I have read and understood the full Service Level Agreement, including all 16 sections above.
               I am authorised to enter into this Agreement on behalf of the practice.
             </span>
           </label>
         </div>
 
         <button
-          onClick={() => allRead && setStep('sign')}
+          onClick={() => allRead && setStep('confirm')}
           disabled={!allRead}
           className={`mt-4 w-full font-bold py-4 rounded-xl text-base transition-colors ${
             allRead
@@ -772,7 +1040,7 @@ export default function ContractPage() {
               : 'bg-slate-700 text-slate-500 cursor-not-allowed'
           }`}
         >
-          Proceed to Sign Agreement →
+          Proceed to Confirm Details →
         </button>
 
         {!allRead && (
