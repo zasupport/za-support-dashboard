@@ -23,6 +23,16 @@ type MetricRow = {
   max_smc_temp_c?: number | null;
   sensors_above_80c?: number | null;
   fan_0_target_rpm?: number | null;
+  // migration_148 — extended Scout fields
+  load_avg_1m?: number | null;
+  load_avg_5m?: number | null;
+  load_avg_15m?: number | null;
+  uptime_seconds?: number | null;
+  battery_voltage_mv?: number | null;
+  battery_temp_c?: number | null;
+  gatekeeper_on?: boolean | null;
+  nvme_pct_used?: number | null;
+  nvme_power_on_hours?: number | null;
 };
 
 function fmt(ts: string) {
@@ -227,6 +237,80 @@ export function TrendCharts({ serial }: { serial: string }) {
                 <LineChart data={data}>
                   {grid}{axis()}{tip}
                   <Line type="monotone" dataKey="fan_0_target_rpm" name="Fan 0 RPM" stroke="#38bdf8" dot={false} strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {(has('load_avg_1m') || has('load_avg_5m') || has('load_avg_15m')) && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm">System Load Average</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className={chartClass}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data}>
+                  {grid}{axis()}{tip}
+                  {has('load_avg_1m') && <Line type="monotone" dataKey="load_avg_1m" name="1m" stroke="#0FEA7A" dot={false} strokeWidth={2} />}
+                  {has('load_avg_5m') && <Line type="monotone" dataKey="load_avg_5m" name="5m" stroke="#34d399" dot={false} strokeWidth={2} strokeDasharray="4 2" />}
+                  {has('load_avg_15m') && <Line type="monotone" dataKey="load_avg_15m" name="15m" stroke="#6ee7b7" dot={false} strokeWidth={1} strokeDasharray="2 3" />}
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {has('uptime_seconds') && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm">Uptime (days)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className={chartClass}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data.map(r => ({ ...r, uptime_days: r.uptime_seconds != null ? +(r.uptime_seconds / 86400).toFixed(1) : null }))}>
+                  {grid}{axis()}{tip}
+                  <Line type="monotone" dataKey="uptime_days" name="Uptime (days)" stroke="#38bdf8" dot={false} strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {has('battery_voltage_mv') && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm">Battery Voltage (mV)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className={chartClass}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data}>
+                  {grid}{axis()}{tip}
+                  <Line type="monotone" dataKey="battery_voltage_mv" name="Voltage mV" stroke="#f59e0b" dot={false} strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {has('nvme_pct_used') && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm">NVMe Wear (%)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className={chartClass}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data}>
+                  {grid}{axis([0, 100])}{tip}
+                  <Line type="monotone" dataKey="nvme_pct_used" name="NVMe Wear %" stroke="#f87171" dot={false} strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
