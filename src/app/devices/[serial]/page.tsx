@@ -287,6 +287,114 @@ export default async function DeviceDetailPage({ params }: { params: Promise<{ s
         </Card>
       )}
 
+      {/* Phase 29 — IOKit Advanced Intelligence */}
+      {(snap?.hid_idle_secs || snap?.mem_pressure_level || snap?.quarantine_bypassed_count != null || snap?.kext_third_party_count != null || snap?.gpu_renderer_util_pct != null || snap?.pacc_temp_c) && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader><CardTitle className="text-white text-base">IOKit Advanced Intelligence — Phase 29</CardTitle></CardHeader>
+          <CardContent className="space-y-5">
+            {/* Security signals */}
+            <div>
+              <p className="text-xs text-slate-400 uppercase tracking-wide mb-3">Security</p>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                  {
+                    label: 'Quarantine Bypassed',
+                    value: snap.quarantine_bypassed_count != null ? `${snap.quarantine_bypassed_count} item(s)` : null,
+                    highlight: Number(snap.quarantine_bypassed_count) > 0 ? 'red' : 'green'
+                  },
+                  {
+                    label: '3rd-Party Kexts',
+                    value: snap.kext_third_party_count != null ? String(snap.kext_third_party_count) : null,
+                    highlight: Number(snap.kext_third_party_count) > 5 ? 'yellow' : undefined
+                  },
+                  {
+                    label: 'Apple HW Diagnostics',
+                    value: snap.diag_selftest_result || null,
+                    highlight: String(snap.diag_selftest_result || '').toUpperCase() === 'PASS' ? 'green'
+                      : snap.diag_selftest_result && !['PASS','N/A','NEVER',''].includes(String(snap.diag_selftest_result).toUpperCase()) ? 'red' : undefined
+                  },
+                  {
+                    label: 'TM Backup Ratio',
+                    value: snap.tm_backup_ratio || null,
+                    highlight: String(snap.tm_backup_ratio || '').toLowerCase().includes('small') ? 'yellow' : 'green'
+                  },
+                ].filter(f => f.value != null).map(({ label, value, highlight }: any) => (
+                  <div key={label}>
+                    <p className="text-xs text-slate-400 mb-1">{label}</p>
+                    <p className={`text-sm font-medium ${highlight === 'green' ? 'text-green-400' : highlight === 'red' ? 'text-red-400' : highlight === 'yellow' ? 'text-yellow-400' : 'text-white'}`}>{value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Memory & System */}
+            <div>
+              <p className="text-xs text-slate-400 uppercase tracking-wide mb-3">Memory &amp; System</p>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                  {
+                    label: 'Memory Pressure',
+                    value: snap.mem_pressure_level || null,
+                    highlight: snap.mem_pressure_level === 'critical' || snap.mem_pressure_level === 'fatal' ? 'red'
+                      : snap.mem_pressure_level === 'warning' ? 'yellow' : 'green'
+                  },
+                  { label: 'HID Idle (s)', value: snap.hid_idle_secs != null ? String(snap.hid_idle_secs) : null },
+                  { label: 'WiFi BSSID', value: snap.wifi_bssid || null },
+                  { label: 'WiFi PHY Mode', value: snap.wifi_phy_mode || null },
+                ].filter(f => f.value != null).map(({ label, value, highlight }: any) => (
+                  <div key={label}>
+                    <p className="text-xs text-slate-400 mb-1">{label}</p>
+                    <p className={`text-sm font-medium ${highlight === 'green' ? 'text-green-400' : highlight === 'red' ? 'text-red-400' : highlight === 'yellow' ? 'text-yellow-400' : 'text-white font-mono'}`}>{value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* GPU */}
+            {snap.gpu_renderer_util_pct != null && (
+              <div>
+                <p className="text-xs text-slate-400 uppercase tracking-wide mb-3">GPU (IOAccelerator)</p>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  {[
+                    { label: 'Renderer Util', value: snap.gpu_renderer_util_pct != null ? `${snap.gpu_renderer_util_pct}%` : null },
+                    { label: 'Tiler Util', value: snap.gpu_tiler_util_pct != null ? `${snap.gpu_tiler_util_pct}%` : null },
+                    { label: 'Core Clock', value: snap.gpu_core_clock_mhz != null ? `${snap.gpu_core_clock_mhz} MHz` : null },
+                    { label: 'Mem Clock', value: snap.gpu_mem_clock_mhz != null ? `${snap.gpu_mem_clock_mhz} MHz` : null },
+                  ].filter(f => f.value != null).map(({ label, value }) => (
+                    <div key={label}>
+                      <p className="text-xs text-slate-400 mb-1">{label}</p>
+                      <p className="text-sm font-medium text-white">{value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Apple Silicon Topology */}
+            {(snap.pacc_temp_c || snap.ane_temp_c || snap.p_core_count_ioreg) && (
+              <div>
+                <p className="text-xs text-slate-400 uppercase tracking-wide mb-3">Apple Silicon Topology</p>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  {[
+                    { label: 'P-Cluster Temp', value: snap.pacc_temp_c != null ? `${snap.pacc_temp_c}°C` : null, highlight: Number(snap.pacc_temp_c) > 80 ? 'red' : Number(snap.pacc_temp_c) > 65 ? 'yellow' : undefined },
+                    { label: 'E-Cluster Temp', value: snap.eacc_temp_c != null ? `${snap.eacc_temp_c}°C` : null },
+                    { label: 'ANE Temp', value: snap.ane_temp_c != null ? `${snap.ane_temp_c}°C` : null, highlight: Number(snap.ane_temp_c) > 75 ? 'red' : undefined },
+                    { label: 'SOC Avg Temp', value: snap.soc_avg_temp_c != null ? `${snap.soc_avg_temp_c}°C` : null },
+                    { label: 'P-Cores (IOKit)', value: snap.p_core_count_ioreg != null ? String(snap.p_core_count_ioreg) : null },
+                    { label: 'E-Cores (IOKit)', value: snap.e_core_count_ioreg != null ? String(snap.e_core_count_ioreg) : null },
+                  ].filter(f => f.value != null).map(({ label, value, highlight }: any) => (
+                    <div key={label}>
+                      <p className="text-xs text-slate-400 mb-1">{label}</p>
+                      <p className={`text-sm font-medium ${highlight === 'red' ? 'text-red-400' : highlight === 'yellow' ? 'text-yellow-400' : 'text-white'}`}>{value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Trend charts */}
       <div>
         <h2 className="text-base font-semibold text-white mb-3">Historical Trends</h2>
