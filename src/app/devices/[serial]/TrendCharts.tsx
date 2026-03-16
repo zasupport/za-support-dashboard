@@ -479,6 +479,23 @@ export function TrendCharts({ serial }: { serial: string }) {
           </CardContent>
         </Card>
       )}
+      {has('quarantine_bypassed') && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm">Quarantine Bypass Count</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className={chartClass}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data}>
+                  {grid}{axis()}{tip}
+                  <Line type="monotone" dataKey="quarantine_bypassed" name="Bypassed" stroke="#ef4444" dot={false} strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
