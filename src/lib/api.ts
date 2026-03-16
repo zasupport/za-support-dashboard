@@ -3,7 +3,7 @@ const API_TOKEN = process.env.ZA_API_TOKEN || '';
 const TIMEOUT_MS = 10000;
 
 const headers = () => ({
-  'X-API-Key': API_TOKEN,
+  'Authorization': `Bearer ${API_TOKEN}`,
   'Content-Type': 'application/json',
 });
 
