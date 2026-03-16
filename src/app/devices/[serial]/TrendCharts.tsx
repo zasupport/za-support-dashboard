@@ -111,6 +111,24 @@ export function TrendCharts({ serial }: { serial: string }) {
         </Card>
       )}
 
+      {has('battery_cycle_count') && (
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm">Battery Cycle Count</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className={chartClass}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data}>
+                  {grid}{axis()}{tip}
+                  <Line type="monotone" dataKey="battery_cycle_count" name="Cycles" stroke="#fb923c" dot={false} strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {has('macos_health_pct') && (
         <Card className="bg-slate-800 border-slate-700">
           <CardHeader className="pb-2">
@@ -453,7 +471,7 @@ export function TrendCharts({ serial }: { serial: string }) {
             <div className={chartClass}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={data}>
-                  {grid}{axis([0])}{tip}
+                  {grid}{axis()}{tip}
                   <Line type="monotone" dataKey="kext_third_party" name="Kexts" stroke="#fbbf24" dot={false} strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
