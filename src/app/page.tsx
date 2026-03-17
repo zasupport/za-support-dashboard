@@ -59,7 +59,7 @@ export default async function DashboardPage() {
   const dedupData      = dedupSummary.status === 'fulfilled' ? dedupSummary.value : null;
   const outages        = Array.isArray(ispList)    ? ispList.filter((i: any) => i.status === 'outage' || i.status === 'degraded') : [];
   const criticalShield = Array.isArray(shieldList) ? shieldList.filter((e: any) => e.severity === 'CRITICAL' || e.severity === 'HIGH') : [];
-  const openJobs       = workshopAll.filter((j: any) => !['done', 'completed', 'cancelled'].includes(j.status));
+  const openJobs       = workshopAll.filter((j: any) => !['done', 'completed', 'cancelled', 'closed'].includes(j.status));
   const urgentJobs     = openJobs.filter((j: any) => j.priority === 'urgent');
   const urgentDevices  = (radarData?.meta?.critical ?? 0) + (radarData?.meta?.overdue ?? 0);
   const fleetValueRand = fleetActData?.total_value_protected ?? 0;
