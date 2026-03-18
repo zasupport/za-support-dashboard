@@ -1,7 +1,7 @@
 {
   "name": "za-support-dashboard",
   "display_name": "ZA Support Health Check Dashboard",
-  "version": "1.0.0",
+  "version": "0.3.0",
   "description": "Health Check dashboard — devices, ISP status, shield events, app intelligence, interaction analytics",
   "owner": "Courtney Bentley / ZA Support",
   "stack": {
