@@ -10,6 +10,12 @@
 - Stack: Next.js 14 + Tailwind CSS + shadcn/ui
 - API: https://api.zasupport.com (Health Check v11 backend)
 
+## §173 EXECUTE-ON-SPEAK (PERMANENT — HARD — 22/03/2026)
+Identifying a gap/plan/fix/idea verbally or in text = IMMEDIATE execution same response.
+∅ "I'll build X" ∅ "this should be done" ∅ "the fix is Y" without doing it NOW.
+∅ separate planning from doing — they are the SAME response. Spoken = committed = done.
+VIOLATION: naming a task without completing it in the same response.
+
 ## PROJECT-SPECIFIC RULES
 
 ### Component Standards
