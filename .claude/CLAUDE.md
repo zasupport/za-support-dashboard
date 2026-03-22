@@ -10,6 +10,12 @@
 - Stack: Next.js 14 + Tailwind CSS + shadcn/ui
 - API: https://api.zasupport.com (Health Check v11 backend)
 
+## §174 SESSION RECOVERY (PERMANENT — HARD — 22/03/2026)
+ON any interruption (sleep|crash|lid-close|terminal-close): za-checkpoint.sh writes
+~/.za-checkpoint.json. ON wake: za-auto-claude.sh → za-session-recover.sh → claude -r <id>.
+Recovery resumes at exact interrupted task. ∅ restart from scratch if session_id exists.
+CHECKPOINT RULE: bash ~/bin/za-checkpoint.sh <task> <status> before + after every major task.
+
 ## §173 EXECUTE-ON-SPEAK (PERMANENT — HARD — 22/03/2026)
 Identifying a gap/plan/fix/idea verbally or in text = IMMEDIATE execution same response.
 ∅ "I'll build X" ∅ "this should be done" ∅ "the fix is Y" without doing it NOW.
