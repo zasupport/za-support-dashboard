@@ -12,9 +12,11 @@
 
 ## §174 SESSION RECOVERY (PERMANENT — HARD — 22/03/2026)
 ON any interruption (sleep|crash|lid-close|terminal-close): za-checkpoint.sh writes
-~/.za-checkpoint.json. ON wake: za-auto-claude.sh → za-session-recover.sh → claude -r <id>.
-Recovery resumes at exact interrupted task. ∅ restart from scratch if session_id exists.
+~/.za-checkpoint.json. ON wake: za-auto-claude.sh → claude -r <session_id> in tmux za-main.
+Recovery sequence: (1) detect wake/reconnect (2) read checkpoint (3) launch claude -r <id> (4) resume exact task.
 CHECKPOINT RULE: bash ~/bin/za-checkpoint.sh <task> <status> before + after every major task.
+∅ restart from scratch if session_id exists | network restore → backup + resume both fire
+On network restore: com.zasupport.backup.networktrigger → za-network-backup.sh (backup) + za-auto-claude.sh (resume)
 
 ## §173 EXECUTE-ON-SPEAK (PERMANENT — HARD — 22/03/2026)
 Identifying a gap/plan/fix/idea verbally or in text = IMMEDIATE execution same response.
