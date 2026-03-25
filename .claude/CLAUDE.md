@@ -10,6 +10,14 @@
 - Stack: Next.js 14 + Tailwind CSS + shadcn/ui
 - API: https://api.zasupport.com (Health Check v11 backend)
 
+## §176 SESSION GUARD — ZERO LOSS (PERMANENT — HARD — 25/03/2026)
+# HARD RULE: Claude session MUST survive lid-close | sleep | network-drop | crash
+# ON lid/sleep/net-drop: za-lid-guard.sh → za-checkpoint.sh → za-session-cloud-sync.sh push
+# ON wake/reconnect: za-auto-claude.sh (60s) → za-session-recover.sh → cloud pull → claude -r <id>
+# DAEMONS: com.zasupport.lidguard (KeepAlive) | com.zasupport.autoclaude (60s interval)
+# CLOUD: checkpoint + JSONL → api.zasupport.com/api/v1/system/files | Render cron every 6h dead-man
+# ∅ session lost ∅ context gone ∅ start fresh — always -r resume | 0 data loss guaranteed
+
 ## §174 SESSION RECOVERY (PERMANENT — HARD — 22/03/2026)
 ON any interruption (sleep|crash|lid-close|terminal-close): za-checkpoint.sh writes
 ~/.za-checkpoint.json. ON wake: za-auto-claude.sh → claude -r <session_id> in tmux za-main.

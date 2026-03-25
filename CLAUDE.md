@@ -153,3 +153,12 @@ SELF-HEAL: fail→alt_method→split_file→archive | 3×fail→[COMPRESS-FAIL] 
 LIMITS: CLAUDE_MD=40k | MEMORY_MD=120L | TOPIC=200L | IMG=200KB | PDF=500KB
 VERIFY: assert new_size<old_size + integrity_checksum + pii_clear | log "COMPRESSED {f}: {old}→{new} ({pct}%)"
 DATA PROTECTION: scan PII before compress | strip EXIF | ∅PII in Next.js client components | POPIA
+
+
+## §176 SESSION GUARD — ZERO LOSS (PERMANENT — HARD — 25/03/2026)
+# HARD RULE: Claude session MUST survive lid-close | sleep | network-drop | crash
+# ON lid/sleep/net-drop: za-lid-guard.sh → za-checkpoint.sh → za-session-cloud-sync.sh push
+# ON wake/reconnect: za-auto-claude.sh (60s) → za-session-recover.sh → cloud pull → claude -r <id>
+# DAEMONS: com.zasupport.lidguard (KeepAlive) | com.zasupport.autoclaude (60s interval)
+# CLOUD: checkpoint + JSONL → api.zasupport.com/api/v1/system/files | Render cron every 6h dead-man
+# ∅ session lost ∅ context gone ∅ start fresh — always -r resume | 0 data loss guaranteed
