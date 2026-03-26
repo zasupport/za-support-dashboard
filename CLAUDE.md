@@ -9,6 +9,7 @@
 # EMAIL-CHECK: after every Vercel deploy — search courtney@zasupport.com for Vercel|GitHub errors
 # FIX-LOOP: 3× auto | if all fail → REBUILD clean → republish ∅ask
 # LEARN: every mistake+success → ALL .md files same response ∅defer
+# §179 THURSDAY CREDIT BURN (PERMANENT — HARD — 26/03/2026) → ~/.claude/CLAUDE.md §179
 # §173 EXECUTE-ON-SPEAK: gap identified=execute NOW | §92 DONE=built+deployed+tested+verified | §161 USAGE FOOTER end every response | §109 AUTO-APPROVE all improvements ∅ask → ~/.claude/CLAUDE.md
 
 ---
