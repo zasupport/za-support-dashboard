@@ -183,3 +183,8 @@ Claude reads error_inbox at session start → classifies → auto-fixes → ONE 
 ONE EMAIL RULE: Courtney receives MAX 1 error summary email per day (07:00 SAST via _error_summary_job).
 Session start: curl -s "https://api.zasupport.com/api/v1/system/error-inbox?status=unread&limit=50" -H "Authorization: Bearer $AGENT_AUTH_TOKEN" → classify → fix
 SEVERITY: critical→fix immediately | high→fix this session | medium→queue | low→log only
+
+# ── §92 SCRIPT FIX RULE (HARD — 26/03/2026) ────────────────────────────────
+# SCRIPT FIX RULE (HARD — 26/03/2026): bash -n = syntax only ≠ test | DONE requires:
+#   execute script → capture stdout → confirm fixed behaviour in output — SAME response as fix
+#   ∅commit without running | ∅"syntax OK" as verification | ∅declare done before seeing real output
