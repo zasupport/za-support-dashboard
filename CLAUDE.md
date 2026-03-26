@@ -4,6 +4,12 @@
 # Deploy: Vercel
 # Repo: https://github.com/zasupport/za-support-dashboard
 
+# §178 GLOBAL DEV PROCESS (PERMANENT — HARD — 26/03/2026) → ~/.claude/CLAUDE.md §178
+# RESEARCH→DEVELOP(self-heal)→TEST→DEPLOY→EMAIL-CHECK→RETEST→FIX-LOOP(3×)→LEARN→PROPAGATE
+# EMAIL-CHECK: after every Vercel deploy — search courtney@zasupport.com for Vercel|GitHub errors
+# FIX-LOOP: 3× auto | if all fail → REBUILD clean → republish ∅ask
+# LEARN: every mistake+success → ALL .md files same response ∅defer
+
 ---
 
 ## Structure
