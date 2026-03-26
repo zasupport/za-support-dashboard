@@ -51,3 +51,26 @@ fi
 echo ""
 echo "  ✓ Deploy complete"
 echo ""
+
+# ── §180 GATE — POST-DEPLOY LIVE VERIFICATION (PERMANENT — HARD) ──────────
+echo ""
+echo "=== §180 POST-DEPLOY VERIFY ==="
+PASS=0; FAIL=0
+check() {
+  local label="$1" url="$2"
+  HTTP=$(/usr/bin/curl -sL -o /dev/null -w "%{http_code}" --max-time 15 "$url" 2>/dev/null)
+  [[ "$HTTP" == "200" ]] && { echo "  PASS: $label → $HTTP"; PASS=$((PASS+1)); } || { echo "  FAIL: $label → $HTTP"; FAIL=$((FAIL+1)); }
+}
+check "dashboard /"        "https://dashboard.zasupport.com/"
+check "dashboard /morning" "https://dashboard.zasupport.com/morning"
+check "dashboard /clients" "https://dashboard.zasupport.com/clients"
+check "dashboard /devices" "https://dashboard.zasupport.com/devices"
+check "dashboard /workshop" "https://dashboard.zasupport.com/workshop"
+check "dashboard /unassigned-machines" "https://dashboard.zasupport.com/unassigned-machines"
+echo ""
+echo "  RESULT: $PASS passed | $FAIL failed"
+if [[ $FAIL -gt 0 ]]; then
+  echo "  ❌ DEPLOY INCOMPLETE — $FAIL pages failed. Fix and redeploy."
+  exit 1
+fi
+echo "  ✅ Deploy verified — DONE"

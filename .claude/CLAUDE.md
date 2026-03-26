@@ -188,3 +188,11 @@ SEVERITY: critical→fix immediately | high→fix this session | medium→queue 
 # SCRIPT FIX RULE (HARD — 26/03/2026): bash -n = syntax only ≠ test | DONE requires:
 #   execute script → capture stdout → confirm fixed behaviour in output — SAME response as fix
 #   ∅commit without running | ∅"syntax OK" as verification | ∅declare done before seeing real output
+
+# ── §180 DEPLOY GATE — NON-NEGOTIABLE (PERMANENT — HARD — 26/03/2026) ────────
+# Root cause: rules in text do not enforce themselves. Only blocking gates do.
+# BACKEND: bash deploy.sh — exits 1 on any verify failure. ∅ raw git push to deploy.
+# DASHBOARD: bash deploy.sh — exits 1 on any verify failure. ∅ raw git push to deploy.
+# WEBSITE: bash deploy.sh — exits 1 on any verify failure. ∅ raw git push to deploy.
+# NEVER declare done without seeing: "RESULT: N passed | 0 failed" in terminal output.
+# IF any failure: fix root cause → re-run deploy.sh → 0 failures → THEN done. No exceptions.

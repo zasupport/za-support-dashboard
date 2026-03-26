@@ -170,3 +170,11 @@ DATA PROTECTION: scan PII before compress | strip EXIF | ∅PII in Next.js clien
 # DAEMONS: com.zasupport.lidguard (KeepAlive) | com.zasupport.autoclaude (60s interval)
 # CLOUD: checkpoint + JSONL → api.zasupport.com/api/v1/system/files | Render cron every 6h dead-man
 # ∅ session lost ∅ context gone ∅ start fresh — always -r resume | 0 data loss guaranteed
+
+# ── §180 DEPLOY GATE — NON-NEGOTIABLE (PERMANENT — HARD — 26/03/2026) ────────
+# Root cause: rules in text do not enforce themselves. Only blocking gates do.
+# BACKEND: bash deploy.sh — exits 1 on any verify failure. ∅ raw git push to deploy.
+# DASHBOARD: bash deploy.sh — exits 1 on any verify failure. ∅ raw git push to deploy.
+# WEBSITE: bash deploy.sh — exits 1 on any verify failure. ∅ raw git push to deploy.
+# NEVER declare done without seeing: "RESULT: N passed | 0 failed" in terminal output.
+# IF any failure: fix root cause → re-run deploy.sh → 0 failures → THEN done. No exceptions.
