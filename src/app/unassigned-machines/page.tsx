@@ -84,22 +84,25 @@ function AssignModal({
   onAssigned: () => void;
 }) {
   const [selectedClientId, setSelectedClientId] = useState('');
+  const [manualClientId, setManualClientId] = useState('');
+  const [useManual, setUseManual] = useState(clients.length === 0);
   const [slaActive, setSlaActive] = useState(false);
   const [slaStartDate, setSlaStartDate] = useState(todayIso());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const effectiveClientId = useManual ? manualClientId.trim() : selectedClientId;
   const renewalPreview = slaActive && slaStartDate ? computeRenewalDate(slaStartDate) : null;
 
   async function handleAssign() {
-    if (!selectedClientId) {
-      setError('Select a client first.');
+    if (!effectiveClientId) {
+      setError(useManual ? 'Enter a client ID.' : 'Select a client first.');
       return;
     }
     setLoading(true);
     setError('');
     try {
-      const body: Record<string, unknown> = { client_id: selectedClientId, sla_active: slaActive };
+      const body: Record<string, unknown> = { client_id: effectiveClientId, sla_active: slaActive };
       if (slaActive && slaStartDate) body.sla_start_date = slaStartDate;
       const res = await fetch(
         `/api/unassigned/${machine.machine_id}/assign`,
@@ -143,19 +146,40 @@ function AssignModal({
         <div className="space-y-4">
           {/* Client selector */}
           <div>
-            <label className="text-xs text-slate-400 block mb-1.5">Client</label>
-            <select
-              value={selectedClientId}
-              onChange={(e) => setSelectedClientId(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-600 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-teal-500"
-            >
-              <option value="">— select client —</option>
-              {clients.map((c) => (
-                <option key={c.client_id} value={c.client_id}>
-                  {c.first_name} {c.last_name}
-                </option>
-              ))}
-            </select>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs text-slate-400">Client</label>
+              {clients.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => { setUseManual((v) => !v); setError(''); }}
+                  className="text-xs text-teal-500 hover:text-teal-400 transition-colors"
+                >
+                  {useManual ? '← Select from list' : 'Not in list? Enter ID →'}
+                </button>
+              )}
+            </div>
+            {useManual ? (
+              <input
+                type="text"
+                value={manualClientId}
+                onChange={(e) => setManualClientId(e.target.value)}
+                placeholder="e.g. kevin-pickup-109e4d48"
+                className="w-full bg-slate-900 border border-slate-600 rounded-md px-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-teal-500"
+              />
+            ) : (
+              <select
+                value={selectedClientId}
+                onChange={(e) => setSelectedClientId(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-600 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:border-teal-500"
+              >
+                <option value="">— select client —</option>
+                {clients.map((c) => (
+                  <option key={c.client_id} value={c.client_id}>
+                    {c.first_name} {c.last_name}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           {/* SLA toggle */}
@@ -198,7 +222,7 @@ function AssignModal({
           <div className="flex gap-2 pt-1">
             <button
               onClick={handleAssign}
-              disabled={loading || !selectedClientId}
+              disabled={loading || !effectiveClientId}
               className="flex-1 bg-teal-600 hover:bg-teal-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2 rounded-md transition-colors"
             >
               {loading ? 'Assigning…' : 'Assign'}
