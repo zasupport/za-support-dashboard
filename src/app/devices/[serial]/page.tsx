@@ -58,20 +58,80 @@ export default async function DeviceDetailPage({ params }: { params: Promise<{ s
       {snap && (
         <Card className="bg-slate-800 border-slate-700">
           <CardHeader><CardTitle className="text-white text-base">Latest Diagnostic Snapshot</CardTitle></CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            {/* Summary row */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[
                 { label: 'Scan Date', value: snap.scan_date ? new Date(snap.scan_date).toLocaleString('en-ZA') : null },
                 { label: 'Risk Score', value: snap.risk_score ?? '—' },
-                { label: 'Risk Level', value: snap.risk_level },
+                {
+                  label: 'Risk Level',
+                  value: snap.risk_level,
+                  color: snap.risk_level === 'CRITICAL' ? 'text-red-400' : snap.risk_level === 'HIGH' ? 'text-orange-400' : snap.risk_level === 'MEDIUM' ? 'text-yellow-400' : 'text-green-400',
+                },
                 { label: 'Recommendations', value: snap.recommendation_count },
-              ].map(({ label, value }) => (
+              ].map(({ label, value, color }: any) => (
                 <div key={label}>
                   <p className="text-xs text-slate-400 mb-1">{label}</p>
-                  <p className="text-sm text-white font-medium">{value ?? '—'}</p>
+                  <p className={`text-sm font-medium ${color ?? 'text-white'}`}>{value ?? '—'}</p>
                 </div>
               ))}
             </div>
+            {/* Security posture */}
+            <div className="grid grid-cols-3 lg:grid-cols-6 gap-3 border-t border-slate-700 pt-3">
+              {[
+                { label: 'FileVault', on: snap.filevault_on },
+                { label: 'Firewall', on: snap.firewall_on },
+                { label: 'SIP', on: snap.sip_enabled },
+              ].map(({ label, on }: any) => (
+                <div key={label}>
+                  <p className="text-xs text-slate-400 mb-1">{label}</p>
+                  <p className={`text-xs font-medium ${on === true ? 'text-green-400' : on === false ? 'text-red-400' : 'text-slate-500'}`}>
+                    {on === true ? 'ON' : on === false ? 'OFF' : '—'}
+                  </p>
+                </div>
+              ))}
+              {snap.battery_health_pct != null && (
+                <div>
+                  <p className="text-xs text-slate-400 mb-1">Battery</p>
+                  <p className={`text-xs font-medium ${snap.battery_health_pct < 70 ? 'text-red-400' : snap.battery_health_pct < 85 ? 'text-yellow-400' : 'text-green-400'}`}>
+                    {snap.battery_health_pct}%
+                  </p>
+                </div>
+              )}
+              {snap.disk_used_pct != null && (
+                <div>
+                  <p className="text-xs text-slate-400 mb-1">Disk used</p>
+                  <p className={`text-xs font-medium ${snap.disk_used_pct > 90 ? 'text-red-400' : snap.disk_used_pct > 80 ? 'text-yellow-400' : 'text-white'}`}>
+                    {snap.disk_used_pct}%
+                  </p>
+                </div>
+              )}
+              {snap.kernel_panic_count != null && (
+                <div>
+                  <p className="text-xs text-slate-400 mb-1">Kernel panics</p>
+                  <p className={`text-xs font-medium ${snap.kernel_panic_count > 0 ? 'text-red-400' : 'text-green-400'}`}>
+                    {snap.kernel_panic_count}
+                  </p>
+                </div>
+              )}
+            </div>
+            {/* Recommendations */}
+            {snap.recommendations && Array.isArray(snap.recommendations) && snap.recommendations.length > 0 && (
+              <div className="border-t border-slate-700 pt-3 space-y-2">
+                <p className="text-xs text-slate-400 uppercase tracking-wide">Findings</p>
+                {snap.recommendations.map((r: any, i: number) => (
+                  <div key={i} className="flex items-start gap-2 text-xs">
+                    <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-medium border ${
+                      r.severity === 'CRITICAL' ? 'bg-red-500/20 text-red-300 border-red-500/30' :
+                      r.severity === 'HIGH' ? 'bg-orange-500/20 text-orange-300 border-orange-500/30' :
+                      'bg-yellow-500/20 text-yellow-300 border-yellow-500/30'
+                    }`}>{r.severity}</span>
+                    <span className="text-slate-200">{r.title}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
