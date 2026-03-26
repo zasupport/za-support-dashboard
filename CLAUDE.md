@@ -171,6 +171,15 @@ DATA PROTECTION: scan PII before compress | strip EXIF | ∅PII in Next.js clien
 # CLOUD: checkpoint + JSONL → api.zasupport.com/api/v1/system/files | Render cron every 6h dead-man
 # ∅ session lost ∅ context gone ∅ start fresh — always -r resume | 0 data loss guaranteed
 
+# ── §BASH-SCRIPTING GOTCHAS (PROPAGATED — 26/03/2026) ────────────────────────
+# Applies to any .sh scripts in this repo (deploy.sh etc):
+# - zsh word-split: `ALL=( $VAR )` = 1 element in zsh → use `ALL=( ${=VAR} )` | `read -ra` bash-only
+# - `pip install` + `set -uo pipefail` → add `|| true` (resolver conflicts exit 1, non-fatal)
+# - `curl -w "%{http_code}" ... || echo "000"` → "000000" not "000" → use `[ -z "$HTTP" ] && HTTP="000"`
+# - Email dedup: `~/.za-SCRIPT-email-dedup` timestamp file prevents Resend 429 on multiple runs
+# - pre-commit hook `~/.git/hooks/pre-commit` → runs za-batch-test.sh → 0 failures required
+# → memory/feedback_bash_scripting.md (Rules 1-11)
+
 # ── §180 DEPLOY GATE — NON-NEGOTIABLE (PERMANENT — HARD — 26/03/2026) ────────
 # Root cause: rules in text do not enforce themselves. Only blocking gates do.
 # BACKEND: bash deploy.sh — exits 1 on any verify failure. ∅ raw git push to deploy.
