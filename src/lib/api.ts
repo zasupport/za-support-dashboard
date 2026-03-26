@@ -1,5 +1,5 @@
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
-const API_TOKEN = process.env.ZA_API_TOKEN || '';
+const API_TOKEN = (process.env.ZA_API_TOKEN || '').replace(/[\r\n]+/g, '').trim();
 const TIMEOUT_MS = 10000;
 
 const headers = () => ({
