@@ -1,40 +1,39 @@
 # ZA Support Dashboard
+# Global rules auto-loaded from: ~/.claude/CLAUDE.md (do not duplicate here)
+# This file: dashboard-specific config, structure, auth, features
+# Last Updated: 27/03/2026 — compressed, global duplicates removed
+
+# GLOBAL RULES (auto-loaded — do NOT duplicate)
+# §178 §179 §173 §92 §161 §109 §130 §176 §180 §BASH §COMPRESS → ~/.claude/CLAUDE.md
+# §129|§131|§132|§133|§134 → ~/.claude/CLAUDE.md
+
 # Stack: Next.js 14 (App Router) + TypeScript + Tailwind + shadcn/ui + Recharts
 # Backend: https://api.zasupport.com
-# Deploy: Vercel
-# Repo: https://github.com/zasupport/za-support-dashboard
-
-# §178 GLOBAL DEV PROCESS (PERMANENT — HARD — 26/03/2026) → ~/.claude/CLAUDE.md §178
-# RESEARCH→DEVELOP(self-heal)→TEST→DEPLOY→EMAIL-CHECK→RETEST→FIX-LOOP(3×)→LEARN→PROPAGATE
-# EMAIL-CHECK: after every Vercel deploy — search courtney@zasupport.com for Vercel|GitHub errors
-# FIX-LOOP: 3× auto | if all fail → REBUILD clean → republish ∅ask
-# LEARN: every mistake+success → ALL .md files same response ∅defer
-# §179 THURSDAY CREDIT BURN (PERMANENT — HARD — 26/03/2026) → ~/.claude/CLAUDE.md §179
-# §173 EXECUTE-ON-SPEAK: gap identified=execute NOW | §92 DONE=built+deployed+tested+verified | §161 USAGE FOOTER end every response | §109 AUTO-APPROVE all improvements ∅ask → ~/.claude/CLAUDE.md
+# Deploy: Vercel | Repo: https://github.com/zasupport/za-support-dashboard
 
 ---
 
 ## Structure
 
 ```
-src/app/                    ← Next.js App Router pages
-  page.tsx                  ← Dashboard home (summary cards)
-  devices/page.tsx          ← Device list
-  devices/[serial]/page.tsx ← Device detail + raw diagnostic payload
-  isp/page.tsx              ← ISP status (13 SA ISPs)
-  shield/page.tsx           ← Shield events feed
-  intelligence/             ← App Intelligence fleet view
-  analytics/                ← Interaction Analytics fleet view
-  alerts/page.tsx           ← Alerts feed
-  api/                      ← Route handlers (server-side API proxies)
+src/app/                    <- Next.js App Router pages
+  page.tsx                  <- Dashboard home (summary cards)
+  devices/page.tsx          <- Device list
+  devices/[serial]/page.tsx <- Device detail + raw diagnostic payload
+  isp/page.tsx              <- ISP status (13 SA ISPs)
+  shield/page.tsx           <- Shield events feed
+  intelligence/             <- App Intelligence fleet view
+  analytics/                <- Interaction Analytics fleet view
+  alerts/page.tsx           <- Alerts feed
+  api/                      <- Route handlers (server-side API proxies)
     intelligence/fleet/route.ts
     analytics/fleet/route.ts
 src/components/
-  nav.tsx                   ← Sidebar navigation
-  ui/                       ← shadcn/ui components
+  nav.tsx                   <- Sidebar navigation
+  ui/                       <- shadcn/ui components
 src/lib/
-  api.ts                    ← Server-side API client
-  utils.ts                  ← cn() utility
+  api.ts                    <- Server-side API client
+  utils.ts                  <- cn() utility
 ```
 
 ---
@@ -60,7 +59,7 @@ ZA_API_TOKEN=<agent bearer token>
 ## Deploy to Vercel
 
 1. Push repo to GitHub: `gh repo create zasupport/za-support-dashboard --public --source=. --push`
-2. Connect to Vercel → import repo
+2. Connect to Vercel -> import repo
 3. Add env vars: ZA_API_URL, ZA_API_TOKEN
 4. Deploy — auto-deploys on push to main
 
@@ -68,122 +67,42 @@ ZA_API_TOKEN=<agent bearer token>
 
 ## What is done
 
-- [x] Dashboard home — summary cards + activity feed (devices, ISP outages, shield events, alerts)
-- [x] Morning Brief page — client health grid with risk, last scan, open tasks/jobs, urgent flag
+- [x] Dashboard home — summary cards + activity feed
+- [x] Morning Brief — client health grid with risk, last scan, open tasks/jobs
 - [x] Clients page — list with search + filter by status
-- [x] Client detail page — contact, concerns, business info, health grade, CyberPulse PDF download
-- [x] Client notes — sticky internal notes (add/delete) on client profiles
-- [x] Client onboarding task checklist — interactive tick-off with status cycling
-- [x] Client status updater — change status (new/active/sla/inactive) from dashboard
-- [x] Site visit brief page — pre-visit context: devices + last snapshot, open tasks, check-ins, jobs
-- [x] Workshop board — Kanban-style job cards with status cycling (open→in_progress→done)
-- [x] Workshop job detail page — full job view with status history, line items, notes
-- [x] WorkshopNewJob — inline job creation form (client dropdown + title + priority)
-- [x] CreateJobButton on client and device detail pages (pre-fills client_id/serial)
-- [x] Devices page — list + per-device detail with diagnostic payload + trend charts
-- [x] Device snapshot viewer — full 7-page payload from a specific historical snapshot
-- [x] ISP Status page — all 13 SA ISPs with status badges
-- [x] Shield Events page — 48h feed with severity badges
-- [x] App Intelligence page — fleet health by client_id
-- [x] Interaction Analytics page — frustration scores fleet view
+- [x] Client detail — contact, concerns, business info, health grade, PDF download
+- [x] Client notes — sticky internal notes (add/delete)
+- [x] Client onboarding task checklist — interactive tick-off
+- [x] Client status updater — change status (new/active/sla/inactive)
+- [x] Site visit brief — pre-visit context: devices, open tasks, check-ins, jobs
+- [x] Workshop board — Kanban job cards with status cycling
+- [x] Workshop job detail — full view with status history, line items, notes
+- [x] WorkshopNewJob — inline creation form (client dropdown + title + priority)
+- [x] CreateJobButton on client and device detail pages
+- [x] Devices page — list + per-device detail with diagnostics + trend charts
+- [x] Device snapshot viewer — full 7-page payload from historical snapshot
+- [x] ISP Status — 13 SA ISPs with status badges
+- [x] Shield Events — 48h feed with severity badges
+- [x] App Intelligence — fleet health by client_id
+- [x] Interaction Analytics — frustration scores fleet view + timeline chart
 - [x] Alerts page — alert feed
-- [x] Vault page — credential management
-- [x] Breach Scanner page — scan sessions and findings
-- [x] Forensics page — investigation management
-- [x] Reports page — CyberPulse PDF generation per client
-- [x] Auto-refresh component — all pages auto-refresh server data at configurable intervals
+- [x] Vault — credential management
+- [x] Breach Scanner — scan sessions and findings
+- [x] Forensics — investigation management
+- [x] Reports — PDF generation per client
+- [x] Auto-refresh — all pages auto-refresh at configurable intervals
 - [x] Global search — client + device search in nav sidebar
 - [x] Dark theme throughout (slate-800/900/950)
 - [x] Server-side auth (bearer token never exposed to browser)
-- [x] Login page + full session auth — middleware, cookie, login form, logout route + nav button
-- [x] Customer Guides page — list, create, send to client, delete, category filter, tag display
-- [x] Interaction Analytics — frustration timeline chart (Recharts AreaChart, per device, 30d)
+- [x] Login + full session auth — middleware, cookie, login form, logout
+- [x] Customer Guides — list, create, send, delete, category filter, tags
 - [x] Scout Installer page — /installer
+- [x] ROI widget + trend chart on client page
+- [x] UpsellPanel on client page
+- [x] /api/lifecycle/radar proxy route
+- [x] Automated Interventions page (/interventions) with 24h/7d/30d filter
 
 ## What is pending
 
-- [x] DASHBOARD_PASSWORD set on Vercel (confirmed 08/03/2026)
-- [x] TrendCharts wired on device serial page
-- [x] ROI widget + trend chart on client page
-- [x] UpsellPanel on client page — surfaces sales recommendations with status cycling
-- [x] /api/lifecycle/radar proxy route (feeds Upgrade Radar page)
-- [x] Automated Interventions page (/interventions) with 24h/7d/30d filter
-- [ ] Lifecycle records need seeding from Scout diagnostic uploads (happens automatically on next Scout run per client)
-- [ ] Sales recommendations need generating from diagnostic findings (backend ROI engine feeds this)
-
-## AGENT RULE (PERMANENT — 13/03/2026)
-- Minimum 20 concurrent agents per non-trivial task (hard floor, no ceiling)
-- Every build, verify, deploy, investigation = 20+ agents launched simultaneously
-- See global ~/.claude/CLAUDE.md §73.5-§73.6 for full rules
-
-## PKG PUBLISH RULE (PERMANENT — §94 — 13/03/2026)
-- Every PKG build → publish to /api/v1/agent/pkg/latest + OTA broadcast immediately
-- Never hold a built PKG — §94.1 auto-execute rule (no asking)
-
-## §109: AUTO-APPROVE IMPROVEMENTS (PERMANENT — HARD)
-ANY request to improve/optimise/upgrade/enhance/fix/refactor ANY file, script, pipeline, page, rule, or process = pre-approved. Execute immediately, zero questions.
-∅ "Shall I save this?" | ∅ "Want me to update?" | ∅ "Would you like me to?" | ∅ "Should I?" — ALL BANNED on improvement requests.
-Applies to: all files in this repo, CLAUDE.md updates, memory files, rules propagation, script improvements.
-Hard stops only: DROP TABLE prod | delete client data | force push main | new paid >R500/mo
-→ memory/feedback_auto_approve_improvements.md
-
-# SECTION 104: 'exit' COMMAND (PERMANENT — HARD)
-`exit` → safely close current chat. Sequence: (1) commit+push all repos with WIP changes (2) write learnings to MEMORY.md (3) remove session from §SESSION WINDOWS ACTIVE (4) write ~/Desktop/za-resume.sh (5) pbcopy resume command (6) osascript notify "Session closed — resume: claude -r <id>" (7) afplay Glass.aiff. ∅ask ∅pause. Equivalent to `end` (§57). Both permanent.
-
-# SECTION 130: AGENT STREAM PROTOCOL — TIME-SCALED TO 100 + AUTO-REPAIR LOOP (PERMANENT — HARD — ALL SESSIONS)
-→ ~/.claude/projects/-Users-courtneybentley/memory/agent-stream-protocol.md
-FLOOR=20 | CEILING=100 | PRE-APPROVED ∅ask ∅confirm ∅pause — time thresholds fire automatically
-TIME-SCALING (HARD): T=0→20 agents | T+4s no response→+20(total 40) | T+10min→+10(50) | T+20min→+10(60) | T+30min→+10(70) | T+55min→+20(90) | any sub-task>10min→+50(cap 100)
-EXAMPLE: received→20 | 4s elapsed→40 | 55min elapsed→60 | sub-task>10min→100 | ∅ask at any threshold
-Fire ALL agent slots FIRST response: UNDERSTAND(A01)+EXECUTE-N(A02-A04)+ENV-TEST(A05)+ENDPOINT-TEST(A06)+DB-VERIFY(A07)+STREAM-VERIFY(A08)+AUTO-REPAIR(A09)+DB-REPAIR(A10)+REDIS-CHECK(A11)+LOG-PULL(A12)+MEMORY-UPDATE(A13)+ANOMALY-MONITOR(A14)+NEXT-PRIORITY(A15)+SCHEDULER-CHECK(A16)+CI-MONITOR(A17)+DEPLOY-POLL(A18)+SCHEMA-VALIDATE(A19)+INTEGRATION-CHECK(A20)
-STREAM-VERIFY LOOP (HARD): after every deploy → SELECT COUNT(*)+MAX(created_at) → IF stale/empty → AUTO-REPAIR fires → fix→push→poll→verify → loop max 3× → DONE only when real fresh rows in DB
-AUTO-REPAIR: pull Render logs(limit:30) → grep ERROR|422|500 → file:line → fix → commit → push → re-verify | ∅ask ∅pause
-STATUS RULE: status=input to next agent ∅stop-signal | ∅"waiting for deploy" ∅"check after" ∅trailing sentence with no next action
-RESTART: ON failure → AUTO-REPAIR → fix → push → DEPLOY-POLL → STREAM-VERIFY → DB-REPAIR parallel → loop until rows confirmed
-REPORT: "Built [X] v[N]. Deployed [commit]. Verified LIVE [endpoint] → [HTTP]. DB: [N] rows fresh (last: [ts]). Stream: ✅ <[N]s ago. Next: [Y]."
-∅"should be streaming" ∅"should be working" ∅<20 agents ∅stopping after fix without verifying
-INJECTED 15/03/2026 — global rule, all repos.
-
-# GLOBAL RULES ACTIVE (§129|§131|§132|§133|§134)
-→ ~/.claude/CLAUDE.md §129 BUILD INITIATION PROTOCOL
-→ ~/.claude/CLAUDE.md §131 ERROR EMAIL AUTO-PROCESSING
-→ ~/.claude/CLAUDE.md §132 DATA COLLECTION P0 PIPELINE
-→ ~/.claude/CLAUDE.md §133 REPORT DELIVERY
-→ ~/.claude/CLAUDE.md §134 LOCAL PG MIRROR
-
-# §COMPRESS: RT COMPRESSION PROTOCOL (PERMANENT — HARD — 15/03/2026)
-→ ~/.claude/projects/-Users-courtneybentley/memory/compression-protocol.md | global §64
-ON every write|edit|build|response: classify→measure→compress→verify SAME response ∅defer ∅batch
-SCOPE: *.ts|*.tsx|*.js|*.json|*.md|*.css|img|Claude ctx
-PIPELINE: write→size_check→IF exceed: compress(method[type])→verify(new<limit)→checksum→log→∅block_task
-IMAGE RT: exiftool -all= → WebP ≤200KB ≤1200px/72% | strip EXIF (POPIA) | ∅original in ctx
-SELF-HEAL: fail→alt_method→split_file→archive | 3×fail→[COMPRESS-FAIL] MEMORY.md ∅block_task
-LIMITS: CLAUDE_MD=40k | MEMORY_MD=120L | TOPIC=200L | IMG=200KB | PDF=500KB
-VERIFY: assert new_size<old_size + integrity_checksum + pii_clear | log "COMPRESSED {f}: {old}→{new} ({pct}%)"
-DATA PROTECTION: scan PII before compress | strip EXIF | ∅PII in Next.js client components | POPIA
-
-
-## §176 SESSION GUARD — ZERO LOSS (PERMANENT — HARD — 25/03/2026)
-# HARD RULE: Claude session MUST survive lid-close | sleep | network-drop | crash
-# ON lid/sleep/net-drop: za-lid-guard.sh → za-checkpoint.sh → za-session-cloud-sync.sh push
-# ON wake/reconnect: za-auto-claude.sh (60s) → za-session-recover.sh → cloud pull → claude -r <id>
-# DAEMONS: com.zasupport.lidguard (KeepAlive) | com.zasupport.autoclaude (60s interval)
-# CLOUD: checkpoint + JSONL → api.zasupport.com/api/v1/system/files | Render cron every 6h dead-man
-# ∅ session lost ∅ context gone ∅ start fresh — always -r resume | 0 data loss guaranteed
-
-# ── §BASH-SCRIPTING GOTCHAS (PROPAGATED — 26/03/2026) ────────────────────────
-# Applies to any .sh scripts in this repo (deploy.sh etc):
-# - zsh word-split: `ALL=( $VAR )` = 1 element in zsh → use `ALL=( ${=VAR} )` | `read -ra` bash-only
-# - `pip install` + `set -uo pipefail` → add `|| true` (resolver conflicts exit 1, non-fatal)
-# - `curl -w "%{http_code}" ... || echo "000"` → "000000" not "000" → use `[ -z "$HTTP" ] && HTTP="000"`
-# - Email dedup: `~/.za-SCRIPT-email-dedup` timestamp file prevents Resend 429 on multiple runs
-# - pre-commit hook `~/.git/hooks/pre-commit` → runs za-batch-test.sh → 0 failures required
-# → memory/feedback_bash_scripting.md (Rules 1-11)
-
-# ── §180 DEPLOY GATE — NON-NEGOTIABLE (PERMANENT — HARD — 26/03/2026) ────────
-# Root cause: rules in text do not enforce themselves. Only blocking gates do.
-# BACKEND: bash deploy.sh — exits 1 on any verify failure. ∅ raw git push to deploy.
-# DASHBOARD: bash deploy.sh — exits 1 on any verify failure. ∅ raw git push to deploy.
-# WEBSITE: bash deploy.sh — exits 1 on any verify failure. ∅ raw git push to deploy.
-# NEVER declare done without seeing: "RESULT: N passed | 0 failed" in terminal output.
-# IF any failure: fix root cause → re-run deploy.sh → 0 failures → THEN done. No exceptions.
+- [ ] Lifecycle records need seeding from Scout diagnostic uploads (auto on next Scout run)
+- [ ] Sales recommendations need generating from diagnostic findings (backend ROI engine)
