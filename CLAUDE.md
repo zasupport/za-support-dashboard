@@ -6,6 +6,7 @@
 # GLOBAL RULES (auto-loaded — do NOT duplicate)
 # §178 §179 §173 §92 §161 §109 §130 §176 §180 §BASH §COMPRESS → ~/.claude/CLAUDE.md
 # §129|§131|§132|§133|§134 → ~/.claude/CLAUDE.md
+# §187 LOCAL AUTOMATION FIRST → global CLAUDE.md (auto-loaded)
 
 # Stack: Next.js 14 (App Router) + TypeScript + Tailwind + shadcn/ui + Recharts
 # Backend: https://api.zasupport.com
