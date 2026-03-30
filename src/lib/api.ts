@@ -232,6 +232,58 @@ export async function fetchFleetInterventionSummary(days = 30) {
   } catch { return { count: 0, total_value_protected: 0, interventions: [] }; }
 }
 
+export async function fetchClientRawData(client_id: string) {
+  try {
+    // Get all devices for this client, then fetch latest snapshot for each
+    const devices = await fetchClientDevices(client_id);
+    if (!Array.isArray(devices) || devices.length === 0) return { devices: [], snapshots: [], heartbeats: [] };
+
+    const snapshotPromises = (devices as any[]).map(async (d: any) => {
+      try {
+        const res = await fetch(
+          `${API_URL}/api/v1/diagnostics/devices/${encodeURIComponent(d.serial)}`,
+          { headers: headers(), signal: withTimeout(TIMEOUT_MS), cache: 'no-store' }
+        );
+        if (!res.ok) return null;
+        return res.json();
+      } catch { return null; }
+    });
+
+    const heartbeatPromises = (devices as any[]).map(async (d: any) => {
+      try {
+        const res = await fetch(
+          `${API_URL}/api/v1/diagnostics/devices/${encodeURIComponent(d.serial)}/metrics?hours=24`,
+          { headers: headers(), signal: withTimeout(TIMEOUT_MS), cache: 'no-store' }
+        );
+        if (!res.ok) return [];
+        return res.json();
+      } catch { return []; }
+    });
+
+    const [snapshots, heartbeats] = await Promise.all([
+      Promise.all(snapshotPromises),
+      Promise.all(heartbeatPromises),
+    ]);
+
+    return {
+      devices,
+      snapshots: snapshots.filter(Boolean),
+      heartbeats: heartbeats.flat(),
+    };
+  } catch { return { devices: [], snapshots: [], heartbeats: [] }; }
+}
+
+export async function fetchDeviceSnapshotHistory(serial: string, limit = 10) {
+  try {
+    const res = await fetch(
+      `${API_URL}/api/v1/diagnostics/devices/${encodeURIComponent(serial)}/history?limit=${limit}`,
+      { headers: headers(), signal: withTimeout(TIMEOUT_MS), cache: 'no-store' }
+    );
+    if (!res.ok) return [];
+    return res.json();
+  } catch { return []; }
+}
+
 export async function fetchDedupFleetSummary() {
   try {
     const res = await fetch(`${API_URL}/api/v1/deduplication/fleet/summary`, {

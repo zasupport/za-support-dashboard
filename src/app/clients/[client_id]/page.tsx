@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { fetchClient, fetchClientTasks, fetchClientCheckins, fetchClientJobs, fetchClientDevices, fetchClientNetwork } from '@/lib/api';
+import { fetchClient, fetchClientTasks, fetchClientCheckins, fetchClientJobs, fetchClientDevices, fetchClientNetwork, fetchClientRawData } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TaskChecklist } from './TaskChecklist';
 import { StatusUpdater } from './StatusUpdater';
@@ -22,6 +22,7 @@ import SlaPanel from '@/components/SlaPanel';
 import SlaStatusCard from '@/components/SlaStatusCard';
 import Link from 'next/link';
 import { AutoRefresh } from '@/components/auto-refresh';
+import { RawDataPanel } from '@/components/RawDataPanel';
 import { notFound } from 'next/navigation';
 
 function getTimeAgo(date: Date): string {
@@ -101,7 +102,7 @@ async function fetchLastPortalView(clientId: string): Promise<string | null> {
 
 export default async function ClientDetailPage({ params }: { params: Promise<{ client_id: string }> }) {
   const { client_id } = await params;
-  const [client, tasks, checkins, health, jobs, devices, network, lastPortalView, activationCode] = await Promise.all([
+  const [client, tasks, checkins, health, jobs, devices, network, lastPortalView, activationCode, rawData] = await Promise.all([
     fetchClient(client_id),
     fetchClientTasks(client_id),
     fetchClientCheckins(client_id),
@@ -111,6 +112,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
     fetchClientNetwork(client_id),
     fetchLastPortalView(client_id),
     fetchActivationCode(client_id),
+    fetchClientRawData(client_id),
   ]);
 
   if (!client) notFound();
@@ -324,6 +326,15 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
           </CardContent>
         </Card>
       )}
+
+      {/* Raw Data Collected — 3-tier storage view */}
+      <RawDataPanel
+        clientId={client.client_id}
+        clientName={`${client.first_name} ${client.last_name}`}
+        devices={rawData.devices ?? []}
+        snapshots={rawData.snapshots ?? []}
+        heartbeats={rawData.heartbeats ?? []}
+      />
 
       {/* Network Intelligence — UniFi */}
       {network && (
