@@ -37,3 +37,4 @@
 ## GLOBAL RULES ACTIVE (pointers only)
 # §129|§131|§132|§133|§134 → ~/.claude/CLAUDE.md
 # §187 LOCAL AUTOMATION FIRST → global CLAUDE.md (auto-loaded)
+# §188 CLIENT MACHINE APPROVAL → global CLAUDE.md (auto-loaded)

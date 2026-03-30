@@ -107,3 +107,4 @@ ZA_API_TOKEN=<agent bearer token>
 
 - [ ] Lifecycle records need seeding from Scout diagnostic uploads (auto on next Scout run)
 - [ ] Sales recommendations need generating from diagnostic findings (backend ROI engine)
+# §188 CLIENT MACHINE APPROVAL → global CLAUDE.md (auto-loaded)
