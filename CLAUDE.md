@@ -108,3 +108,6 @@ ZA_API_TOKEN=<agent bearer token>
 - [ ] Lifecycle records need seeding from Scout diagnostic uploads (auto on next Scout run)
 - [ ] Sales recommendations need generating from diagnostic findings (backend ROI engine)
 # §188 CLIENT MACHINE APPROVAL → global CLAUDE.md (auto-loaded)
+# §189 RULES SYNC → global CLAUDE.md (auto-loaded)
+# §191 HR ZOHO AUTO-EXCHANGE → global CLAUDE.md (auto-loaded)
+# §192 HR PREFIX → global CLAUDE.md (auto-loaded)
