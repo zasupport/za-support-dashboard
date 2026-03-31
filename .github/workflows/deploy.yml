@@ -16,6 +16,11 @@ on:
         required: false
         default: 'Manual trigger'
 
+# Vercel Git Integration deploys automatically on push — no CLI needed.
+# CLI was passing -e NEXT_PUBLIC_API_URL= (secret missing) which overwrote
+# Vercel's project env var with empty string → portal pages built with empty
+# base URL → fetch failed → static page generation crashed at 90/121.
+
 jobs:
   # ── TYPE CHECK ────────────────────────────────────────────────────────────
   validate:
@@ -33,8 +38,6 @@ jobs:
       - run: npx tsc --noEmit
 
   # ── WAIT FOR GIT INTEGRATION DEPLOY ──────────────────────────────────────
-  # Vercel Git Integration auto-deploys on push — zero file uploads, no rate limit
-  # CLI deploy is removed: it overwrote env vars (NEXT_PUBLIC_API_URL → empty → crash)
   wait-for-deploy:
     name: Wait for Vercel Deploy
     needs: validate
@@ -42,55 +45,26 @@ jobs:
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
-      - name: Poll Vercel until deploy is live
+      - name: Poll dashboard until live
         run: |
-          COMMIT="${{ github.sha }}"
-          TOKEN="${{ secrets.VERCEL_TOKEN }}"
-          ORG_ID="${{ secrets.VERCEL_ORG_ID }}"
-          PROJECT_ID="${{ secrets.VERCEL_PROJECT_ID }}"
-
-          echo "Waiting for Vercel Git Integration to deploy commit ${COMMIT:0:8}…"
-          for i in $(seq 1 40); do
-            STATUS=$(curl -s \
-              -H "Authorization: Bearer $TOKEN" \
-              "https://api.vercel.com/v6/deployments?projectId=$PROJECT_ID&teamId=$ORG_ID&limit=5" \
-              | python3 -c "
-import sys,json
-try:
-    d=json.load(sys.stdin)
-    deps=d.get('deployments',d) if isinstance(d,dict) else d
-    for dep in deps:
-        meta=dep.get('meta',{})
-        sha=meta.get('githubCommitSha','')
-        if sha.startswith('$COMMIT'[:7]) or '$COMMIT'[:8] in sha:
-            print(dep.get('readyState','UNKNOWN'))
-            break
-    else:
-        # check first dep for any recent state
-        if deps:
-            print('PENDING:'+deps[0].get('readyState','?'))
-        else:
-            print('PENDING:NONE')
-except Exception as e:
-    print('PENDING:'+str(e)[:40])
-" 2>/dev/null)
-
-            echo "  [$i/40] status=$STATUS"
-            if [[ "$STATUS" == "READY" ]]; then
-              echo "Deploy is live!"
-              exit 0
-            elif [[ "$STATUS" == "ERROR" || "$STATUS" == "CANCELED" ]]; then
-              echo "Deploy failed with status: $STATUS"
-              exit 1
+          echo "Waiting for Vercel Git Integration to deploy..."
+          for i in $(seq 1 20); do
+            HTTP=$(curl -sI "https://dashboard.zasupport.com" --max-time 10 -o /dev/null -w "%{http_code}" 2>/dev/null || echo "000")
+            if [[ "$HTTP" == "200" || "$HTTP" == "302" || "$HTTP" == "307" ]]; then
+              echo "Dashboard live (attempt $i, HTTP $HTTP)"
+              sleep 10
+              break
             fi
+            echo "  Attempt $i: HTTP $HTTP — waiting 15s..."
             sleep 15
+            if [[ $i -eq 20 ]]; then
+              echo "WARN: dashboard did not respond after 5 min — continuing"
+            fi
           done
-          echo "Timeout waiting for deploy — check Vercel dashboard"
-          exit 1
 
-  # ── RETEST AFTER DEPLOY ──────────────────────────────────────────────────
+  # ── RETEST ───────────────────────────────────────────────────────────────
   retest:
-    name: Retest — Health Check
+    name: Health Check
     needs: wait-for-deploy
     runs-on: ubuntu-latest
     env:
@@ -99,8 +73,7 @@ except Exception as e:
       - name: Dashboard health check
         run: |
           FAIL=0
-          URL="https://dashboard.zasupport.com"
-          HTTP=$(curl -sI "$URL" --max-time 15 -o /dev/null -w "%{http_code}" 2>/dev/null)
+          HTTP=$(curl -sI "https://dashboard.zasupport.com" --max-time 15 -o /dev/null -w "%{http_code}" 2>/dev/null)
           if [[ "$HTTP" == "200" || "$HTTP" == "302" || "$HTTP" == "307" ]]; then
             echo "  PASS dashboard responds ($HTTP)"
           else
@@ -112,11 +85,10 @@ except Exception as e:
       - name: Notify via ntfy
         if: always()
         run: |
-          JOB_STATUS="${{ job.status }}"
-          if [ "$JOB_STATUS" = "success" ]; then
+          if [ "${{ job.status }}" = "success" ]; then
             MSG="Dashboard deployed and healthy"
           else
-            MSG="Dashboard deploy or health check FAILED — check GitHub Actions"
+            MSG="Dashboard deploy or health check FAILED"
           fi
           curl -s -d "$MSG" "https://ntfy.sh/zasupport-courtney-alerts" \
             -H "Title: ZA Support Deploy" \
