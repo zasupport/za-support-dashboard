@@ -17,44 +17,107 @@ on:
         default: 'Manual trigger'
 
 jobs:
-  deploy:
+  # ── TYPE CHECK ────────────────────────────────────────────────────────────
+  validate:
+    name: Type Check
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
+      - run: npm ci
+      - run: npx tsc --noEmit
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: TypeScript check
-        run: npx tsc --noEmit
-
-      - name: Deploy to Vercel
+  # ── WAIT FOR GIT INTEGRATION DEPLOY ──────────────────────────────────────
+  # Vercel Git Integration auto-deploys on push — zero file uploads, no rate limit
+  # CLI deploy is removed: it overwrote env vars (NEXT_PUBLIC_API_URL → empty → crash)
+  wait-for-deploy:
+    name: Wait for Vercel Deploy
+    needs: validate
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - name: Poll Vercel until deploy is live
         run: |
-          npx vercel --token=${{ secrets.VERCEL_TOKEN }} \
-            --prod \
-            --yes \
-            -e ZA_API_URL=${{ secrets.ZA_API_URL }} \
-            -e ZA_API_TOKEN=${{ secrets.ZA_API_TOKEN }} \
-            -e DASHBOARD_PASSWORD=${{ secrets.DASHBOARD_PASSWORD }} \
-            -e NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+          COMMIT="${{ github.sha }}"
+          TOKEN="${{ secrets.VERCEL_TOKEN }}"
+          ORG_ID="${{ secrets.VERCEL_ORG_ID }}"
+          PROJECT_ID="${{ secrets.VERCEL_PROJECT_ID }}"
+
+          echo "Waiting for Vercel Git Integration to deploy commit ${COMMIT:0:8}…"
+          for i in $(seq 1 40); do
+            STATUS=$(curl -s \
+              -H "Authorization: Bearer $TOKEN" \
+              "https://api.vercel.com/v6/deployments?projectId=$PROJECT_ID&teamId=$ORG_ID&limit=5" \
+              | python3 -c "
+import sys,json
+try:
+    d=json.load(sys.stdin)
+    deps=d.get('deployments',d) if isinstance(d,dict) else d
+    for dep in deps:
+        meta=dep.get('meta',{})
+        sha=meta.get('githubCommitSha','')
+        if sha.startswith('$COMMIT'[:7]) or '$COMMIT'[:8] in sha:
+            print(dep.get('readyState','UNKNOWN'))
+            break
+    else:
+        # check first dep for any recent state
+        if deps:
+            print('PENDING:'+deps[0].get('readyState','?'))
+        else:
+            print('PENDING:NONE')
+except Exception as e:
+    print('PENDING:'+str(e)[:40])
+" 2>/dev/null)
+
+            echo "  [$i/40] status=$STATUS"
+            if [[ "$STATUS" == "READY" ]]; then
+              echo "Deploy is live!"
+              exit 0
+            elif [[ "$STATUS" == "ERROR" || "$STATUS" == "CANCELED" ]]; then
+              echo "Deploy failed with status: $STATUS"
+              exit 1
+            fi
+            sleep 15
+          done
+          echo "Timeout waiting for deploy — check Vercel dashboard"
+          exit 1
+
+  # ── RETEST AFTER DEPLOY ──────────────────────────────────────────────────
+  retest:
+    name: Retest — Health Check
+    needs: wait-for-deploy
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - name: Dashboard health check
+        run: |
+          FAIL=0
+          URL="https://dashboard.zasupport.com"
+          HTTP=$(curl -sI "$URL" --max-time 15 -o /dev/null -w "%{http_code}" 2>/dev/null)
+          if [[ "$HTTP" == "200" || "$HTTP" == "302" || "$HTTP" == "307" ]]; then
+            echo "  PASS dashboard responds ($HTTP)"
+          else
+            echo "  FAIL dashboard unreachable ($HTTP)"
+            FAIL=$((FAIL+1))
+          fi
+          echo "Health: $FAIL failure(s)"; [[ $FAIL -eq 0 ]] || exit 1
 
       - name: Notify via ntfy
         if: always()
         run: |
           JOB_STATUS="${{ job.status }}"
           if [ "$JOB_STATUS" = "success" ]; then
-            MSG="✅ Dashboard deployed — zasupport.com/dashboard"
+            MSG="Dashboard deployed and healthy"
           else
-            MSG="❌ Dashboard deploy FAILED — check GitHub Actions"
+            MSG="Dashboard deploy or health check FAILED — check GitHub Actions"
           fi
           curl -s -d "$MSG" "https://ntfy.sh/zasupport-courtney-alerts" \
             -H "Title: ZA Support Deploy" \
-            -H "Priority: high" || true
+            -H "Priority: default" || true
