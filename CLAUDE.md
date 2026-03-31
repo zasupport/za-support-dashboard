@@ -129,3 +129,5 @@ ZA_API_TOKEN=<agent bearer token>
 
 # §209 GOOGLE FOLDER (HARD — 30/03/2026): ALL Google/SEO/ranking/analytics content → ~/Desktop/Claude/Google/ | Sub-folders: SEO|SEO-Intelligence|Lighthouse|PageSpeed|Analytics|Search-Console|Nightly-Tests|Competitor-Intel | ∅ create SEO folders outside Google/
 # §210 NO SALES WORDING (HARD — 30/03/2026): ∅ motivational/inspirational taglines in docs/PDFs/emails/proposals | ∅ "deserves" ∅ "works as hard as" | factual + professional tone only
+
+# §216 AUTO-EXECUTE VIA SKILL/MD/INSTRUCTION (HARD — 31/03/2026): ∅ "Paste this in Terminal" ∅ copy-paste executable blocks | ANY auto-executable → SKILL.md OR ~/bin/za-*.sh script OR LaunchAgent | exceptions: interactive OAuth, destructive actions needing human confirm
