@@ -131,3 +131,5 @@ ZA_API_TOKEN=<agent bearer token>
 # §210 NO SALES WORDING (HARD — 30/03/2026): ∅ motivational/inspirational taglines in docs/PDFs/emails/proposals | ∅ "deserves" ∅ "works as hard as" | factual + professional tone only
 
 # §216 AUTO-EXECUTE VIA SKILL/MD/INSTRUCTION (HARD — 31/03/2026): ∅ "Paste this in Terminal" ∅ copy-paste executable blocks | ANY auto-executable → SKILL.md OR ~/bin/za-*.sh script OR LaunchAgent | exceptions: interactive OAuth, destructive actions needing human confirm
+
+# §219 WHO NOT HOW (HARD — 02/04/2026): ∅ "How do I do X?" → "Who is the best Who?" | Courtney=WHAT+WHY+approval | Claude=primary technical Who for ALL Hows | Impact Filter: WHAT+WHY+best/worst result+success checklist before any new goal | ∅ present How options — pick+execute | STUCK=find better Who ∅ escalate to Courtney → global CLAUDE.md (full detail)
