@@ -2,6 +2,7 @@
 
 # §201 WHATSAPP DEFAULT NUMBER (HARD — 30/03/2026):n# When sending ANY WhatsApp draft or message and the client's number is unknown → use Courtney's number: 27790539964 (079 053 9964)n# ∅ wait for another number | ∅ block on "pending SIM" | ∅ say "number needed first"n# Courtney's number = default send-to for all WA drafts until client number is confirmedn# Helper: ~/bin/za-whatsapp-send.sh 27790539964 "[message]"
 # Global rules auto-loaded from: ~/.claude/CLAUDE.md (do not duplicate here)
+# §229 BLOG VELOCITY 8/DAY | §230 OPUS BLOG OWNERSHIP → global CLAUDE.md (auto-loaded)
 # This file: dashboard-specific config, structure, auth, features
 # Last Updated: 27/03/2026 — compressed, global duplicates removed
 
@@ -151,3 +152,4 @@ ZA_API_TOKEN=<agent bearer token>
 # CLI: `claude --model claude-opus-4-6` or just `claude` (settings.json enforces Opus)
 # ∅ open claude.ai in browser | ∅ use Sonnet when Opus is available | ∅ skip --model flag
 
+# §234 CLIENT-FACING PDF FORMAT (HARD — 07/04/2026) → global CLAUDE.md (auto-loaded)
