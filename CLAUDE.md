@@ -182,3 +182,7 @@ ZA_API_TOKEN=<agent bearer token>
 # §262 END-TO-END PROOF GATE (HARD — 11/04/2026): EVERY build/update/pipeline MUST prove with real data that every stage works end-to-end | ∅ done without proof | extends §92+§233+§240+§247 | global CLAUDE.md (full detail)
 
 # §263 WEEKLY KEYWORD STRATEGY (HARD — 11/04/2026): Saturday XLSX + daily reminders until approved | global CLAUDE.md (full detail)
+
+# §265 AUTO-COMPLETE BLOG+WEBSITE WORK (HARD — 12/04/2026): auto-execute blog/website tasks needing no input | global CLAUDE.md (full detail)
+
+# §267 COMPLETE ALL PENDING BEFORE SESSION END (HARD — 12/04/2026): ∅ end with unfinished tasks | verify 0 pending | Stop hook | global CLAUDE.md (full detail)
