@@ -174,6 +174,11 @@ ZA_API_TOKEN=<agent bearer token>
 
 # §256 IFIXIT REPAIR GUIDE LOOKUP: /ifixit-repair-guide — search iFixit for exact model+component guide, verify A-number, save to Knowledge Centre | ∅ generic model without year
 
+# §261 RESEARCH-FIRST PROJECT CREATION: ANY new project → /project-research-engine auto-loads FIRST | TWO ENGINES: generic(one-time) + living(daily) | ∅ code before research
 # §260 CONTINUE = RESUME, NOT RESTART: "continue"/"finish"/"complete the above" = resume signal | ∅ restart ∅ recap | extends §231
 # §259 WHATSAPP SKILL AUTO-ACTIVATION: NLP trigger → auto-load WhatsApp skills (7 total) | za-whatsapp-skill-verify.sh
 # §257 CROSS-PLATFORM CONTEXT SYNC: portable.md every 2min → iCloud+API+local | za-portable-context-sync.sh | com.zasupport.portablesync (120s)
+
+# §262 END-TO-END PROOF GATE (HARD — 11/04/2026): EVERY build/update/pipeline MUST prove with real data that every stage works end-to-end | ∅ done without proof | extends §92+§233+§240+§247 | global CLAUDE.md (full detail)
+
+# §263 WEEKLY KEYWORD STRATEGY (HARD — 11/04/2026): Saturday XLSX + daily reminders until approved | global CLAUDE.md (full detail)
