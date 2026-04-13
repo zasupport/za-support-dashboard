@@ -183,6 +183,8 @@ ZA_API_TOKEN=<agent bearer token>
 
 # §263 WEEKLY KEYWORD STRATEGY (HARD — 11/04/2026): Saturday XLSX + daily reminders until approved | global CLAUDE.md (full detail)
 
+# §269 PROPRIETARY TOOL CONCEALMENT (HARD — 13/04/2026): ∅ ANY reference to tools, technologies, frameworks, platforms, methods, processes in ANY public output | FULL SPEC: ~/.claude/rules/269-proprietary-tool-concealment.md | supersedes §268 | extends §203+§204+§205+§252 | global CLAUDE.md (full detail)
+# §268 TECH STACK CONCEALMENT (HARD — 13/04/2026): ∅ proprietary technology identifiers (logos, favicons, SVGs, meta tags, boilerplate) visible on ANY public-facing property | Vercel/Next.js/Render/Sanity branding = competitive intelligence leak | remove on sight | replace with ZA Support branding | extends §203+§204 | global CLAUDE.md (full detail)
 # §265 AUTO-COMPLETE BLOG+WEBSITE WORK (HARD — 12/04/2026): auto-execute blog/website tasks needing no input | global CLAUDE.md (full detail)
 
 # §267 COMPLETE ALL PENDING BEFORE SESSION END (HARD — 12/04/2026): ∅ end with unfinished tasks | verify 0 pending | Stop hook | global CLAUDE.md (full detail)
