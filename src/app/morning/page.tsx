@@ -12,7 +12,7 @@ import { UpsellLeadActions } from '@/components/UpsellLeadActions';
 import { DailyActionQueue } from '@/components/DailyActionQueue';
 
 const API_URL = process.env.ZA_API_URL || 'https://api.zasupport.com';
-const API_TOKEN = process.env.ZA_API_TOKEN || '';
+const API_TOKEN = (process.env.ZA_API_TOKEN || '').split(/[\r\n]/)[0].trim();
 
 interface ActivationCode {
   client_id: string;
