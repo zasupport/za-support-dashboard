@@ -1,19 +1,11 @@
 # ZA Support Dashboard
-
-# §201 WHATSAPP DEFAULT NUMBER (HARD — 30/03/2026):n# When sending ANY WhatsApp draft or message and the client's number is unknown → use Courtney's number: 27790539964 (079 053 9964)n# ∅ wait for another number | ∅ block on "pending SIM" | ∅ say "number needed first"n# Courtney's number = default send-to for all WA drafts until client number is confirmedn# Helper: ~/bin/za-whatsapp-send.sh 27790539964 "[message]"
 # Global rules auto-loaded from: ~/.claude/CLAUDE.md (do not duplicate here)
-# §229 BLOG VELOCITY 8/DAY | §230 OPUS BLOG OWNERSHIP → global CLAUDE.md (auto-loaded)
-# This file: dashboard-specific config, structure, auth, features
-# Last Updated: 27/03/2026 — compressed, global duplicates removed
+# Project-specific config, structure, auth, features ONLY | Last Updated: 20/04/2026 (compression pass)
 
-# GLOBAL RULES (auto-loaded — do NOT duplicate)
-# §178 §179 §173 §92 §161 §109 §130 §176 §180 §BASH §COMPRESS → ~/.claude/CLAUDE.md
-# §129|§131|§132|§133|§134 → ~/.claude/CLAUDE.md
-# §187 LOCAL AUTOMATION FIRST → global CLAUDE.md (auto-loaded)
+# Auto-loaded from global: §64/§73/§92/§109/§129-§134/§161/§173/§176/§178-§181/§187-§192/§200/§201/§203-§210/§216/§219/§221/§222/§229/§230/§234/§239-§248/§254-§263/§265/§267-§269/§BASH/§COMPRESS
 
 # Stack: Next.js 14 (App Router) + TypeScript + Tailwind + shadcn/ui + Recharts
-# Backend: https://api.zasupport.com
-# Deploy: Vercel | Repo: https://github.com/zasupport/za-support-dashboard
+# Backend: https://api.zasupport.com | Deploy: Vercel | Repo: https://github.com/zasupport/za-support-dashboard
 
 ---
 
@@ -110,81 +102,6 @@ ZA_API_TOKEN=<agent bearer token>
 
 - [ ] Lifecycle records need seeding from Scout diagnostic uploads (auto on next Scout run)
 - [ ] Sales recommendations need generating from diagnostic findings (backend ROI engine)
+# §187 LOCAL AUTOMATION → global CLAUDE.md (auto-loaded)
 # §188 CLIENT MACHINE APPROVAL → global CLAUDE.md (auto-loaded)
 # §189 RULES SYNC → global CLAUDE.md (auto-loaded)
-# §191 HR ZOHO AUTO-EXCHANGE → global CLAUDE.md (auto-loaded)
-# §192 HR PREFIX → global CLAUDE.md (auto-loaded)
-# §200 ROOT CAUSE DISCLOSURE → global CLAUDE.md (auto-loaded)
-
-# §203 IP PROTECTION (HARD — 30/03/2026): token gate + copy lock + noindex + generic title on ALL demos/previews | bare URL = black screen | CSS user-select:none + JS block copy/F12/Ctrl+U | robots.txt Disallow:/ in every demo repo
-
-# §204 URL HASHING POPIA (HARD — 30/03/2026): ALL demo/preview URL segments hashed sha256[:8] | ∅ client name ∅ descriptive words in repo/path/filename | mapping in memory/api-keys.md only
-
-# §205 CLIENT-FACING DOCS BY DEFAULT (HARD — 30/03/2026): ALL docs/PDFs/reports = client-facing unless Courtney says "internal" | ∅ internal headers on client PDFs | written FOR the client
-
-# §206 NO AI DIVIDERS (HARD — 30/03/2026): ∅ "---" ∅ "***" ∅ horizontal rules in any doc/email/WA/PDF | use white space + headings | repetitive parallel bullet structures also banned
-
-# §207 HTML EMAIL FORMATTING (HARD — 30/03/2026): ALL automated emails must use HTML — ∅ plain text ∅ content= property | use --html flag on za-outlook-send.sh | <p> per paragraph <h3> for sections | each item on own line
-
-# §208 AUTO-REGENERATE ON RULE CHANGE (HARD — 30/03/2026): when any formatting/doc rule is updated → automatically regenerate ALL affected documents same response | ∅ apply rule to future docs only | ∅ leave existing docs stale | affected docs = any PDF/email/WA template that references the changed rule
-
-# §209 GOOGLE FOLDER (HARD — 30/03/2026): ALL Google/SEO/ranking/analytics content → ~/Desktop/Claude/Google/ | Sub-folders: SEO|SEO-Intelligence|Lighthouse|PageSpeed|Analytics|Search-Console|Nightly-Tests|Competitor-Intel | ∅ create SEO folders outside Google/
-# §210 NO SALES WORDING (HARD — 30/03/2026): ∅ motivational/inspirational taglines in docs/PDFs/emails/proposals | ∅ "deserves" ∅ "works as hard as" | factual + professional tone only
-
-# §216 AUTO-EXECUTE VIA SKILL/MD/INSTRUCTION (HARD — 31/03/2026): ∅ "Paste this in Terminal" ∅ copy-paste executable blocks | ANY auto-executable → SKILL.md OR ~/bin/za-*.sh script OR LaunchAgent | exceptions: interactive OAuth, destructive actions needing human confirm
-
-# §219 WHO NOT HOW (HARD — 02/04/2026): ∅ "How do I do X?" → "Who is the best Who?" | Courtney=WHAT+WHY+approval | Claude=primary technical Who for ALL Hows | Impact Filter: WHAT+WHY+best/worst result+success checklist before any new goal | ∅ present How options — pick+execute | STUCK=find better Who ∅ escalate to Courtney → global CLAUDE.md (full detail)
-
-# §221 GMB MEDIA SYNC (HARD — 06/04/2026):
-# Pull all photos+videos from Google Business Profile → ~/Desktop/Claude/Google/GMB-Media/
-# Auth: python3 ~/bin/za-gmb-oauth-setup.py (one-time OAuth2 consent — browser required)
-# Sync: bash ~/bin/za-gmb-media-sync.sh | LaunchAgent: com.zasupport.gmbmediasync (Mon 07:00)
-# Photos → /GMB-Media/photos/*.webp | Videos → /GMB-Media/videos/*.mp4
-# Use GMB photos in blog posts instead of stock images (§7 Image Requirements)
-# Credentials: GBP_CLIENT_ID + GBP_CLIENT_SECRET + GBP_REFRESH_TOKEN in ~/.za-keys-pending.env
-# Setup prereq: enable Business Profile API at console.cloud.google.com (project: za-support-seo-202603)
-
-
-# §222 CLAUDE OPUS TERMINAL ONLY (HARD — 06/04/2026):
-# ALWAYS launch Claude via Terminal — ∅ web browser ∅ claude.ai
-# Model lock: claude-opus-4-6 set in ~/.claude/settings.json (permanent)
-# Terminal launcher: ~/Desktop/Claude Opus.app (double-click → Terminal → claude --model claude-opus-4-6)
-# CLI: `claude --model claude-opus-4-6` or just `claude` (settings.json enforces Opus)
-# ∅ open claude.ai in browser | ∅ use Sonnet when Opus is available | ∅ skip --model flag
-
-# §234 CLIENT-FACING PDF FORMAT (HARD — 07/04/2026) → global CLAUDE.md (auto-loaded)
-# §239 VEHICLE BRANDING MOCKUP (HARD — 08/04/2026) AUTO-EXECUTE → ~/Developer/za-support-imggen/ | /vehicle-branding | global CLAUDE.md (auto-loaded)
-
-# §240 VERIFY STATUS WITH REAL DATA (HARD — 08/04/2026): EVERY status claim MUST be verified by executing with real data — same response | ∅ mark status without testing | ∅ ask before testing — auto-execute | Extends §233
-# §240 STATUS VERIFICATION WITH REAL DATA (HARD — 08/04/2026) → global CLAUDE.md (auto-loaded)
-# §241 UNCERTAIN=TEST→SELF-HEAL→RETEST→LOOP (HARD — 08/04/2026) → global CLAUDE.md (auto-loaded)
-
-# §244 RULE = RULE + ENFORCEMENT + TEST (HARD — 08/04/2026): every new HR MUST deliver (1)rule text (2)enforcement script/LaunchAgent/hook (3)real-data test — ALL in same response | ∅ rule text alone = not implemented
-# §240 MOCKUP OPUS PIPELINE + AUTO-OPEN (HARD — 08/04/2026) → Creative.MD + Opus refine + auto-open | global CLAUDE.md (auto-loaded)
-# §241 TERMINAL OPUS LAUNCHER (HARD — 08/04/2026) → O = new Terminal CLI + claude-opus-4-6 | ∅ browser ∅ claude.ai | global CLAUDE.md (auto-loaded)
-# §242 OPUS = NEW TERMINAL WINDOW (HARD — 08/04/2026): ANY Opus request → new Terminal CLI | ∅ claude.ai ∅ browser ∅ paste | global CLAUDE.md (auto-loaded)
-
-# §246 GSC INTELLIGENCE FEEDBACK LOOP (HARD — 08/04/2026): GSC data every 60s → correlate git changes → learned behaviours → update .md rules | ~/bin/za-gsc-intelligence.py | com.zasupport.gscintelligence | positive=weight higher, negative=investigate
-# §247 COMPLETION SELF-CHECK — CC/CI/PORTABLE.MD (HARD — 08/04/2026): before marking ANY output complete answer "How do I know this completed successfully?" | CC=run+stdout | CI=gh run view+exit 0 | Portable.MD=grep key section+propagated | global CLAUDE.md (auto-loaded)
-# §248 CONTINUOUS LEARNING (HARD — 08/04/2026): after every task answer WHAT learned + WHAT better + WHY success/failure + WHAT to replicate → propagate to all .md + intelligence engine | global CLAUDE.md (auto-loaded)
-
-# §254 MAC MODEL ID SKILL: /mac-model-id — load before stating ANY Mac hardware spec/upgrade/macOS compat | ∅ guess from year alone | SKILL: ~/.claude/skills/mac-model-id/SKILL.md
-
-# §255 HARDWARE RESEARCH VERIFICATION: /hardware-research — min 2 sources + real-world confirmation before ANY hardware/software compat claim | ∅ answer from training data alone
-
-# §256 IFIXIT REPAIR GUIDE LOOKUP: /ifixit-repair-guide — search iFixit for exact model+component guide, verify A-number, save to Knowledge Centre | ∅ generic model without year
-
-# §261 RESEARCH-FIRST PROJECT CREATION: ANY new project → /project-research-engine auto-loads FIRST | TWO ENGINES: generic(one-time) + living(daily) | ∅ code before research
-# §260 CONTINUE = RESUME, NOT RESTART: "continue"/"finish"/"complete the above" = resume signal | ∅ restart ∅ recap | extends §231
-# §259 WHATSAPP SKILL AUTO-ACTIVATION: NLP trigger → auto-load WhatsApp skills (7 total) | za-whatsapp-skill-verify.sh
-# §257 CROSS-PLATFORM CONTEXT SYNC: portable.md every 2min → iCloud+API+local | za-portable-context-sync.sh | com.zasupport.portablesync (120s)
-
-# §262 END-TO-END PROOF GATE (HARD — 11/04/2026): EVERY build/update/pipeline MUST prove with real data that every stage works end-to-end | ∅ done without proof | extends §92+§233+§240+§247 | global CLAUDE.md (full detail)
-
-# §263 WEEKLY KEYWORD STRATEGY (HARD — 11/04/2026): Saturday XLSX + daily reminders until approved | global CLAUDE.md (full detail)
-
-# §269 PROPRIETARY TOOL CONCEALMENT (HARD — 13/04/2026): ∅ ANY reference to tools, technologies, frameworks, platforms, methods, processes in ANY public output | FULL SPEC: ~/.claude/rules/269-proprietary-tool-concealment.md | supersedes §268 | extends §203+§204+§205+§252 | global CLAUDE.md (full detail)
-# §268 TECH STACK CONCEALMENT (HARD — 13/04/2026): ∅ proprietary technology identifiers (logos, favicons, SVGs, meta tags, boilerplate) visible on ANY public-facing property | Vercel/Next.js/Render/Sanity branding = competitive intelligence leak | remove on sight | replace with ZA Support branding | extends §203+§204 | global CLAUDE.md (full detail)
-# §265 AUTO-COMPLETE BLOG+WEBSITE WORK (HARD — 12/04/2026): auto-execute blog/website tasks needing no input | global CLAUDE.md (full detail)
-
-# §267 COMPLETE ALL PENDING BEFORE SESSION END (HARD — 12/04/2026): ∅ end with unfinished tasks | verify 0 pending | Stop hook | global CLAUDE.md (full detail)
