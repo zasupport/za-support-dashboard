@@ -29,7 +29,26 @@ export default async function ISPPage() {
     fetchISPOutages(30),
   ]);
 
-  const list: any[] = Array.isArray(ispList) ? ispList : [];
+  // Normalize status: backend returns `up|degraded|down`; UI renders
+  // `operational|degraded|outage`. Map once at the boundary.
+  const normalizeStatus = (s?: string): 'operational' | 'degraded' | 'outage' | 'unknown' => {
+    switch ((s || '').toLowerCase()) {
+      case 'up':
+      case 'operational':
+        return 'operational';
+      case 'degraded':
+        return 'degraded';
+      case 'down':
+      case 'outage':
+        return 'outage';
+      default:
+        return 'unknown';
+    }
+  };
+  const list: any[] = (Array.isArray(ispList) ? ispList : []).map((isp: any) => ({
+    ...isp,
+    status: normalizeStatus(isp.status),
+  }));
   const outageLog: any[] = Array.isArray(outages) ? outages : [];
 
   // Build ISP name → [client] lookup (case-insensitive partial match)
