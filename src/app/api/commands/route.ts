@@ -23,7 +23,18 @@ export async function GET(req: NextRequest) {
       cache: 'no-store',
     });
     if (!res.ok) return NextResponse.json({ data: [], meta: { total: 0, page: 1, per_page: 20 } }, { status: res.status });
-    return NextResponse.json(await res.json());
+    // Backend returns { commands: [...], count: N } — normalize to { data, meta }.
+    const body = await res.json();
+    const data = Array.isArray(body?.data)
+      ? body.data
+      : Array.isArray(body?.commands)
+        ? body.commands
+        : [];
+    const total = typeof body?.count === 'number' ? body.count : data.length;
+    return NextResponse.json({
+      data,
+      meta: { total, page: Number(page), per_page: Number(per_page) },
+    });
   } catch {
     return NextResponse.json({ data: [], meta: { total: 0, page: 1, per_page: 20 } }, { status: 503 });
   }
