@@ -241,6 +241,95 @@ function HourlyRateEditor({ clientId, currentRate, onUpdated }: {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
+type BehaviouralOverview = {
+  totals: {
+    clients_with_sessions?: number;
+    devices_with_sessions?: number;
+    session_count?: number;
+    avg_efficiency_score?: number | null;
+    total_monthly_loss_zar?: number | null;
+    total_yearly_loss_zar?: number | null;
+  };
+  by_client: Array<{
+    client_id: string;
+    session_count: number;
+    avg_efficiency_score: number | null;
+    total_monthly_loss_zar: number | null;
+    last_session: string | null;
+  }>;
+};
+
+function FleetOverviewCard() {
+  const [data, setData] = useState<BehaviouralOverview | null>(null);
+  useEffect(() => {
+    fetch('/api/behavioural/overview', { cache: 'no-store' })
+      .then(r => r.json())
+      .then(setData)
+      .catch(() => {});
+  }, []);
+  if (!data) return null;
+  const t = data.totals ?? {};
+  const hasData = (t.session_count ?? 0) > 0;
+  return (
+    <Card className="mb-4">
+      <CardHeader>
+        <CardTitle className="text-base">Fleet overview</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+          <div>
+            <div className="text-2xl font-bold text-teal-400">{t.clients_with_sessions ?? 0}</div>
+            <div className="text-slate-400 text-xs">Clients with sessions</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-white">{t.devices_with_sessions ?? 0}</div>
+            <div className="text-slate-400 text-xs">Devices tracked</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-white">
+              {t.avg_efficiency_score != null ? t.avg_efficiency_score : '—'}
+            </div>
+            <div className="text-slate-400 text-xs">Avg efficiency score</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-red-300">
+              {t.total_monthly_loss_zar != null
+                ? `R ${Number(t.total_monthly_loss_zar).toLocaleString('en-ZA')}`
+                : '—'}
+            </div>
+            <div className="text-slate-400 text-xs">Fleet monthly loss</div>
+          </div>
+        </div>
+        {!hasData && (
+          <p className="text-xs text-slate-500">
+            No behavioural sessions on record yet — PKG behavioural module requires
+            active POPIA consent + session capture before data surfaces here.
+          </p>
+        )}
+        {data.by_client.length > 0 && (
+          <div className="space-y-1">
+            <div className="text-slate-400 text-xs uppercase tracking-wide mb-1">
+              Top clients by monthly loss
+            </div>
+            {data.by_client.slice(0, 5).map(c => (
+              <div key={c.client_id} className="flex justify-between text-xs text-slate-300">
+                <span className="truncate">{c.client_id}</span>
+                <span className="text-red-300">
+                  {c.total_monthly_loss_zar != null
+                    ? `R ${Number(c.total_monthly_loss_zar).toLocaleString('en-ZA')}/mo`
+                    : '—'}
+                  {' · '}
+                  {c.session_count} sess
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export function BehaviouralClient() {
   const [clients, setClients]           = useState<Client[]>([]);
   const [clientId, setClientId]         = useState('');
@@ -293,6 +382,8 @@ export function BehaviouralClient() {
 
   return (
     <div className="space-y-6">
+
+      <FleetOverviewCard />
 
       {/* Client selector */}
       <div className="flex items-center gap-3 flex-wrap">

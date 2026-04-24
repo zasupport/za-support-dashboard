@@ -63,6 +63,83 @@ function FrustrationTimeline({ deviceId }: { deviceId: string }) {
   );
 }
 
+type InteractionOverview = {
+  period_days: number;
+  totals: {
+    devices_reporting?: number;
+    clients_reporting?: number;
+    sample_count?: number;
+    total_rage_clicks?: number;
+    total_dead_clicks?: number;
+    avg_typing_wpm?: number | null;
+    avg_backspace_ratio?: number | null;
+  };
+  frustration_hotspots: Array<{
+    foreground_app: string;
+    frustration_events: number;
+    affected_devices: number;
+  }>;
+};
+
+function FleetOverviewCard() {
+  const [data, setData] = useState<InteractionOverview | null>(null);
+  useEffect(() => {
+    fetch('/api/analytics/overview?period_days=7', { cache: 'no-store' })
+      .then(r => r.json())
+      .then(setData)
+      .catch(() => {});
+  }, []);
+  if (!data) return null;
+  const t = data.totals ?? {};
+  const hasData = (t.sample_count ?? 0) > 0;
+  return (
+    <Card className="mb-4">
+      <CardHeader>
+        <CardTitle className="text-base">Fleet overview · last {data.period_days}d</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+          <div>
+            <div className="text-2xl font-bold text-teal-400">{t.devices_reporting ?? 0}</div>
+            <div className="text-slate-400 text-xs">Devices reporting</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-white">{t.clients_reporting ?? 0}</div>
+            <div className="text-slate-400 text-xs">Clients reporting</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-orange-300">{(t.total_rage_clicks ?? 0).toLocaleString()}</div>
+            <div className="text-slate-400 text-xs">Rage clicks</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-white">
+              {t.avg_typing_wpm != null ? `${t.avg_typing_wpm} wpm` : '—'}
+            </div>
+            <div className="text-slate-400 text-xs">Avg typing speed</div>
+          </div>
+        </div>
+        {!hasData && (
+          <p className="text-xs text-slate-500">
+            No interaction samples in the last {data.period_days} days — the PKG sampling
+            module emits hourly/daily rather than on heartbeat.
+          </p>
+        )}
+        {data.frustration_hotspots.length > 0 && (
+          <div className="space-y-1">
+            <div className="text-slate-400 text-xs uppercase tracking-wide mb-1">Top frustration hotspots</div>
+            {data.frustration_hotspots.slice(0, 5).map(h => (
+              <div key={h.foreground_app} className="flex justify-between text-xs text-slate-300">
+                <span className="truncate">{h.foreground_app}</span>
+                <span className="text-red-300">{h.frustration_events} events · {h.affected_devices} dev</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export function InteractionClient() {
   const [clients, setClients]       = useState<Client[]>([]);
   const [clientId, setClientId]     = useState('');
@@ -100,6 +177,7 @@ export function InteractionClient() {
 
   return (
     <div className="space-y-6">
+      <FleetOverviewCard />
       <div className="flex items-center gap-3">
         <select
           className="bg-slate-800 border border-slate-600 rounded px-3 py-2 text-sm text-white w-64 focus:outline-none focus:border-teal-400"

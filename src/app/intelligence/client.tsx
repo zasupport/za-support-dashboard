@@ -27,6 +27,85 @@ function healthColor(score: number) {
   return '#ef4444';
 }
 
+type FleetOverview = {
+  period_days: number;
+  totals: {
+    devices_reporting?: number;
+    unique_apps?: number;
+    sample_count?: number;
+  };
+  top_apps: Array<{
+    app_name: string;
+    avg_cpu_pct: number | null;
+    avg_memory_mb: number | null;
+    device_count: number;
+    samples: number;
+  }>;
+  recent_devices: Array<{
+    device_id: string;
+    client_id: string;
+    last_report: string;
+    samples_last_week: number;
+  }>;
+};
+
+function FleetOverviewCard() {
+  const [data, setData] = useState<FleetOverview | null>(null);
+  useEffect(() => {
+    fetch('/api/intelligence/overview?period_days=7', { cache: 'no-store' })
+      .then(r => r.json())
+      .then(setData)
+      .catch(() => {});
+  }, []);
+  if (!data) return null;
+  const t = data.totals ?? {};
+  const hasData = (t.sample_count ?? 0) > 0;
+  return (
+    <Card className="mb-4">
+      <CardHeader>
+        <CardTitle className="text-base">Fleet overview · last {data.period_days}d</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+          <div>
+            <div className="text-2xl font-bold text-teal-400">{t.devices_reporting ?? 0}</div>
+            <div className="text-slate-400 text-xs">Devices reporting</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-white">{t.unique_apps ?? 0}</div>
+            <div className="text-slate-400 text-xs">Unique apps tracked</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-white">{(t.sample_count ?? 0).toLocaleString()}</div>
+            <div className="text-slate-400 text-xs">Resource samples</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-white">{data.top_apps.length}</div>
+            <div className="text-slate-400 text-xs">Top apps ranked</div>
+          </div>
+        </div>
+        {!hasData && (
+          <p className="text-xs text-slate-500">
+            No app-intelligence samples in the last {data.period_days} days — PKG module
+            emits on a slower cadence than heartbeat. Data appears as agents sample.
+          </p>
+        )}
+        {data.top_apps.length > 0 && (
+          <div className="space-y-1">
+            <div className="text-slate-400 text-xs uppercase tracking-wide mb-1">Top apps by avg CPU</div>
+            {data.top_apps.slice(0, 5).map(a => (
+              <div key={a.app_name} className="flex justify-between text-xs text-slate-300">
+                <span className="truncate">{a.app_name}</span>
+                <span className="text-teal-300">{a.avg_cpu_pct ?? '—'}% · {a.device_count} dev</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export function AppIntelligenceClient() {
   const [clients, setClients]   = useState<Client[]>([]);
   const [clientId, setClientId] = useState('');
@@ -62,6 +141,7 @@ export function AppIntelligenceClient() {
 
   return (
     <div className="space-y-6">
+      <FleetOverviewCard />
       <div className="flex items-center gap-3">
         <select
           className="bg-slate-800 border border-slate-600 rounded px-3 py-2 text-sm text-white w-64 focus:outline-none focus:border-teal-400"
