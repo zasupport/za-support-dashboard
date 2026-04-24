@@ -6,11 +6,13 @@ import Link from 'next/link';
 type Cluster = {
   cluster_id: number;
   segment: string;
+  segment_label?: string;
   client_count: number;
   avg_risk_score: number | null;
   avg_device_age: number | null;
   top_os: string | null;
   backup_compliance_pct: number | null;
+  avg_roi?: number | null;
   clients: { client_id: string; client_name: string; risk_score: number | null }[];
 };
 
@@ -27,11 +29,15 @@ type Pattern = {
 };
 
 const SEGMENT_COLOURS: Record<string, { bg: string; text: string; border: string }> = {
-  medical_practice: { bg: 'bg-teal-500/10',   text: 'text-teal-300',   border: 'border-teal-500/20' },
-  sme:              { bg: 'bg-blue-500/10',    text: 'text-blue-300',   border: 'border-blue-500/20' },
-  individual:       { bg: 'bg-violet-500/10',  text: 'text-violet-300', border: 'border-violet-500/20' },
-  family:           { bg: 'bg-amber-500/10',   text: 'text-amber-300',  border: 'border-amber-500/20' },
-  unknown:          { bg: 'bg-slate-700/50',   text: 'text-slate-300',  border: 'border-slate-600' },
+  medical_practice: { bg: 'bg-teal-500/10',    text: 'text-teal-300',    border: 'border-teal-500/20' },
+  sme:              { bg: 'bg-blue-500/10',    text: 'text-blue-300',    border: 'border-blue-500/20' },
+  individual:       { bg: 'bg-violet-500/10',  text: 'text-violet-300',  border: 'border-violet-500/20' },
+  family:           { bg: 'bg-amber-500/10',   text: 'text-amber-300',   border: 'border-amber-500/20' },
+  low:              { bg: 'bg-emerald-500/10', text: 'text-emerald-300', border: 'border-emerald-500/20' },
+  moderate:         { bg: 'bg-yellow-500/10',  text: 'text-yellow-300',  border: 'border-yellow-500/20' },
+  high:             { bg: 'bg-red-500/10',     text: 'text-red-300',     border: 'border-red-500/20' },
+  new_sparse:       { bg: 'bg-slate-500/10',   text: 'text-slate-300',   border: 'border-slate-500/20' },
+  unknown:          { bg: 'bg-slate-700/50',   text: 'text-slate-300',   border: 'border-slate-600' },
 };
 
 const SEVERITY_DOT: Record<string, string> = {
@@ -184,7 +190,7 @@ export default function AiProfilingPage() {
               return (
                 <div key={cluster.cluster_id} className={'rounded-lg border p-4 ' + colours.bg + ' ' + colours.border}>
                   <div className="flex items-center justify-between mb-3">
-                    <span className={'text-sm font-semibold ' + colours.text}>{seg(cluster.segment)}</span>
+                    <span className={'text-sm font-semibold ' + colours.text}>{cluster.segment_label || seg(cluster.segment)}</span>
                     <span className="text-xs text-slate-500">Cluster #{cluster.cluster_id}</span>
                   </div>
                   <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 mb-3 text-xs">
