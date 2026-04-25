@@ -254,7 +254,7 @@ export default function UnassignedMachinesPage() {
     try {
       const [machinesRes, clientsRes] = await Promise.all([
         fetch('/api/unassigned', { cache: 'no-store' }),
-        fetch('/api/clients?per_page=200', { cache: 'no-store' }),
+        fetch('/api/clients?per_page=100', { cache: 'no-store' }),
       ]);
 
       if (machinesRes.status === 404) {
