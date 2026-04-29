@@ -23,6 +23,18 @@ interface Job {
   created_at: string;
   due_date?: string;
   billable?: boolean;
+  // Pieterse paper job-card extension (migration_157, 29/04/2026)
+  time_in?: string;            // HH:MM
+  time_out?: string;           // HH:MM
+  total_hours?: number;        // computed
+  engineer?: string;
+  engineer_initials?: string;
+  requested_by?: string;       // Natalie / partner / staff
+  location?: string;           // Room / Area
+  work_performed?: string;
+  parts_used?: string;
+  client_signoff?: boolean;
+  signoff_date?: string;       // ISO date
 }
 
 interface Client {

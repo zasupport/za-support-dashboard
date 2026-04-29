@@ -14,6 +14,12 @@ type Job = {
   source: string;
   scheduled_date?: string;
   created_at: string;
+  // Pieterse paper job-card extension (migration_157, 29/04/2026)
+  engineer?: string;
+  engineer_initials?: string;
+  location?: string;
+  client_signoff?: boolean;
+  signoff_date?: string;
 };
 
 const STATUS_CYCLE: Record<string, string> = {
@@ -148,6 +154,34 @@ export function WorkshopBoard({
             </button>
           </div>
         </div>
+
+        {(job.engineer_initials || job.client_signoff || job.location) && (
+          <div className="flex items-center gap-2 text-xs">
+            {job.engineer_initials && (
+              <span className="px-1.5 py-0.5 rounded bg-slate-700/60 border border-slate-600 text-slate-300 font-mono">
+                {job.engineer_initials}
+              </span>
+            )}
+            {job.location && (
+              <span className="text-slate-500 truncate">{job.location}</span>
+            )}
+            {job.client_signoff ? (
+              <span className="ml-auto px-1.5 py-0.5 rounded bg-green-500/20 border border-green-500/30 text-green-300 inline-flex items-center gap-1">
+                <CheckCircle size={11} />
+                Signed
+                {job.signoff_date && (
+                  <span className="text-green-400/70 font-mono">
+                    {new Date(job.signoff_date).toLocaleDateString('en-ZA')}
+                  </span>
+                )}
+              </span>
+            ) : (
+              <span className="ml-auto px-1.5 py-0.5 rounded bg-slate-700/40 border border-slate-600/50 text-slate-500">
+                Unsigned
+              </span>
+            )}
+          </div>
+        )}
 
         {job.scheduled_date && (
           <p className="text-xs text-slate-500">
