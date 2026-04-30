@@ -105,3 +105,4 @@ ZA_API_TOKEN=<agent bearer token>
 # §187 LOCAL AUTOMATION → global CLAUDE.md (auto-loaded)
 # §188 CLIENT MACHINE APPROVAL → global CLAUDE.md (auto-loaded)
 # §189 RULES SYNC → global CLAUDE.md (auto-loaded)
+# §187 LOCAL FIRST → global CLAUDE.md (auto-loaded)
