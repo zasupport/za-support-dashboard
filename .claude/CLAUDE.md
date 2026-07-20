@@ -36,3 +36,5 @@
 # §188 CLIENT MACHINE APPROVAL → global CLAUDE.md (auto-loaded)
 # §189 RULES SYNC → global CLAUDE.md (auto-loaded)
 # §187 LOCAL FIRST → global CLAUDE.md (auto-loaded)
+
+§161 USAGE FOOTER: every substantive response ends with the usage/next-step footer (see project CLAUDE.md files; required by za-rules-integrity.sh).
